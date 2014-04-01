@@ -1,0 +1,211 @@
+fileFormatVersion: 2
+guid: 2fbfa4b1fd50c5940b50e8b09f88d79b
+TextureImporter:
+  serializedVersion: 2
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    linearTexture: 0
+    correctGamma: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: .25
+    normalMapFilter: 0
+  isReadable: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 0
+  seamlessCubemap: 0
+  textureFormat: -1
+  maxTextureSize: 1024
+  textureSettings:
+    filterMode: -1
+    aniso: 1
+    mipBias: -1
+    wrapMode: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: .5, y: .5}
+  spritePixelsToUnits: 100
+  alphaIsTransparency: 1
+  textureType: 8
+  buildTargetSettings:
+  - buildTarget: iPhone
+    maxTextureSize: 1024
+    textureFormat: -2
+    compressionQuality: 50
+  spriteSheet:
+    sprites:
+    - name: catanChits_A
+      rect:
+        serializedVersion: 2
+        x: 13
+        y: 404
+        width: 70
+        height: 70
+      alignment: 0
+      pivot: {x: .5, y: .5}
+    - name: catanChits_B
+      rect:
+        serializedVersion: 2
+        x: 88
+        y: 404
+        width: 70
+        height: 70
+      alignment: 0
+      pivot: {x: .5, y: .5}
+    - name: catanChits_C
+      rect:
+        serializedVersion: 2
+        x: 163
+        y: 404
+        width: 70
+        height: 70
+      alignment: 0
+      pivot: {x: .5, y: .5}
+    - name: catanChits_D
+      rect:
+        serializedVersion: 2
+        x: 13
+        y: 329
+        width: 70
+        height: 70
+      alignment: 0
+      pivot: {x: .5, y: .5}
+    - name: catanChits_E
+      rect:
+        serializedVersion: 2
+        x: 89
+        y: 329
+        width: 70
+        height: 70
+      alignment: 0
+      pivot: {x: .5, y: .5}
+    - name: catanChits_F
+      rect:
+        serializedVersion: 2
+        x: 163
+        y: 329
+        width: 70
+        height: 70
+      alignment: 0
+      pivot: {x: .5, y: .5}
+    - name: catanChits_G
+      rect:
+        serializedVersion: 2
+        x: 13
+        y: 254
+        width: 70
+        height: 70
+      alignment: 0
+      pivot: {x: .5, y: .5}
+    - name: catanChits_J
+      rect:
+        serializedVersion: 2
+        x: 13
+        y: 179
+        width: 70
+        height: 70
+      alignment: 0
+      pivot: {x: .5, y: .5}
+    - name: catanChits_M
+      rect:
+        serializedVersion: 2
+        x: 13
+        y: 104
+        width: 70
+        height: 70
+      alignment: 0
+      pivot: {x: .5, y: .5}
+    - name: catanChits_P
+      rect:
+        serializedVersion: 2
+        x: 13
+        y: 30
+        width: 70
+        height: 70
+      alignment: 0
+      pivot: {x: .5, y: .5}
+    - name: catanChits_H
+      rect:
+        serializedVersion: 2
+        x: 89
+        y: 254
+        width: 70
+        height: 70
+      alignment: 0
+      pivot: {x: .5, y: .5}
+    - name: catanChits_I
+      rect:
+        serializedVersion: 2
+        x: 163
+        y: 254
+        width: 70
+        height: 70
+      alignment: 0
+      pivot: {x: .5, y: .5}
+    - name: catanChits_K
+      rect:
+        serializedVersion: 2
+        x: 89
+        y: 179
+        width: 70
+        height: 70
+      alignment: 0
+      pivot: {x: .5, y: .5}
+    - name: catanChits_L
+      rect:
+        serializedVersion: 2
+        x: 165
+        y: 179
+        width: 70
+        height: 70
+      alignment: 0
+      pivot: {x: .5, y: .5}
+    - name: catanChits_N
+      rect:
+        serializedVersion: 2
+        x: 89
+        y: 104
+        width: 70
+        height: 70
+      alignment: 0
+      pivot: {x: .5, y: .5}
+    - name: catanChits_O
+      rect:
+        serializedVersion: 2
+        x: 163
+        y: 104
+        width: 70
+        height: 70
+      alignment: 0
+      pivot: {x: .5, y: .5}
+    - name: catanChits_Q
+      rect:
+        serializedVersion: 2
+        x: 89
+        y: 30
+        width: 70
+        height: 70
+      alignment: 0
+      pivot: {x: .5, y: .5}
+    - name: catanChits_R
+      rect:
+        serializedVersion: 2
+        x: 163
+        y: 30
+        width: 70
+        height: 70
+      alignment: 0
+      pivot: {x: .5, y: .5}
+  spritePackingTag: 
+  userData: 
