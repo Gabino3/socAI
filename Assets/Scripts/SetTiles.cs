@@ -21,10 +21,10 @@ public class SetTiles : MonoBehaviour {
 
 		float hexSize = 1.3f;
 
-		//List of tiles (19 total; 3 ore and wool; 4 grain, wool and lumber; 1 desert)
+		//List of tiles (19 total; 3 ore and sheep; 4 grain, sheep and lumber; 1 desert)
 		var tileDeck = new List<string>{
-			"tile_grain", "tile_wool", "tile_ore","tile_lumber","tile_lumber", "tile_brick", "tile_lumber", "tile_lumber",
-			"tile_ore","tile_desert","tile_brick","tile_grain","tile_grain","tile_grain","tile_wool","tile_wool","tile_wool",
+			"tile_grain", "tile_sheep", "tile_ore","tile_lumber","tile_lumber", "tile_brick", "tile_lumber", "tile_lumber",
+			"tile_ore","tile_desert","tile_brick","tile_grain","tile_grain","tile_grain","tile_sheep","tile_sheep","tile_sheep",
 			"tile_brick",
 			"tile_ore"
 
@@ -51,7 +51,7 @@ public class SetTiles : MonoBehaviour {
 					switch(tileDeck[counter]){
 					case "tile_lumber"	: tiles.Add(new Tile(Tile.Resource.lumber, tilePos[counter], new Vector2(x,y))); break;
 					case "tile_ore"		: tiles.Add(new Tile(Tile.Resource.ore, tilePos[counter], new Vector2(x,y))); break;
-					case "tile_wool"	: tiles.Add(new Tile(Tile.Resource.wool, tilePos[counter], new Vector2(x,y))); break;
+					case "tile_sheep"	: tiles.Add(new Tile(Tile.Resource.sheep, tilePos[counter], new Vector2(x,y))); break;
 					case "tile_grain"	: tiles.Add(new Tile(Tile.Resource.grain, tilePos[counter], new Vector2(x,y))); break;
 					case "tile_brick"	: tiles.Add(new Tile(Tile.Resource.brick, tilePos[counter], new Vector2(x,y))); break;
 					default				: tiles.Add(new Tile(Tile.Resource.none, tilePos[counter], new Vector2(x,y))); break;
