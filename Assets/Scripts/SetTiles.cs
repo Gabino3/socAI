@@ -21,10 +21,10 @@ public class SetTiles : MonoBehaviour {
 
 		float hexSize = 1.3f;
 
-		//List of tiles (19 total; 3 ore and wool; 4 grain, wool and lumber; 1 desert)
+		//List of tiles (19 total; 3 ore and sheep; 4 grain, sheep and lumber; 1 desert)
 		var tileDeck = new List<string>{
-			"tile_grain", "tile_wool", "tile_ore","tile_lumber","tile_lumber", "tile_brick", "tile_lumber", "tile_lumber",
-			"tile_ore","tile_desert","tile_brick","tile_grain","tile_grain","tile_grain","tile_wool","tile_wool","tile_wool",
+			"tile_grain", "tile_sheep", "tile_ore","tile_lumber","tile_lumber", "tile_brick", "tile_lumber", "tile_lumber",
+			"tile_ore","tile_desert","tile_brick","tile_grain","tile_grain","tile_grain","tile_sheep","tile_sheep","tile_sheep",
 			"tile_brick",
 			"tile_ore"
 
@@ -37,6 +37,13 @@ public class SetTiles : MonoBehaviour {
 		List<Vector3> tileCorners = new List<Vector3>(114);
 
 		var tiles = new List<Tile>(19);
+
+		//Instantiate player hand (bottom right)
+		Instantiate (Resources.Load ("card_brick"), new Vector3 (12.5844f, 0.1522f, 1), Quaternion.identity);
+		Instantiate (Resources.Load ("card_ore"), new Vector3 (14.1115f, 0.1522f, 1), Quaternion.identity);
+		Instantiate (Resources.Load ("card_wood"), new Vector3 (15.6386f, 0.1522f, 1), Quaternion.identity);
+		Instantiate (Resources.Load ("card_grain"), new Vector3 (17.1657f, 0.1522f, 1), Quaternion.identity);
+		Instantiate (Resources.Load ("card_sheep"), new Vector3 (18.6928f, 0.1522f, 1), Quaternion.identity);
 
 		//Place tiles
 		int counter = 0;
@@ -51,7 +58,7 @@ public class SetTiles : MonoBehaviour {
 					switch(tileDeck[counter]){
 					case "tile_lumber"	: tiles.Add(new Tile(Tile.Resource.lumber, tilePos[counter], new Vector2(x,y))); break;
 					case "tile_ore"		: tiles.Add(new Tile(Tile.Resource.ore, tilePos[counter], new Vector2(x,y))); break;
-					case "tile_wool"	: tiles.Add(new Tile(Tile.Resource.wool, tilePos[counter], new Vector2(x,y))); break;
+					case "tile_sheep"	: tiles.Add(new Tile(Tile.Resource.sheep, tilePos[counter], new Vector2(x,y))); break;
 					case "tile_grain"	: tiles.Add(new Tile(Tile.Resource.grain, tilePos[counter], new Vector2(x,y))); break;
 					case "tile_brick"	: tiles.Add(new Tile(Tile.Resource.brick, tilePos[counter], new Vector2(x,y))); break;
 					default				: tiles.Add(new Tile(Tile.Resource.none, tilePos[counter], new Vector2(x,y))); break;
@@ -226,8 +233,8 @@ public class SetTiles : MonoBehaviour {
 		return vertecies;
 	}
 
-	static List<Edge> FindRoadPos(List<Node> vertecies){
-
+	static List<Edge> FindRoadPos(List<Node> vertecies)
+	{
 		List<Edge> roads = new List<Edge> ();
 		List<Node> visited = new List<Node> (54);
 		for (var i = 0; i<vertecies.Count; i++) {
@@ -263,7 +270,20 @@ public class SetTiles : MonoBehaviour {
 
 
 	// Update is called once per frame
-	void Update () {
+	void Update ()
+	{
 	
+	}
+
+	void onGUI ()
+	{
+		//GUIText myText = GameObject.Find ("").GetComponent<GUIText> () as GUIText;
+
+		guiText.text = "hallo!";
+
+		GUI.Label (new Rect (10, 10, 100, 20), "Hello World!");
+		if (GUI.Button (new Rect (10, 10, 150, 100), "I am a button")) {
+			print ("You clicked the button!");
+		}
 	}
 }
