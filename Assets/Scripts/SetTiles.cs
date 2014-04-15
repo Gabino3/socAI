@@ -66,6 +66,8 @@ public class SetTiles : MonoBehaviour {
 			}
 		}
 
+		Instantiate(Resources.Load("PlayerOrder"), new Vector3(-3, 12, 0), Quaternion.identity);
+
 		tileCorners = MergeDuplicates (tileCorners);
 
 		List<Node> vertecies = VecToNodes (tileCorners, tiles, hexSize);
