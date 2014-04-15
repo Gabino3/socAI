@@ -5,7 +5,7 @@ public class Tile {
 
 	public enum Resource {
 
-		ore,wool,lumber,grain,brick,none
+		ore,sheep,lumber,grain,brick,none
 	};
 	public Resource resource;
 	public Vector3 geoLocation;

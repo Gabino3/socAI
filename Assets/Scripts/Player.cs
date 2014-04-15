@@ -1,9 +1,11 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class Player
 {
 	public int id;
+	public List<int> cards;
 	public Color color;
 	PlayerHand hand;
 
@@ -23,6 +25,8 @@ public class Player
 			case 4: color = Color.yellow; break;
 			default: color = Color.black; break;
 		}
+
+		cards = new List<int>{ 0, 0, 0, 0, 0 };
 
 		hand = new PlayerHand();
 	}
