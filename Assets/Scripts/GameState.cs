@@ -15,7 +15,7 @@ public class GameState : MonoBehaviour
 		playersArray = new Player[numPlayers];
 		for (int i = 0; i < playerCount; i++)
 		{
-			playersArray += new Player(i);
+			playersArray[i] = new Player(i);
 		}
 	}
 
