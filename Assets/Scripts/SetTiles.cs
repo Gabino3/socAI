@@ -85,7 +85,21 @@ public class SetTiles : MonoBehaviour {
 
 			
 		}
+		Instantiate(Resources.Load("backing"), new Vector3(-3.598929f,1f,1f), Quaternion.identity);
 
+		GameObject city = Instantiate(Resources.Load("city"), new Vector3(-5f,2f,-1f), Quaternion.identity) as GameObject;
+		city.renderer.material.color = Color.red;
+		city.transform.localScale += city.transform.localScale;
+		GameObject road = Instantiate(Resources.Load("road"), new Vector3(-2.5f,0f,-1f), Quaternion.identity) as GameObject;
+		road.renderer.material.color = Color.red;
+		road.transform.localScale += road.transform.localScale;
+		GameObject settlement = Instantiate(Resources.Load("settlement"), new Vector3(-2.5f,2f,-1f), Quaternion.identity) as GameObject;
+		settlement.renderer.material.color = Color.red;
+		settlement.transform.localScale += settlement.transform.localScale;
+
+		GameObject text = Instantiate(Resources.Load("text"), new Vector3(-2.5f,-2f,-1f), Quaternion.identity) as GameObject;
+		text.guiText.text = "01110011";
+		//text.transform.localScale += settlement.transform.localScale;
 
 	}
 
