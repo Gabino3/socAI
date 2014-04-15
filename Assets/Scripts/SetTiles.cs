@@ -38,6 +38,13 @@ public class SetTiles : MonoBehaviour {
 
 		var tiles = new List<Tile>(19);
 
+		//Instantiate player hand (bottom right)
+		Instantiate (Resources.Load ("card_brick"), new Vector3 (12.5844f, 0.1522f, 1), Quaternion.identity);
+		Instantiate (Resources.Load ("card_ore"), new Vector3 (14.1115f, 0.1522f, 1), Quaternion.identity);
+		Instantiate (Resources.Load ("card_wood"), new Vector3 (15.6386f, 0.1522f, 1), Quaternion.identity);
+		Instantiate (Resources.Load ("card_grain"), new Vector3 (17.1657f, 0.1522f, 1), Quaternion.identity);
+		Instantiate (Resources.Load ("card_sheep"), new Vector3 (18.6928f, 0.1522f, 1), Quaternion.identity);
+
 		//Place tiles
 		int counter = 0;
 		int chitCounter = 0;
@@ -212,8 +219,8 @@ public class SetTiles : MonoBehaviour {
 		return vertecies;
 	}
 
-	static List<Edge> FindRoadPos(List<Node> vertecies){
-
+	static List<Edge> FindRoadPos(List<Node> vertecies)
+	{
 		List<Edge> roads = new List<Edge> ();
 		List<Node> visited = new List<Node> (54);
 		for (var i = 0; i<vertecies.Count; i++) {
@@ -249,7 +256,20 @@ public class SetTiles : MonoBehaviour {
 
 
 	// Update is called once per frame
-	void Update () {
+	void Update ()
+	{
 	
+	}
+
+	void onGUI ()
+	{
+		//GUIText myText = GameObject.Find ("").GetComponent<GUIText> () as GUIText;
+
+		guiText.text = "hallo!";
+
+		GUI.Label (new Rect (10, 10, 100, 20), "Hello World!");
+		if (GUI.Button (new Rect (10, 10, 150, 100), "I am a button")) {
+			print ("You clicked the button!");
+		}
 	}
 }
