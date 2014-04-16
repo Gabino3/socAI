@@ -3,13 +3,13 @@ using System.Collections;
 
 public class GameState : MonoBehaviour
 {
-	Player[] playersArray;
-	int numPlayers;
-	int turnCounter;
-	int currentPlayerTurn;
+	static Player[] playersArray;
+	static int numPlayers;
+	static int turnCounter;
+	static int currentPlayerTurn;
 
-	private int globalLongestRoad;
-	private int globalLargestArmy;
+	private static Player longestRoadPlayer;
+	private static Player largestArmyPlayer;
 
 	public GameState(int playerCount)
 	{
@@ -23,8 +23,8 @@ public class GameState : MonoBehaviour
 
 		turnCounter = 0;
 		currentPlayerTurn = 0;
-		globalLongestRoad = 4;	// Requires 5+ consecutive roads to first attain 'Longest Road'
-		globalLargestArmy = 2;	// Requires 3+ total knights to first attain 'Largest Army'
+		longestRoadPlayer = null;	// Requires 5+ consecutive roads to first attain 'Longest Road'
+		largestArmyPlayer = null;	// Requires 3+ total knights to first attain 'Largest Army'
 
 		do
 		{
@@ -32,32 +32,50 @@ public class GameState : MonoBehaviour
 
 
 
+
+			EndTurn();
 		}
 		while(!IsGameOver());
 	}
 
-	public Player GetCurrentTurnPlayer()
+	public static Player GetCurrentTurnPlayer()
 	{
 		return playersArray[currentPlayerTurn];
 	}
 
 	public void EndTurn()
 	{
-		if(GetCurrentTurnPlayer().longestRoad > globalLongestRoad)
+		if(GetCurrentTurnPlayer().longestRoad >= 5 && (longestRoadPlayer == null || GetCurrentTurnPlayer().longestRoad > longestRoadPlayer.longestRoad))
 		{
-			globalLongestRoad = GetCurrentTurnPlayer().longestRoad;
+			longestRoadPlayer = GetCurrentTurnPlayer();
 		}
-		
-		if(GetCurrentTurnPlayer().largestArmy > globalLargestArmy)
+
+		if(GetCurrentTurnPlayer().largestArmy >= 3 && (largestArmyPlayer == null || GetCurrentTurnPlayer().largestArmy > largestArmyPlayer.largestArmy))
 		{
-			globalLargestArmy = GetCurrentTurnPlayer().largestArmy;
+			largestArmyPlayer = GetCurrentTurnPlayer();
 		}
+	}
+
+	private bool IsGameOver()
+	{
+		bool gameOver = false;
+
+		if(GetCurrentTurnPlayer().HasWon())
+		{
+			// Game Over; player 'getCurrentTurnPlayer' has won
+			gameOver = true;
+		}
+		else
+		{
+			UpdateGameState();
+		}
+
+		return true;
+		//return gameOver;
 	}
 
 	private void UpdateGameState()
 	{
-
-
 		turnCounter++;
 		UpdatePlayerTurn();
 	}
@@ -67,17 +85,13 @@ public class GameState : MonoBehaviour
 		currentPlayerTurn = turnCounter % numPlayers;
 	}
 
-	private bool IsGameOver()
+	public static bool doesPlayerHaveLongestRoad(Player player)
 	{
-		if(GetCurrentTurnPlayer().HasWon())
-		{
-			// Game Over; player 'getCurrentTurnPlayer' has won
-		}
-		else
-		{
+		return player == longestRoadPlayer;
+	}
 
-		}
-
-		return true;
+	public static bool doesPlayerHaveLargestArmy(Player player)
+	{
+		return player == largestArmyPlayer;
 	}
 }
