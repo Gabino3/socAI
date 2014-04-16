@@ -3,11 +3,11 @@ using System.Collections;
 
 public class PlayerHand : MonoBehaviour
 {
-	int brick;
-	int ore;
-	int wood;
-	int grain;
-	int sheep;
+	public int brick;
+	public int ore;
+	public int wood;
+	public int grain;
+	public int sheep;
 	public int victoryPoints;
 	//int knights;
 	//int roadBuilding;
@@ -32,12 +32,12 @@ public class PlayerHand : MonoBehaviour
 	
 	public void randomizeHand()
 	{
-		/*System.Random generator = System.Random;
+		System.Random generator = new System.Random();
 		
 		brick = generator.Next(generator.Next(4));
 		ore = generator.Next(generator.Next(4));
 		wood = generator.Next(generator.Next(4));
 		grain = generator.Next(generator.Next(4));
-		sheep = generator.Next(generator.Next(4));*/
+		sheep = generator.Next(generator.Next(4));
 	}
 }
