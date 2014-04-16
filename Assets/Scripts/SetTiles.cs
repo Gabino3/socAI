@@ -44,6 +44,7 @@ public class SetTiles : MonoBehaviour {
 		Instantiate (Resources.Load ("card_wood"), new Vector3 (15.6386f, 0.1522f, 1), Quaternion.identity);
 		Instantiate (Resources.Load ("card_grain"), new Vector3 (17.1657f, 0.1522f, 1), Quaternion.identity);
 		Instantiate (Resources.Load ("card_sheep"), new Vector3 (18.6928f, 0.1522f, 1), Quaternion.identity);
+		DisplayPlayerCardCount ();
 
 		//Place tiles
 		int counter = 0;
@@ -106,13 +107,23 @@ public class SetTiles : MonoBehaviour {
 		settlement.renderer.material.color = Color.red;
 		settlement.transform.localScale += settlement.transform.localScale;
 
-		GameObject text = Instantiate(Resources.Load("text"), new Vector3(-2.5f,-2f,-1f), Quaternion.identity) as GameObject;
-		text.guiText.text = "01110011";
 		//text.transform.localScale += settlement.transform.localScale;
 
 	}
 
-	 
+	static void DisplayPlayerCardCount()
+	{
+		GameObject brickCount = Instantiate (Resources.Load ("text"), new Vector3 (12.4493f, 1.908892f, -4f), Quaternion.identity) as GameObject;
+		GameObject oreCount = Instantiate (Resources.Load ("text"), new Vector3 (13.9764f, 1.908892f, -4f), Quaternion.identity) as GameObject;
+		GameObject woodCount = Instantiate (Resources.Load ("text"), new Vector3 (15.5035f, 1.908892f, -4f), Quaternion.identity) as GameObject;
+		GameObject grainCount = Instantiate (Resources.Load ("text"), new Vector3 (17.0306f, 1.908892f, -4f), Quaternion.identity) as GameObject;
+		GameObject sheepCount = Instantiate (Resources.Load ("text"), new Vector3 (18.5577f, 1.908892f, -4f), Quaternion.identity) as GameObject;
+		brickCount.GetComponent<TextMesh>().text = "" + 0;
+		oreCount.GetComponent<TextMesh>().text = "" + 0;
+		woodCount.GetComponent<TextMesh>().text = "" + 0;
+		grainCount.GetComponent<TextMesh>().text = "" + 0;
+		sheepCount.GetComponent<TextMesh>().text = "" + 0;
+	}
 
 	static Vector3 GetWorldCoordinates(int x, int y, float z)
 	{
