@@ -3,10 +3,10 @@ using System.Collections;
 
 public class GameState : MonoBehaviour
 {
-	static Player[] playersArray;
-	static int numPlayers;
-	static int turnCounter;
-	static int currentPlayerTurn;
+	Player[] playersArray;
+	int numPlayers;
+	int turnCounter;
+	int currentPlayerTurn;
 
 	private static Player longestRoadPlayer;
 	private static Player largestArmyPlayer;
@@ -38,7 +38,7 @@ public class GameState : MonoBehaviour
 		while(!IsGameOver());
 	}
 
-	public static Player GetCurrentTurnPlayer()
+	public Player GetCurrentTurnPlayer()
 	{
 		return playersArray[currentPlayerTurn];
 	}
@@ -85,13 +85,18 @@ public class GameState : MonoBehaviour
 		currentPlayerTurn = turnCounter % numPlayers;
 	}
 
-	public static bool doesPlayerHaveLongestRoad(Player player)
+	public static bool DoesPlayerHaveLongestRoad(Player player)
 	{
 		return player == longestRoadPlayer;
 	}
 
-	public static bool doesPlayerHaveLargestArmy(Player player)
+	public static bool DoesPlayerHaveLargestArmy(Player player)
 	{
 		return player == largestArmyPlayer;
+	}
+
+	public Player GetPlayerAtIndex(int index)
+	{
+		return playersArray[index];
 	}
 }

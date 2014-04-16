@@ -7,7 +7,7 @@ public class Player
 	public int id;
 	public bool isAI;
 	public Color color;
-	public PlayerHand hand;
+	PlayerHand hand;
 
 	int numSettlements;
 	int numCities;
@@ -43,12 +43,29 @@ public class Player
 	// Dummy method to include largest army; will relocate to GameState at a future point
 	public int GetLargestArmyModifier()
 	{
-		return 0;
+		int modifier = 0;
+		if(GameState.DoesPlayerHaveLargestArmy(this))
+		{
+			modifier = 2;
+		}
+
+		return modifier;
 	}
 
 	// Dummy method to include longest road; will relocate to GameState at a future point
 	public int GetLongestRoadModifier()
 	{
-		return 0;
+		int modifier = 0;
+		if(GameState.DoesPlayerHaveLongestRoad(this))
+		{
+			modifier = 2;
+		}
+
+		return modifier;
+	}
+
+	public PlayerHand GetPlayerHand()
+	{
+		return hand;
 	}
 }
