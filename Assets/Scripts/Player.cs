@@ -7,7 +7,7 @@ public class Player
 	public int id;
 	public bool isAI;
 	public Color color;
-	PlayerHand hand;
+	public PlayerHand hand;
 
 	int numSettlements;
 	int numCities;

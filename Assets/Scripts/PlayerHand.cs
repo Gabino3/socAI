@@ -34,10 +34,10 @@ public class PlayerHand : MonoBehaviour
 	{
 		System.Random generator = new System.Random();
 		
-		brick = generator.Next(generator.Next(4));
-		ore = generator.Next(generator.Next(4));
-		wood = generator.Next(generator.Next(4));
-		grain = generator.Next(generator.Next(4));
-		sheep = generator.Next(generator.Next(4));
+		brick = generator.Next(4);
+		ore = generator.Next(4);
+		wood = generator.Next(4);
+		grain = generator.Next(4);
+		sheep = generator.Next(4);
 	}
 }

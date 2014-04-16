@@ -3,10 +3,10 @@ using System.Collections;
 
 public class GameState : MonoBehaviour
 {
-	Player[] playersArray;
-	int numPlayers;
-	int turnCounter;
-	int currentPlayerTurn;
+	public Player[] playersArray;
+	public int numPlayers;
+	public int turnCounter;
+	public int currentPlayerTurn;
 
 	private int globalLongestRoad;
 	private int globalLargestArmy;
