@@ -119,11 +119,11 @@ public class SetTiles : MonoBehaviour {
 		GameObject woodCount = Instantiate (Resources.Load ("text"), new Vector3 (15.5035f, 1.908892f, -4f), Quaternion.identity) as GameObject;
 		GameObject grainCount = Instantiate (Resources.Load ("text"), new Vector3 (17.0306f, 1.908892f, -4f), Quaternion.identity) as GameObject;
 		GameObject sheepCount = Instantiate (Resources.Load ("text"), new Vector3 (18.5577f, 1.908892f, -4f), Quaternion.identity) as GameObject;
-		brickCount.GetComponent<TextMesh>().text = "" + 0;
-		oreCount.GetComponent<TextMesh>().text = "" + 0;
-		woodCount.GetComponent<TextMesh>().text = "" + 0;
-		grainCount.GetComponent<TextMesh>().text = "" + 0;
-		sheepCount.GetComponent<TextMesh>().text = "" + 0;
+		brickCount.GetComponent<TextMesh> ().text = "" + gamestate.playersArray [0].hand.brick;
+		oreCount.GetComponent<TextMesh> ().text = "" + gamestate.playersArray [0].hand.ore;
+		woodCount.GetComponent<TextMesh> ().text = "" + gamestate.playersArray [0].hand.wood;
+		grainCount.GetComponent<TextMesh> ().text = "" + gamestate.playersArray [0].hand.grain;
+		sheepCount.GetComponent<TextMesh> ().text = "" + gamestate.playersArray [0].hand.sheep;
 	}
 
 	static Vector3 GetWorldCoordinates(int x, int y, float z)
