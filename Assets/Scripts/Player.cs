@@ -11,8 +11,8 @@ public class Player
 
 	int numSettlements;
 	int numCities;
-	int longestRoad;
-	//int numKnights;
+	public int longestRoad;
+	public int largestArmy;
 	
 	public Player(int id)
 	{
@@ -31,19 +31,24 @@ public class Player
 		hand = new PlayerHand();
 	}
 
-	private int calculateVictoryPoints()
+	public int calculateVictoryPoints()
 	{
 		return (1 * numSettlements) + (2 * numCities) + hand.victoryPoints + largestArmyModifier() + longestRoadModifier();
 	}
 
+	public bool hasWon()
+	{
+		return calculateVictoryPoints >= 10;
+	}
+
 	// Dummy method to include largest army; will relocate to GameState at a future point
-	private int largestArmyModifier()
+	public int largestArmyModifier()
 	{
 		return 0;
 	}
 
 	// Dummy method to include longest road; will relocate to GameState at a future point
-	private int longestRoadModifier()
+	public int longestRoadModifier()
 	{
 		return 0;
 	}
