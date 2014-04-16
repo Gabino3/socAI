@@ -5,11 +5,19 @@ using System;
 
 public class SetTiles : MonoBehaviour {
 
+	GameObject city;
+	GameObject settlement;
+	GameObject road;
 
 	// Use this for initialization
 	void Start () {
 		int boardWidth = 7;
 		int boardHeight = 7;
+
+		settlements = new Dictionary<Transform, GameObject> (54);
+		roadPlaceholders = new Dictionary<Transform, GameObject> (54);
+		settlementPlaceholders = new Dictionary<Transform, GameObject> (54);
+
 		//List of tile positions
 		List<int> tilesToDraw = new List<int>{
 			    (21),(31),(41),
@@ -83,29 +91,30 @@ public class SetTiles : MonoBehaviour {
 		//List<>
 		 
 		for (var i = 0; i<roads.Count; i++) {
-			GameObject s = Instantiate(Resources.Load("road"), roads[i].getLoc(), Quaternion.identity) as GameObject;
-			s.renderer.material.color = Color.magenta;
+			GameObject s = Instantiate(Resources.Load("r_placeholder"), roads[i].getLoc(), Quaternion.identity) as GameObject;
 			s.transform.eulerAngles = new Vector3(0f,0f,(roads[i]).getAngle());
+			s.renderer.enabled = false;
+			roadPlaceholders.Add(s.transform, s);
 
 		}
 		for (var i = 0; i<vertecies.Count; i++) {
-			GameObject t = Instantiate(Resources.Load("city"), vertecies[i].getLoc(), Quaternion.identity) as GameObject;
-			t.renderer.material.color = Color.red;
-
+			GameObject t = Instantiate(Resources.Load("v_placeholder"), vertecies[i].getLoc(), Quaternion.identity) as GameObject;
+			t.renderer.enabled = false;
+			settlementPlaceholders.Add(t.transform, t);
 			
 		}
 		Instantiate(Resources.Load("backing"), new Vector3(-3.598929f,1f,1f), Quaternion.identity);
 
-		GameObject city = Instantiate(Resources.Load("city"), new Vector3(-5f,2f,-1f), Quaternion.identity) as GameObject;
+		city = Instantiate(Resources.Load("city"), new Vector3(-5f,2f,-1f), Quaternion.identity) as GameObject;
 		city.renderer.material.color = Color.red;
 		city.transform.localScale += city.transform.localScale;
-		GameObject road = Instantiate(Resources.Load("road"), new Vector3(-2.5f,0f,-1f), Quaternion.identity) as GameObject;
+		road = Instantiate(Resources.Load("road"), new Vector3(-2.5f,0f,-1f), Quaternion.identity) as GameObject;
 		road.renderer.material.color = Color.red;
 		road.transform.localScale += road.transform.localScale;
-		GameObject settlement = Instantiate(Resources.Load("settlement"), new Vector3(-2.5f,2f,-1f), Quaternion.identity) as GameObject;
+		settlement = Instantiate(Resources.Load("settlement"), new Vector3(-2.5f,2f,-1f), Quaternion.identity) as GameObject;
 		settlement.renderer.material.color = Color.red;
 		settlement.transform.localScale += settlement.transform.localScale;
-
+		thingToBuild = null;
 		GameObject text = Instantiate(Resources.Load("text"), new Vector3(-2.5f,-2f,-1f), Quaternion.identity) as GameObject;
 		text.guiText.text = "01110011";
 		//text.transform.localScale += settlement.transform.localScale;
@@ -269,12 +278,56 @@ public class SetTiles : MonoBehaviour {
 
 
 
+	Transform thingToBuild;
+	Dictionary<Transform, GameObject> settlementPlaceholders;
+	Dictionary<Transform, GameObject> roadPlaceholders;
+	Dictionary<Transform, GameObject> settlements;
 
 
 	// Update is called once per frame
 	void Update ()
 	{
-	
+		if (Input.GetMouseButtonDown(0)){ // if left button pressed...
+			Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+			RaycastHit hit;
+			print ("mouse press");
+			if (Physics.Raycast(ray, out hit)){
+				if(hit.transform == city.transform || hit.transform == settlement.transform || hit.transform == road.transform){
+					thingToBuild = hit.transform;
+					print ("on a building");
+				}
+				else if(thingToBuild!=null ){
+					if (thingToBuild == road.transform && roadPlaceholders.ContainsKey(hit.transform)) {
+						GameObject s = Instantiate(Resources.Load("road"), hit.transform.position , Quaternion.identity) as GameObject;
+						s.transform.eulerAngles = hit.transform.eulerAngles;
+						s.renderer.material.color = Color.red;
+						Destroy(roadPlaceholders[hit.transform]);
+						roadPlaceholders.Remove(hit.transform);
+						thingToBuild = null;
+						print ("road built!");
+						//TODO add color based on player and save the road in an list/array/dict
+					}
+					else if(thingToBuild == settlement.transform && settlementPlaceholders.ContainsKey(hit.transform)){
+						GameObject s = Instantiate(Resources.Load("settlement"), hit.transform.position , Quaternion.identity) as GameObject;
+						s.renderer.material.color = Color.red;
+						settlements.Add(s.transform, s);
+						Destroy(settlementPlaceholders[hit.transform]);
+						settlementPlaceholders.Remove(hit.transform);
+						thingToBuild = null;
+						print ("settlement built!");
+					}
+					else if (thingToBuild == city.transform && settlements.ContainsKey(hit.transform)) {
+						GameObject s = Instantiate(Resources.Load("city"), hit.transform.position , Quaternion.identity) as GameObject;
+						s.renderer.material.color = Color.red;
+						Destroy(settlements[hit.transform]);
+						settlements.Remove(hit.transform);
+						thingToBuild = null;
+						print ("city built!");
+						//TODO add color based on player and save the city in an list/array/dict
+					}
+				}
+			}
+		}
 	}
 
 	void onGUI ()
