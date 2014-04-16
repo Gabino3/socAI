@@ -33,43 +33,43 @@ public class GameState : MonoBehaviour
 
 
 		}
-		while(!isGameOver);
+		while(!IsGameOver());
 	}
 
-	public Player getCurrentTurnPlayer()
+	public Player GetCurrentTurnPlayer()
 	{
 		return playersArray[currentPlayerTurn];
 	}
 
-	public void endTurn()
+	public void EndTurn()
 	{
-		if(getCurrentTurnPlayer().longestRoad > globalLongestRoad)
+		if(GetCurrentTurnPlayer().longestRoad > globalLongestRoad)
 		{
-			globalLongestRoad = getCurrentTurnPlayer().longestRoad;
+			globalLongestRoad = GetCurrentTurnPlayer().longestRoad;
 		}
 		
-		if(getCurrentTurnPlayer().largestArmy > globalLargestArmy)
+		if(GetCurrentTurnPlayer().largestArmy > globalLargestArmy)
 		{
-			globalLargestArmy = getCurrentTurnPlayer().largestArmy;
+			globalLargestArmy = GetCurrentTurnPlayer().largestArmy;
 		}
 	}
 
-	private void updateGameState()
+	private void UpdateGameState()
 	{
 
 
 		turnCounter++;
-		updatePlayerTurn();
+		UpdatePlayerTurn();
 	}
 
-	private void updatePlayerTurn()
+	private void UpdatePlayerTurn()
 	{
 		currentPlayerTurn = turnCounter % numPlayers;
 	}
 
-	private bool isGameOver()
+	private bool IsGameOver()
 	{
-		if(getCurrentTurnPlayer().hasWon)
+		if(GetCurrentTurnPlayer().HasWon())
 		{
 			// Game Over; player 'getCurrentTurnPlayer' has won
 		}
@@ -77,5 +77,7 @@ public class GameState : MonoBehaviour
 		{
 
 		}
+
+		return true;
 	}
 }

@@ -5,6 +5,7 @@ using System;
 
 public class SetTiles : MonoBehaviour {
 
+	static GameState gamestate = new GameState(4);
 
 	// Use this for initialization
 	void Start () {
@@ -118,11 +119,11 @@ public class SetTiles : MonoBehaviour {
 		GameObject woodCount = Instantiate (Resources.Load ("text"), new Vector3 (15.5035f, 1.908892f, -4f), Quaternion.identity) as GameObject;
 		GameObject grainCount = Instantiate (Resources.Load ("text"), new Vector3 (17.0306f, 1.908892f, -4f), Quaternion.identity) as GameObject;
 		GameObject sheepCount = Instantiate (Resources.Load ("text"), new Vector3 (18.5577f, 1.908892f, -4f), Quaternion.identity) as GameObject;
-		brickCount.GetComponent<TextMesh>().text = "" + 0;
-		oreCount.GetComponent<TextMesh>().text = "" + 0;
-		woodCount.GetComponent<TextMesh>().text = "" + 0;
-		grainCount.GetComponent<TextMesh>().text = "" + 0;
-		sheepCount.GetComponent<TextMesh>().text = "" + 0;
+		//brickCount.GetComponent<TextMesh>().text = "" + 0;
+		//oreCount.GetComponent<TextMesh>().text = "" + 0;
+		//woodCount.GetComponent<TextMesh>().text = "" + 0;
+		//grainCount.GetComponent<TextMesh>().text = "" + 0;
+		//sheepCount.GetComponent<TextMesh>().text = "" + 0;
 	}
 
 	static Vector3 GetWorldCoordinates(int x, int y, float z)
@@ -265,7 +266,7 @@ public class SetTiles : MonoBehaviour {
 					float y_mid = (y1 + y2)/2;
 					float angle = (float)Math.Atan((y1 - y2)/(x1 - x2))*57.2957795f; //converting from radians to degrees
 					print (angle);
-					roads.Add(new Edge(new Vector3(x_mid, y_mid, 0), angle) );
+					roads.Add(new Edge(new Vector3(x_mid, y_mid, 0), angle, gamestate.GetCurrentTurnPlayer()));
 
 
 				}

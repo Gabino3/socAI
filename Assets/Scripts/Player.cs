@@ -5,17 +5,20 @@ using System.Collections.Generic;
 public class Player
 {
 	public int id;
+	public bool isAI;
+	public List<int> cards;
 	public Color color;
-	public PlayerHand hand;
-	
-	public int numSettlements;
-	public int numCities;
+	PlayerHand hand;
+
+	int numSettlements;
+	int numCities;
 	public int longestRoad;
 	public int largestArmy;
 	
-	public Player(int id)
+	public Player(int id, bool isAI)
 	{
 		this.id = id;
+		this.isAI = isAI;
 		switch (id)
 		{
 			case 1: color = Color.blue; break;
@@ -25,27 +28,29 @@ public class Player
 			default: color = Color.black; break;
 		}
 
+		cards = new List<int>{ 0, 0, 0, 0, 0 };
+
 		hand = new PlayerHand();
 	}
 
-	public int calculateVictoryPoints()
+	public int CalculateVictoryPoints()
 	{
-		return (1 * numSettlements) + (2 * numCities) + hand.victoryPoints + largestArmyModifier() + longestRoadModifier();
+		return (1 * numSettlements) + (2 * numCities) + hand.victoryPoints + LargestArmyModifier() + LongestRoadModifier();
 	}
 
-	public bool hasWon()
+	public bool HasWon()
 	{
-		return calculateVictoryPoints >= 10;
+		return CalculateVictoryPoints() >= 10;
 	}
 
 	// Dummy method to include largest army; will relocate to GameState at a future point
-	public int largestArmyModifier()
+	public int LargestArmyModifier()
 	{
 		return 0;
 	}
 
 	// Dummy method to include longest road; will relocate to GameState at a future point
-	public int longestRoadModifier()
+	public int LongestRoadModifier()
 	{
 		return 0;
 	}
