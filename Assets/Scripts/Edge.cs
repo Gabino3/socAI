@@ -10,11 +10,12 @@ public class Edge  {
 	List<Node> neighbors;
 	Player owner;
 	
-	public Edge(Vector3 geoLocation, float angle){
+	public Edge(Vector3 geoLocation, float angle, Player player)
+	{
 		this.geoLocation = geoLocation;
 		this.angle = angle;
 		neighbors = new List<Node> (2);
-		owner = new Player(0);
+		owner = player;
 
 	}
 	

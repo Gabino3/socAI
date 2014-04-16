@@ -5,9 +5,13 @@ using System;
 
 public class SetTiles : MonoBehaviour {
 
+
 	GameObject city;
 	GameObject settlement;
 	GameObject road;
+
+	static GameState gamestate = new GameState(4);
+
 
 	// Use this for initialization
 	void Start () {
@@ -52,6 +56,7 @@ public class SetTiles : MonoBehaviour {
 		Instantiate (Resources.Load ("card_wood"), new Vector3 (15.6386f, 0.1522f, 1), Quaternion.identity);
 		Instantiate (Resources.Load ("card_grain"), new Vector3 (17.1657f, 0.1522f, 1), Quaternion.identity);
 		Instantiate (Resources.Load ("card_sheep"), new Vector3 (18.6928f, 0.1522f, 1), Quaternion.identity);
+		DisplayPlayerCardCount ();
 
 		//Place tiles
 		int counter = 0;
@@ -114,14 +119,28 @@ public class SetTiles : MonoBehaviour {
 		settlement = Instantiate(Resources.Load("settlement"), new Vector3(-2.5f,2f,-1f), Quaternion.identity) as GameObject;
 		settlement.renderer.material.color = Color.red;
 		settlement.transform.localScale += settlement.transform.localScale;
+
 		thingToBuild = null;
 		GameObject text = Instantiate(Resources.Load("text"), new Vector3(-2.5f,-2f,-1f), Quaternion.identity) as GameObject;
 		text.guiText.text = "01110011";
+
 		//text.transform.localScale += settlement.transform.localScale;
 
 	}
 
-	 
+	static void DisplayPlayerCardCount()
+	{
+		GameObject brickCount = Instantiate (Resources.Load ("text"), new Vector3 (12.4493f, 1.908892f, -4f), Quaternion.identity) as GameObject;
+		GameObject oreCount = Instantiate (Resources.Load ("text"), new Vector3 (13.9764f, 1.908892f, -4f), Quaternion.identity) as GameObject;
+		GameObject woodCount = Instantiate (Resources.Load ("text"), new Vector3 (15.5035f, 1.908892f, -4f), Quaternion.identity) as GameObject;
+		GameObject grainCount = Instantiate (Resources.Load ("text"), new Vector3 (17.0306f, 1.908892f, -4f), Quaternion.identity) as GameObject;
+		GameObject sheepCount = Instantiate (Resources.Load ("text"), new Vector3 (18.5577f, 1.908892f, -4f), Quaternion.identity) as GameObject;
+		brickCount.GetComponent<TextMesh> ().text = "" + gamestate.playersArray [0].hand.brick;
+		oreCount.GetComponent<TextMesh> ().text = "" + gamestate.playersArray [0].hand.ore;
+		woodCount.GetComponent<TextMesh> ().text = "" + gamestate.playersArray [0].hand.wood;
+		grainCount.GetComponent<TextMesh> ().text = "" + gamestate.playersArray [0].hand.grain;
+		sheepCount.GetComponent<TextMesh> ().text = "" + gamestate.playersArray [0].hand.sheep;
+	}
 
 	static Vector3 GetWorldCoordinates(int x, int y, float z)
 	{
@@ -263,7 +282,7 @@ public class SetTiles : MonoBehaviour {
 					float y_mid = (y1 + y2)/2;
 					float angle = (float)Math.Atan((y1 - y2)/(x1 - x2))*57.2957795f; //converting from radians to degrees
 					print (angle);
-					roads.Add(new Edge(new Vector3(x_mid, y_mid, 0), angle) );
+					roads.Add(new Edge(new Vector3(x_mid, y_mid, 0), angle, gamestate.GetCurrentTurnPlayer()));
 
 
 				}

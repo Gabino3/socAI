@@ -1,22 +1,23 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
 public class Player
 {
 	public int id;
-	public List<int> cards;
+	public bool isAI;
 	public Color color;
-	PlayerHand hand;
+	public PlayerHand hand;
 
 	int numSettlements;
 	int numCities;
-	int longestRoad;
-	//int numKnights;
+	public int longestRoad;
+	public int largestArmy;
 	
-	public Player(int id)
+	public Player(int id, bool isAI)
 	{
 		this.id = id;
+		this.isAI = isAI;
 		switch (id)
 		{
 			case 1: color = Color.blue; break;
@@ -26,24 +27,27 @@ public class Player
 			default: color = Color.black; break;
 		}
 
-		cards = new List<int>{ 0, 0, 0, 0, 0 };
-
 		hand = new PlayerHand();
 	}
 
-	private int calculateVictoryPoints()
+	public int CalculateVictoryPoints()
 	{
-		return (1 * numSettlements) + (2 * numCities) + hand.victoryPoints + largestArmyModifier() + longestRoadModifier();
+		return (1 * numSettlements) + (2 * numCities) + hand.victoryPoints + LargestArmyModifier() + LongestRoadModifier();
+	}
+
+	public bool HasWon()
+	{
+		return CalculateVictoryPoints() >= 10;
 	}
 
 	// Dummy method to include largest army; will relocate to GameState at a future point
-	private int largestArmyModifier()
+	public int LargestArmyModifier()
 	{
 		return 0;
 	}
 
 	// Dummy method to include longest road; will relocate to GameState at a future point
-	private int longestRoadModifier()
+	public int LongestRoadModifier()
 	{
 		return 0;
 	}
