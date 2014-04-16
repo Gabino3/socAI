@@ -5,13 +5,12 @@ using System.Collections.Generic;
 public class Player
 {
 	public int id;
-	public List<int> cards;
 	public Color color;
-	PlayerHand hand;
+	public PlayerHand hand;
 
-	int numSettlements;
-	int numCities;
-	int longestRoad;
+	public int numSettlements;
+	public int numCities;
+	public int longestRoad;
 	//int numKnights;
 	
 	public Player(int id)
@@ -25,8 +24,6 @@ public class Player
 			case 4: color = Color.yellow; break;
 			default: color = Color.black; break;
 		}
-
-		cards = new List<int>{ 0, 0, 0, 0, 0 };
 
 		hand = new PlayerHand();
 	}
