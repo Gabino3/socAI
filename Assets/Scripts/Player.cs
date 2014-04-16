@@ -32,7 +32,7 @@ public class Player
 
 	public int CalculateVictoryPoints()
 	{
-		return (1 * numSettlements) + (2 * numCities) + hand.victoryPoints + LargestArmyModifier() + LongestRoadModifier();
+		return (1 * numSettlements) + (2 * numCities) + hand.victoryPoints + GetLargestArmyModifier() + GetLongestRoadModifier();
 	}
 
 	public bool HasWon()
@@ -41,13 +41,13 @@ public class Player
 	}
 
 	// Dummy method to include largest army; will relocate to GameState at a future point
-	public int LargestArmyModifier()
+	public int GetLargestArmyModifier()
 	{
 		return 0;
 	}
 
 	// Dummy method to include longest road; will relocate to GameState at a future point
-	public int LongestRoadModifier()
+	public int GetLongestRoadModifier()
 	{
 		return 0;
 	}
