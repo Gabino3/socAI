@@ -8,15 +8,16 @@ public class Edge  {
 	float angle;
 	Vector2 position;
 	List<Node> neighbors;
-	Player owner;
+	public Player owner;
+	public bool occupied;
 	
-	public Edge(Vector3 geoLocation, float angle, Player player)
+	public Edge(Vector3 geoLocation, float angle, Player player, Node n1, Node n2, bool occupied)
 	{
 		this.geoLocation = geoLocation;
 		this.angle = angle;
-		neighbors = new List<Node> (2);
+		neighbors = new List<Node> {n1, n2};
 		owner = player;
-
+		this.occupied = occupied;
 	}
 	
 	public void addNeighbor(Node node){

@@ -41,6 +41,13 @@ public class SetTiles : MonoBehaviour {
 			"tile_ore"
 
 		};
+
+		Dictionary<char, int> chitConversions = new Dictionary<char, int> (){
+
+			{'G',9},{'D',3},{'A',5},{'I',11},{'O',5},{'K',8},{'J',4},{'C',6},{'M',9},{'Q',3},{'E',8},{'F',10},{'H',12},{'P',6},{'L',10},{'B',2},{'N',4},{'R',11}
+
+		};
+
 		var chitDeck = new List<char>{
 			'G','D','A','I','O','K','J','C','M','Q','E','F','H','P','L','B','N','R'
 		};
@@ -69,12 +76,12 @@ public class SetTiles : MonoBehaviour {
 					tilePos.Add(GetWorldCoordinates(x,y,0));
 					Instantiate(Resources.Load(tileDeck[counter]), tilePos[counter], Quaternion.identity);
 					switch(tileDeck[counter]){
-					case "tile_lumber"	: tiles.Add(new Tile(Tile.Resource.lumber, tilePos[counter], new Vector2(x,y))); break;
-					case "tile_ore"		: tiles.Add(new Tile(Tile.Resource.ore, tilePos[counter], new Vector2(x,y))); break;
-					case "tile_sheep"	: tiles.Add(new Tile(Tile.Resource.sheep, tilePos[counter], new Vector2(x,y))); break;
-					case "tile_grain"	: tiles.Add(new Tile(Tile.Resource.grain, tilePos[counter], new Vector2(x,y))); break;
-					case "tile_brick"	: tiles.Add(new Tile(Tile.Resource.brick, tilePos[counter], new Vector2(x,y))); break;
-					default				: tiles.Add(new Tile(Tile.Resource.none, tilePos[counter], new Vector2(x,y))); break;
+					case "tile_lumber"	: tiles.Add(new Tile(Tile.Resource.lumber, tilePos[counter], new Vector2(x,y),chitConversions[chitDeck[chitCounter]])); break;
+					case "tile_ore"		: tiles.Add(new Tile(Tile.Resource.ore, tilePos[counter], new Vector2(x,y),chitConversions[chitDeck[chitCounter]])); break;
+					case "tile_sheep"	: tiles.Add(new Tile(Tile.Resource.sheep, tilePos[counter], new Vector2(x,y),chitConversions[chitDeck[chitCounter]])); break;
+					case "tile_grain"	: tiles.Add(new Tile(Tile.Resource.grain, tilePos[counter], new Vector2(x,y),chitConversions[chitDeck[chitCounter]])); break;
+					case "tile_brick"	: tiles.Add(new Tile(Tile.Resource.brick, tilePos[counter], new Vector2(x,y),chitConversions[chitDeck[chitCounter]])); break;
+					default				: tiles.Add(new Tile(Tile.Resource.none, tilePos[counter], new Vector2(x,y),chitConversions[chitDeck[chitCounter]])); break;
 					}
 					tileCorners.AddRange(GetHexCorners((tilePos[counter]).x,(tilePos[counter]).y, 0.0f, hexSize ));
 					if (tileDeck[counter] != "tile_desert"){
@@ -91,7 +98,7 @@ public class SetTiles : MonoBehaviour {
 		tileCorners = MergeDuplicates (tileCorners);
 
 		List<Node> vertecies = VecToNodes (tileCorners, tiles, hexSize);
-		List<Edge> roads = FindRoadPos (vertecies);
+		List<Edge> roads = FindRoadPos ( vertecies, out vertecies);
 		print (roads.Count);
 		//List<>
 		 
@@ -263,8 +270,9 @@ public class SetTiles : MonoBehaviour {
 		return vertecies;
 	}
 
-	static List<Edge> FindRoadPos(List<Node> vertecies)
+	static List<Edge> FindRoadPos(List<Node> verteciesIn, out List<Node> vertecies)
 	{
+		vertecies = verteciesIn;
 		List<Edge> roads = new List<Edge> ();
 		List<Node> visited = new List<Node> (54);
 		for (var i = 0; i<vertecies.Count; i++) {
@@ -282,8 +290,9 @@ public class SetTiles : MonoBehaviour {
 					float y_mid = (y1 + y2)/2;
 					float angle = (float)Math.Atan((y1 - y2)/(x1 - x2))*57.2957795f; //converting from radians to degrees
 					print (angle);
-					roads.Add(new Edge(new Vector3(x_mid, y_mid, 0), angle, gamestate.GetCurrentTurnPlayer()));
-
+					roads.Add(new Edge(new Vector3(x_mid, y_mid, 0), angle, null, vertecies[i], neighbors[j], false));
+					vertecies[i].addRoad(roads[roads.Count-1]);
+					vertecies[vertecies.IndexOf(neighbors[j])].addRoad(roads[roads.Count-1]);
 
 				}
 			}

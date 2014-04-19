@@ -7,14 +7,16 @@ public class Tile {
 
 		ore,sheep,lumber,grain,brick,none
 	};
-	public Resource resource;
-	public Vector3 geoLocation;
-	public Vector2 position;
+	Resource resource;
+	Vector3 geoLocation;
+	Vector2 position;
+	int chitValue;
 
-	public Tile(Resource r, Vector3 gl, Vector2 p){
+	public Tile(Resource r, Vector3 gl, Vector2 p, int chitValue){
 		resource = r;
 		geoLocation = gl;
 		position = p;
+		this.chitValue = chitValue;
 	}
 
 	public Vector3 getLoc(){
