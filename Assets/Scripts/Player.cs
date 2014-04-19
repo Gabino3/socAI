@@ -31,6 +31,21 @@ public class Player
 		hand = new PlayerHand();
 	}
 
+	public bool canBuildCity()
+	{
+		return (hand.ore >= 3) && (hand.grain >= 2);
+	}
+
+	public bool canBuildRoad()
+	{
+		return (hand.brick >= 1) && (hand.wood >= 1);
+	}
+
+	public bool canBuildSettlement()
+	{
+		return (hand.brick >= 1) && (hand.wood >= 1) && (hand.grain >= 1) && (hand.sheep >= 1);
+	}
+
 	public int VictoryPoints()
 	{
 		return (1 * numSettlements) + (2 * numCities) + hand.victoryPoints + GetLargestArmyModifier() + GetLongestRoadModifier();
