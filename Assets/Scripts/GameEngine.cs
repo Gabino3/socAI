@@ -90,11 +90,7 @@ public class GameEngine : MonoBehaviour
 						//TODO add color based on player and save the road in an list/array/dict
 					}
 					else if(objectToBuild == settlementSelector.transform && board.settlementHitboxes.ContainsKey(hit.transform)){
-						GameObject s = Instantiate(Resources.Load("settlement"), hit.transform.position , Quaternion.identity) as GameObject;
-						s.renderer.material.color = Color.red;
-						board.settlements.Add(s.transform, s);
-						Destroy(board.settlementHitboxes[hit.transform]);
-						board.settlementHitboxes.Remove(hit.transform);
+						board.PlaceSettlement(hit.transform, gamestate.GetCurrentTurnPlayer());
 						objectToBuild = null;
 						print ("settlement built!");
 					}

@@ -61,17 +61,17 @@ public class Board : MonoBehaviour
 	/*
 	 * Methods for determining valid object placement.
 	 */
-	public bool canBuildSettlementHere(Player player)
+	public bool CanBuildSettlementHere(Player player)
 	{
 		// TODO
 		return false;
 	}
-	public bool canBuildCityHere(Player player)
+	public bool CanBuildCityHere(Player player)
 	{
 		// TODO
 		return false;
 	}
-	public bool canBuildRoadHere(Player player)
+	public bool CanBuildRoadHere(Player player)
 	{
 		// TODO
 		return false;
@@ -223,18 +223,40 @@ public class Board : MonoBehaviour
 	/*
 	 * Places clickable hitboxes for roads and settlements/cities.
 	 */
-	private void PlaceHitboxes() {
-		for (var i = 0; i<roads.Count; i++) {
+	private void PlaceHitboxes()
+	{
+		for (var i = 0; i < roads.Count; i++) {
 			GameObject s = Instantiate(Resources.Load("r_placeholder"), roads[i].getLoc(), Quaternion.identity) as GameObject;
 			s.transform.eulerAngles = new Vector3(0f,0f,(roads[i]).getAngle());
 			s.renderer.enabled = showHitboxes;
 			roadHitboxes.Add(s.transform, s);
 		}
-		for (var i = 0; i<vertices.Count; i++) {
+		for (var i = 0; i < vertices.Count; i++) {
 			GameObject t = Instantiate(Resources.Load("v_placeholder"), vertices[i].getLoc(), Quaternion.identity) as GameObject;
 			t.renderer.enabled = showHitboxes;
 			settlementHitboxes.Add(t.transform, t);	
 		}
+	}
+
+	/*
+	 * Places an AI's settlement.
+	 */
+	public void PlaceSettlement(Node node, Player player)
+	{
+		//TODO
+	}
+
+	/*
+	 * Places a human player's settlement.
+	 */
+	public void PlaceSettlement(Transform hitbox, Player player)
+	{
+		GameObject s = Instantiate(Resources.Load("settlement"), hitbox.position , Quaternion.identity) as GameObject;
+		s.renderer.material.color = player.color;
+		settlements.Add(s.transform, s);
+		Destroy(settlementHitboxes[hitbox]);
+		settlementHitboxes.Remove(hitbox);
+		//TODO add settlement node to Player's 'structures' variable
 	}
 
 	/*

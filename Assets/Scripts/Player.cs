@@ -8,9 +8,9 @@ public class Player
 	public bool isAI;
 	public Color color;
 	PlayerHand hand;
-
-	int numSettlements;
-	int numCities;
+	
+	List<Edge> roads;
+	List<Node> structures;
 	public int longestRoad;
 	public int largestArmy;
 	
@@ -31,29 +31,24 @@ public class Player
 		hand = new PlayerHand();
 	}
 
-	public bool canBuildCity()
+	public void AddStructure()
+	{
+		//TODO
+	}
+
+	public bool CanBuildCity()
 	{
 		return (hand.ore >= 3) && (hand.grain >= 2);
 	}
 
-	public bool canBuildRoad()
+	public bool CanBuildRoad()
 	{
 		return (hand.brick >= 1) && (hand.wood >= 1);
 	}
 
-	public bool canBuildSettlement()
+	public bool CanBuildSettlement()
 	{
 		return (hand.brick >= 1) && (hand.wood >= 1) && (hand.grain >= 1) && (hand.sheep >= 1);
-	}
-
-	public int VictoryPoints()
-	{
-		return (1 * numSettlements) + (2 * numCities) + hand.victoryPoints + GetLargestArmyModifier() + GetLongestRoadModifier();
-	}
-
-	public bool HasWon()
-	{
-		return VictoryPoints() >= 10;
 	}
 
 	// Dummy method to include largest army; will relocate to GameState at a future point
@@ -71,5 +66,41 @@ public class Player
 	public PlayerHand Hand()
 	{
 		return hand;
+	}
+
+	public bool HasWon()
+	{
+		return VictoryPoints() >= 10;
+	}
+
+	private int NumCities()
+	{
+		int numCities = 0;
+
+		structures.ForEach (delegate(Node structure) {
+			if (structure.occupied == Node.Occupation.city) {
+				numCities++;
+			}
+		});
+
+		return numCities;
+	}
+
+	private int NumSettlements()
+	{
+		int numSettlements = 0;
+		
+		structures.ForEach (delegate(Node structure) {
+			if (structure.occupied == Node.Occupation.settlement) {
+				numSettlements++;
+			}
+		});
+		
+		return numSettlements;
+	}
+
+	public int VictoryPoints()
+	{
+		return (1 * NumSettlements()) + (2 * NumCities()) + hand.victoryPoints + GetLargestArmyModifier() + GetLongestRoadModifier();
 	}
 }
