@@ -8,17 +8,16 @@ public class GameState : MonoBehaviour
 	int numPlayers;
 	int turnCounter;
 	int currentPlayerTurn;
-
-	private List<Node> roads;
-	private List<Edge> vertices;
+	Board board;
 
 	private static System.Random rand = new System.Random();
 	private static Player longestRoadPlayer;
 	private static Player largestArmyPlayer;
 
-	public GameState(int numPlayers, List<Node> roads, List<Edge> vertices)
+	public GameState(int numPlayers, Board board)
 	{
 		this.numPlayers = numPlayers;
+		this.board = board;
 
 		playersArray = new Player[numPlayers];
 		for (int i = 0; i < numPlayers; i++)
@@ -98,7 +97,7 @@ public class GameState : MonoBehaviour
 	public int RollDice()
 	{
 		int roll = rand.Next (6) + rand.Next (6) + 2;
-		string timestamp = System.DateTime.Now.ToString ("yyyyMMddHHmmssffff");
+		string timestamp = System.DateTime.Now.ToString ("yyyy/MM/dd HH:mm:ss:ffff");
 
 		print ("[" + timestamp + "] DICE ROLL: " + roll);
 
@@ -115,32 +114,4 @@ public class GameState : MonoBehaviour
 	{
 		currentPlayerTurn = turnCounter % numPlayers;
 	}
-
-
-	public bool canBuildSettlement()
-	{
-		return false;
-	}
-	public bool canBuildCity()
-	{
-		return false;
-	}
-	public bool canBuildRoad()
-	{
-		return false;
-	}
-
-	public bool canBuildSettlementHere()
-	{
-		return false;
-	}
-	public bool canBuildCityHere()
-	{
-		return false;
-	}
-	public bool canBuildRoadHere()
-	{
-		return false;
-	}
-
 }

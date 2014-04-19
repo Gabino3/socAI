@@ -120,7 +120,7 @@ public class SetTiles : MonoBehaviour {
 		thingToBuild = null;
 
 		//Create gamestate handler
-		gamestate = new GameState(4, vertices, roads);
+		gamestate = new GameState(4, null);
 
 		//Instantiate player hand (bottom right)
 		Instantiate (Resources.Load ("card_brick"), new Vector3 (12.5844f, 0.1522f, 1), Quaternion.identity);
