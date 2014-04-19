@@ -10,7 +10,7 @@ public class SetTiles : MonoBehaviour {
 	GameObject settlement;
 	GameObject road;
 
-	static GameState gamestate = new GameState(4);
+	static GameState gamestate;
 
 
 	// Use this for initialization
@@ -57,17 +57,6 @@ public class SetTiles : MonoBehaviour {
 
 		var tiles = new List<Tile>(19);
 
-		//Instantiate player hand (bottom right)
-		Instantiate (Resources.Load ("card_brick"), new Vector3 (12.5844f, 0.1522f, 1), Quaternion.identity);
-		Instantiate (Resources.Load ("card_ore"), new Vector3 (14.1115f, 0.1522f, 1), Quaternion.identity);
-		Instantiate (Resources.Load ("card_wood"), new Vector3 (15.6386f, 0.1522f, 1), Quaternion.identity);
-		Instantiate (Resources.Load ("card_grain"), new Vector3 (17.1657f, 0.1522f, 1), Quaternion.identity);
-		Instantiate (Resources.Load ("card_sheep"), new Vector3 (18.6928f, 0.1522f, 1), Quaternion.identity);
-		DisplayPlayerCardCount ();
-
-		//Instantiate dice roll indicator
-		Instantiate (Resources.Load ("dice"), new Vector3 (14.24463f, 7.134943f, 1), Quaternion.identity);
-
 		//Place tiles
 		int counter = 0;
 		int chitCounter = 0;
@@ -100,8 +89,8 @@ public class SetTiles : MonoBehaviour {
 
 		tileCorners = MergeDuplicates (tileCorners);
 
-		List<Node> vertecies = VecToNodes (tileCorners, tiles, hexSize);
-		List<Edge> roads = FindRoadPos ( vertecies, out vertecies);
+		List<Node> vertices = VecToNodes (tileCorners, tiles, hexSize);
+		List<Edge> roads = FindRoadPos ( vertices, out vertices);
 		print (roads.Count);
 		//List<>
 		 
@@ -112,8 +101,8 @@ public class SetTiles : MonoBehaviour {
 			roadPlaceholders.Add(s.transform, s);
 
 		}
-		for (var i = 0; i<vertecies.Count; i++) {
-			GameObject t = Instantiate(Resources.Load("v_placeholder"), vertecies[i].getLoc(), Quaternion.identity) as GameObject;
+		for (var i = 0; i<vertices.Count; i++) {
+			GameObject t = Instantiate(Resources.Load("v_placeholder"), vertices[i].getLoc(), Quaternion.identity) as GameObject;
 			t.renderer.enabled = false;
 			settlementPlaceholders.Add(t.transform, t);
 			
@@ -131,6 +120,20 @@ public class SetTiles : MonoBehaviour {
 		settlement.transform.localScale += settlement.transform.localScale;
 
 		thingToBuild = null;
+
+		//Create gamestate handler
+		gamestate = new GameState(4, vertices, roads);
+
+		//Instantiate player hand (bottom right)
+		Instantiate (Resources.Load ("card_brick"), new Vector3 (12.5844f, 0.1522f, 1), Quaternion.identity);
+		Instantiate (Resources.Load ("card_ore"), new Vector3 (14.1115f, 0.1522f, 1), Quaternion.identity);
+		Instantiate (Resources.Load ("card_wood"), new Vector3 (15.6386f, 0.1522f, 1), Quaternion.identity);
+		Instantiate (Resources.Load ("card_grain"), new Vector3 (17.1657f, 0.1522f, 1), Quaternion.identity);
+		Instantiate (Resources.Load ("card_sheep"), new Vector3 (18.6928f, 0.1522f, 1), Quaternion.identity);
+		DisplayPlayerCardCount ();
+		
+		//Instantiate dice roll indicator
+		Instantiate (Resources.Load ("dice"), new Vector3 (14.24463f, 7.134943f, 1), Quaternion.identity);
 	}
 
 	static void DisplayPlayerCardCount()
@@ -209,88 +212,88 @@ public class SetTiles : MonoBehaviour {
 
 
 	static List<Node> VecToNodes(List<Vector3> corners, List<Tile> tiles, float size){
-		List<Node> vertecies = new List<Node> (54);
+		List<Node> vertices = new List<Node> (54);
 		for (var i = 0; i<corners.Count; i++) {
-			vertecies.Add (new Node (corners [i]));
+			vertices.Add (new Node (corners [i]));
 		}
 
-		vertecies = FindNeighbors (vertecies, size);
+		vertices = FindNeighbors (vertices, size);
 
-		vertecies = FindResources (vertecies, tiles, size);
+		vertices = FindResources (vertices, tiles, size);
 
-		vertecies = FindLogicalPos (vertecies);
+		vertices = FindLogicalPos (vertices);
 
-		return vertecies;
+		return vertices;
 	}
 
-	static List<Node> FindNeighbors(List<Node> vertecies, float size)
+	static List<Node> FindNeighbors(List<Node> vertices, float size)
 	{
 		float threshold = size + 0.2f;
 
-		for (var i = 0; i<vertecies.Count; i++) {
-			for (var j = 0; j<vertecies.Count;j++){
-				double d = Math.Sqrt( Math.Pow((vertecies[i]).getLoc().x - (vertecies[j]).getLoc().x, 2) + Math.Pow((vertecies[i]).getLoc().y - (vertecies[j]).getLoc().y, 2));
+		for (var i = 0; i<vertices.Count; i++) {
+			for (var j = 0; j<vertices.Count;j++){
+				double d = Math.Sqrt( Math.Pow((vertices[i]).getLoc().x - (vertices[j]).getLoc().x, 2) + Math.Pow((vertices[i]).getLoc().y - (vertices[j]).getLoc().y, 2));
 				if(d<threshold && i!=j){
-					(vertecies[i]).addNeighbor(vertecies[j]);
+					(vertices[i]).addNeighbor(vertices[j]);
 				}	
 			}
 		}
 
 
 
-		return vertecies;
+		return vertices;
 	}
 
-	static List<Node> FindResources(List<Node> vertecies, List<Tile> tiles, float size)
+	static List<Node> FindResources(List<Node> vertices, List<Tile> tiles, float size)
 	{
 		float threshold = size + 0.2f;
 		
-		for (var i = 0; i<vertecies.Count; i++) {
+		for (var i = 0; i<vertices.Count; i++) {
 			for (var j = 0; j<tiles.Count;j++){
-				double d = Math.Sqrt( Math.Pow((vertecies[i]).getLoc().x - (tiles[j]).getLoc().x, 2) + Math.Pow((vertecies[i]).getLoc().y - (tiles[j]).getLoc().y, 2));
+				double d = Math.Sqrt( Math.Pow((vertices[i]).getLoc().x - (tiles[j]).getLoc().x, 2) + Math.Pow((vertices[i]).getLoc().y - (tiles[j]).getLoc().y, 2));
 				if(d<threshold && i!=j){
-					(vertecies[i]).addTile(tiles[j]);
+					(vertices[i]).addTile(tiles[j]);
 				}	
 			}
 		}
 
-		return vertecies;
+		return vertices;
 	}
 
-	static List<Node> FindLogicalPos(List<Node> vertecies)
+	static List<Node> FindLogicalPos(List<Node> vertices)
 	{
 		float threshold = 0.2f;
 		
-		for (var i = 0; i<vertecies.Count; i++) {
+		for (var i = 0; i<vertices.Count; i++) {
 
 		}
 		
-		return vertecies;
+		return vertices;
 	}
 
-	static List<Edge> FindRoadPos(List<Node> verteciesIn, out List<Node> vertecies)
+	static List<Edge> FindRoadPos(List<Node> verticesIn, out List<Node> vertices)
 	{
-		vertecies = verteciesIn;
+		vertices = verticesIn;
 		List<Edge> roads = new List<Edge> ();
 		List<Node> visited = new List<Node> (54);
-		for (var i = 0; i<vertecies.Count; i++) {
-			visited.Add(vertecies[i]);
-			List<Node> neighbors = (vertecies[i]).getNeighbors();
+		for (var i = 0; i<vertices.Count; i++) {
+			visited.Add(vertices[i]);
+			List<Node> neighbors = (vertices[i]).getNeighbors();
 			for (var j = 0; j<neighbors.Count;j++) {
 				if(!visited.Contains(neighbors[j])){
 
-					float x1 = (vertecies[i]).getLoc().x;
+					float x1 = (vertices[i]).getLoc().x;
 					float x2 = (neighbors[j]).getLoc().x;
-					float y1 = (vertecies[i]).getLoc().y;
+					float y1 = (vertices[i]).getLoc().y;
 					float y2 = (neighbors[j]).getLoc().y;
 
 					float x_mid = (x1 + x2)/2;
 					float y_mid = (y1 + y2)/2;
 					float angle = (float)Math.Atan((y1 - y2)/(x1 - x2))*57.2957795f; //converting from radians to degrees
 					print (angle);
-					roads.Add(new Edge(new Vector3(x_mid, y_mid, 0), angle, null, vertecies[i], neighbors[j], false));
-					vertecies[i].addRoad(roads[roads.Count-1]);
-					vertecies[vertecies.IndexOf(neighbors[j])].addRoad(roads[roads.Count-1]);
+					roads.Add(new Edge(new Vector3(x_mid, y_mid, 0), angle, null, vertices[i], neighbors[j], false));
+					vertices[i].addRoad(roads[roads.Count-1]);
+					vertices[vertices.IndexOf(neighbors[j])].addRoad(roads[roads.Count-1]);
 
 				}
 			}

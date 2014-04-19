@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class GameState : MonoBehaviour
 {
@@ -8,11 +9,14 @@ public class GameState : MonoBehaviour
 	int turnCounter;
 	int currentPlayerTurn;
 
+	private List<Node> roads;
+	private List<Edge> vertices;
+
 	private static System.Random rand = new System.Random();
 	private static Player longestRoadPlayer;
 	private static Player largestArmyPlayer;
 
-	public GameState(int numPlayers)
+	public GameState(int numPlayers, List<Node> roads, List<Edge> vertices)
 	{
 		this.numPlayers = numPlayers;
 
@@ -94,7 +98,9 @@ public class GameState : MonoBehaviour
 	public int RollDice()
 	{
 		int roll = rand.Next (6) + rand.Next (6) + 2;
-		print ("DICE ROLL: " + roll);
+		string timestamp = System.DateTime.Now.ToString ("yyyyMMddHHmmssffff");
+
+		print ("[" + timestamp + "] DICE ROLL: " + roll);
 
 		return roll;
 	}
