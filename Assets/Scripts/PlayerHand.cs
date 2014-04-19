@@ -30,14 +30,19 @@ public class PlayerHand : MonoBehaviour
 		//randomizeHand();
 	}
 	
-	public void randomizeHand()
+	public void randomize()
 	{
-		System.Random generator = new System.Random();
+		System.Random rand = new System.Random();
 		
-		brick = generator.Next(4);
-		ore = generator.Next(4);
-		wood = generator.Next(4);
-		grain = generator.Next(4);
-		sheep = generator.Next(4);
+		brick = rand.Next(4);
+		ore = rand.Next(4);
+		wood = rand.Next(4);
+		grain = rand.Next(4);
+		sheep = rand.Next(4);
+	}
+
+	public int totalResources()
+	{
+		return brick + ore + wood + grain + sheep;
 	}
 }

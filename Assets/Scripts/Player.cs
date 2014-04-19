@@ -30,41 +30,29 @@ public class Player
 		hand = new PlayerHand();
 	}
 
-	public int CalculateVictoryPoints()
+	public int VictoryPoints()
 	{
 		return (1 * numSettlements) + (2 * numCities) + hand.victoryPoints + GetLargestArmyModifier() + GetLongestRoadModifier();
 	}
 
 	public bool HasWon()
 	{
-		return CalculateVictoryPoints() >= 10;
+		return VictoryPoints() >= 10;
 	}
 
 	// Dummy method to include largest army; will relocate to GameState at a future point
 	public int GetLargestArmyModifier()
 	{
-		int modifier = 0;
-		if(GameState.DoesPlayerHaveLargestArmy(this))
-		{
-			modifier = 2;
-		}
-
-		return modifier;
+		return GameState.HasLargestArmy (this) ? 2 : 0;
 	}
 
 	// Dummy method to include longest road; will relocate to GameState at a future point
 	public int GetLongestRoadModifier()
 	{
-		int modifier = 0;
-		if(GameState.DoesPlayerHaveLongestRoad(this))
-		{
-			modifier = 2;
-		}
-
-		return modifier;
+		return GameState.HasLongestRoad (this) ? 2 : 0;
 	}
 
-	public PlayerHand GetPlayerHand()
+	public PlayerHand Hand()
 	{
 		return hand;
 	}

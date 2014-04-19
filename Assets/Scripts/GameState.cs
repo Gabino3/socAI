@@ -8,6 +8,7 @@ public class GameState : MonoBehaviour
 	int turnCounter;
 	int currentPlayerTurn;
 
+	private static System.Random rand = new System.Random();
 	private static Player longestRoadPlayer;
 	private static Player largestArmyPlayer;
 
@@ -30,20 +31,16 @@ public class GameState : MonoBehaviour
 		{
 			// Play Game
 
-
-
+			for (int i = 0; i < 20; i++) {
+				print (RollDice ());
+			}
 
 			EndTurn();
 		}
 		while(!IsGameOver());
 	}
 
-	public Player GetCurrentTurnPlayer()
-	{
-		return playersArray[currentPlayerTurn];
-	}
-
-	public void EndTurn()
+	private void EndTurn()
 	{
 		if(GetCurrentTurnPlayer().longestRoad >= 5 && (longestRoadPlayer == null || GetCurrentTurnPlayer().longestRoad > longestRoadPlayer.longestRoad))
 		{
@@ -56,10 +53,30 @@ public class GameState : MonoBehaviour
 		}
 	}
 
+	public Player GetCurrentTurnPlayer()
+	{
+		return playersArray[currentPlayerTurn];
+	}
+
+	public Player GetPlayerAtIndex(int index)
+	{
+		return playersArray[index];
+	}
+
+	public static bool HasLargestArmy(Player player)
+	{
+		return player == largestArmyPlayer;
+	}
+
+	public static bool HasLongestRoad(Player player)
+	{
+		return player == longestRoadPlayer;
+	}
+
 	private bool IsGameOver()
 	{
 		bool gameOver = false;
-
+		
 		if(GetCurrentTurnPlayer().HasWon())
 		{
 			// Game Over; player 'getCurrentTurnPlayer' has won
@@ -69,9 +86,14 @@ public class GameState : MonoBehaviour
 		{
 			UpdateGameState();
 		}
-
+		
 		return true;
 		//return gameOver;
+	}
+
+	public int RollDice()
+	{
+		return rand.Next (6) + rand.Next (6) + 2;
 	}
 
 	private void UpdateGameState()
@@ -83,20 +105,5 @@ public class GameState : MonoBehaviour
 	private void UpdatePlayerTurn()
 	{
 		currentPlayerTurn = turnCounter % numPlayers;
-	}
-
-	public static bool DoesPlayerHaveLongestRoad(Player player)
-	{
-		return player == longestRoadPlayer;
-	}
-
-	public static bool DoesPlayerHaveLargestArmy(Player player)
-	{
-		return player == largestArmyPlayer;
-	}
-
-	public Player GetPlayerAtIndex(int index)
-	{
-		return playersArray[index];
 	}
 }
