@@ -18,6 +18,7 @@ public class Player
 	{
 		this.id = id;
 		this.isAI = isAI;
+
 		switch (id)
 		{
 			case 1: color = Color.blue; break;

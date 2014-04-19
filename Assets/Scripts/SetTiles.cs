@@ -65,6 +65,9 @@ public class SetTiles : MonoBehaviour {
 		Instantiate (Resources.Load ("card_sheep"), new Vector3 (18.6928f, 0.1522f, 1), Quaternion.identity);
 		DisplayPlayerCardCount ();
 
+		//Instantiate dice roll indicator
+		Instantiate (Resources.Load ("dice"), new Vector3 (14.24463f, 7.134943f, 1), Quaternion.identity);
+
 		//Place tiles
 		int counter = 0;
 		int chitCounter = 0;
@@ -128,11 +131,6 @@ public class SetTiles : MonoBehaviour {
 		settlement.transform.localScale += settlement.transform.localScale;
 
 		thingToBuild = null;
-		GameObject text = Instantiate(Resources.Load("text"), new Vector3(-2.5f,-2f,-1f), Quaternion.identity) as GameObject;
-		text.guiText.text = "01110011";
-
-		//text.transform.localScale += settlement.transform.localScale;
-
 	}
 
 	static void DisplayPlayerCardCount()
@@ -355,18 +353,6 @@ public class SetTiles : MonoBehaviour {
 					}
 				}
 			}
-		}
-	}
-
-	void onGUI ()
-	{
-		//GUIText myText = GameObject.Find ("").GetComponent<GUIText> () as GUIText;
-
-		guiText.text = "hallo!";
-
-		GUI.Label (new Rect (10, 10, 100, 20), "Hello World!");
-		if (GUI.Button (new Rect (10, 10, 150, 100), "I am a button")) {
-			print ("You clicked the button!");
 		}
 	}
 }

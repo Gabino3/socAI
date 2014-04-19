@@ -12,12 +12,12 @@ public class GameState : MonoBehaviour
 	private static Player longestRoadPlayer;
 	private static Player largestArmyPlayer;
 
-	public GameState(int playerCount)
+	public GameState(int numPlayers)
 	{
-		numPlayers = playerCount;
+		this.numPlayers = numPlayers;
 
 		playersArray = new Player[numPlayers];
-		for (int i = 0; i < playerCount; i++)
+		for (int i = 0; i < numPlayers; i++)
 		{
 			playersArray[i] = new Player(i, i!=0);
 		}
@@ -32,7 +32,7 @@ public class GameState : MonoBehaviour
 			// Play Game
 
 			for (int i = 0; i < 20; i++) {
-				print (RollDice ());
+				RollDice ();
 			}
 
 			EndTurn();
@@ -93,7 +93,10 @@ public class GameState : MonoBehaviour
 
 	public int RollDice()
 	{
-		return rand.Next (6) + rand.Next (6) + 2;
+		int roll = rand.Next (6) + rand.Next (6) + 2;
+		print ("DICE ROLL: " + roll);
+
+		return roll;
 	}
 
 	private void UpdateGameState()
