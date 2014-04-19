@@ -99,8 +99,6 @@ public class SetTiles : MonoBehaviour {
 
 		List<Node> vertecies = VecToNodes (tileCorners, tiles, hexSize);
 		List<Edge> roads = FindRoadPos ( vertecies, out vertecies);
-		print (roads.Count);
-		//List<>
 		 
 		for (var i = 0; i<roads.Count; i++) {
 			GameObject s = Instantiate(Resources.Load("r_placeholder"), roads[i].getLoc(), Quaternion.identity) as GameObject;
@@ -289,7 +287,19 @@ public class SetTiles : MonoBehaviour {
 					float x_mid = (x1 + x2)/2;
 					float y_mid = (y1 + y2)/2;
 					float angle = (float)Math.Atan((y1 - y2)/(x1 - x2))*57.2957795f; //converting from radians to degrees
-					print (angle);
+
+					if(angle > 350 || (angle < 5 && angle > -5)){
+						angle = 0;
+					} 
+					else if (angle > 55 && angle < 65){
+						angle = 60;
+					}
+					else if (angle > -65 && angle < -55){
+						angle = 300;
+					}
+
+
+
 					roads.Add(new Edge(new Vector3(x_mid, y_mid, 0), angle, null, vertecies[i], neighbors[j], false));
 					vertecies[i].addRoad(roads[roads.Count-1]);
 					vertecies[vertecies.IndexOf(neighbors[j])].addRoad(roads[roads.Count-1]);
