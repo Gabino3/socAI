@@ -109,4 +109,32 @@ public class GameState : MonoBehaviour
 	{
 		currentPlayerTurn = turnCounter % numPlayers;
 	}
+
+
+	public bool canBuildSettlement()
+	{
+		return false;
+	}
+	public bool canBuildCity()
+	{
+		return false;
+	}
+	public bool canBuildRoad()
+	{
+		return false;
+	}
+
+	public bool canBuildSettlementHere()
+	{
+		return false;
+	}
+	public bool canBuildCityHere()
+	{
+		return false;
+	}
+	public bool canBuildRoadHere()
+	{
+		return false;
+	}
+
 }
