@@ -30,7 +30,7 @@ public class GameState : MonoBehaviour
 		longestRoadPlayer = null;	// Requires 5+ consecutive roads to first attain 'Longest Road'
 		largestArmyPlayer = null;	// Requires 3+ total knights to first attain 'Largest Army'
 
-		int gameOver = false;
+		bool gameOver = false;
 
 		do
 		{
