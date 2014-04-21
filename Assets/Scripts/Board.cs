@@ -162,7 +162,7 @@ public class Board : MonoBehaviour
 		
 		for (var i = 0; i<vertices.Count; i++) {
 			for (var j = 0; j<tiles.Count;j++){
-				double d = Math.Sqrt( Math.Pow((vertices[i]).getLoc().x - (tiles[j]).getLoc().x, 2) + Math.Pow((vertices[i]).getLoc().y - (tiles[j]).getLoc().y, 2));
+				double d = Math.Sqrt( Math.Pow((vertices[i]).getLoc().x - (tiles[j]).GetLoc().x, 2) + Math.Pow((vertices[i]).getLoc().y - (tiles[j]).GetLoc().y, 2));
 				if(d<threshold && i!=j){
 					vertices[i].addTile(tiles[j]);
 				}	
@@ -345,12 +345,11 @@ public class Board : MonoBehaviour
 		s.renderer.material.color = player.color;
 		Destroy (settlements [hitbox]);
 		settlements.Remove (hitbox);
-		for (int i = 0;i<roads.Count;i++){
+		for (int i = 0; i < vertices.Count; i++){
 			if (vertices[i].visual.transform == hitbox){
 				vertices [i].visual = s;
 				vertices [i].owner = player;
 				vertices[i].occupied = Node.Occupation.city;
-				player.AddStructure(vertices[i]);
 			}
 		}
 
@@ -376,7 +375,7 @@ public class Board : MonoBehaviour
 					tilePos.Add(GetWorldCoordinates(x,y,0));
 					Instantiate(Resources.Load(tileDeck[counter]), tilePos[counter], Quaternion.identity);
 					switch(tileDeck[counter]){
-					case "tile_lumber"	: tiles.Add(new Tile(Tile.Resource.lumber, tilePos[counter], new Vector2(x,y),chitConversions[chitDeck[chitCounter]])); break;
+					case "tile_lumber"	: tiles.Add(new Tile(Tile.Resource.wood, tilePos[counter], new Vector2(x,y),chitConversions[chitDeck[chitCounter]])); break;
 					case "tile_ore"		: tiles.Add(new Tile(Tile.Resource.ore, tilePos[counter], new Vector2(x,y),chitConversions[chitDeck[chitCounter]])); break;
 					case "tile_sheep"	: tiles.Add(new Tile(Tile.Resource.sheep, tilePos[counter], new Vector2(x,y),chitConversions[chitDeck[chitCounter]])); break;
 					case "tile_grain"	: tiles.Add(new Tile(Tile.Resource.grain, tilePos[counter], new Vector2(x,y),chitConversions[chitDeck[chitCounter]])); break;

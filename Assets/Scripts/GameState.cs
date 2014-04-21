@@ -38,9 +38,19 @@ public class GameState : MonoBehaviour
 				RollDice ();
 			}
 
-			EndTurn();
+			//EndTurn();
 		}
 		while(!IsGameOver());
+	}
+
+	/*
+	 * Has each player collect resources from owned tiles based on dice roll.
+	 */
+	public void CollectPlayerResources(int diceRoll)
+	{
+		for (int i = 0; i < numPlayers; i++) {
+			playersArray[i].CollectResources(diceRoll);
+		}
 	}
 
 	private void EndTurn()
@@ -85,15 +95,15 @@ public class GameState : MonoBehaviour
 			// Game Over; player 'getCurrentTurnPlayer' has won
 			gameOver = true;
 		}
-		else
+		/*else
 		{
 			UpdateGameState();
-		}
+		}*/
 		
 		return true;
 		//return gameOver;
 	}
-
+	
 	public int RollDice()
 	{
 		int roll = rand.Next (6) + rand.Next (6) + 2;
