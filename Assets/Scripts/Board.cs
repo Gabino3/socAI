@@ -9,9 +9,9 @@ public class Board : MonoBehaviour
 	bool showHitboxes = false;
 
 	//Board elements
-	List<Edge> roads;
-	List<Tile> tiles;
-	List<Node> vertices;
+	public List<Edge> roads;
+	public List<Tile> tiles;
+	public List<Node> vertices;
 	public Dictionary<Transform, GameObject> settlements;
 	public Dictionary<Transform, GameObject> roadHitboxes;
 	public Dictionary<Transform, GameObject> settlementHitboxes;
@@ -229,11 +229,13 @@ public class Board : MonoBehaviour
 			GameObject s = Instantiate(Resources.Load("r_placeholder"), roads[i].getLoc(), Quaternion.identity) as GameObject;
 			s.transform.eulerAngles = new Vector3(0f,0f,(roads[i]).getAngle());
 			s.renderer.enabled = showHitboxes;
+			roads[i].visual = s;
 			roadHitboxes.Add(s.transform, s);
 		}
 		for (var i = 0; i < vertices.Count; i++) {
 			GameObject t = Instantiate(Resources.Load("v_placeholder"), vertices[i].getLoc(), Quaternion.identity) as GameObject;
 			t.renderer.enabled = showHitboxes;
+			vertices[i].visual = t;
 			settlementHitboxes.Add(t.transform, t);	
 		}
 	}

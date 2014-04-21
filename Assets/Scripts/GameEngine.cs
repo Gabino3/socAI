@@ -84,7 +84,13 @@ public class GameEngine : MonoBehaviour
 						s.transform.eulerAngles = hit.transform.eulerAngles;
 						s.renderer.material.color = Color.red;
 						Destroy(board.roadHitboxes[hit.transform]);
-						board.roadHitboxes.Remove(hit.transform);
+						board.roadHitboxes.Remove(hit.transform);	
+						for (int i = 0;i<board.roads.Count;i++){
+							if (board.roads[i].visual.transform == hit.transform){
+								print ("its in here");
+								print (board.roads[i].visual.transform);
+							}
+						}
 						objectToBuild = null;
 						print ("road built!");
 						//TODO add color based on player and save the road in an list/array/dict

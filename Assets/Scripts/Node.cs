@@ -16,6 +16,7 @@ public class Node {
 	List<Tile> adjTiles;
 	public Occupation occupied;
 	public Player owner;
+	public GameObject visual;
 
 	public Node(Vector3 geoLocation){
 		this.geoLocation = geoLocation;
@@ -24,6 +25,7 @@ public class Node {
 		adjTiles = new List<Tile> (3);
 		occupied = Occupation.none;
 		owner = null;
+		visual = null;
 	}
 
 	public void addNeighbor(Node node){

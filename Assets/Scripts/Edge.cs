@@ -10,6 +10,7 @@ public class Edge  {
 	List<Node> neighbors;
 	public Player owner;
 	public bool occupied;
+	public GameObject visual;
 	
 	public Edge(Vector3 geoLocation, float angle, Player player, Node n1, Node n2, bool occupied)
 	{
@@ -18,6 +19,7 @@ public class Edge  {
 		neighbors = new List<Node> {n1, n2};
 		owner = player;
 		this.occupied = occupied;
+		visual = null;
 	}
 	
 	public void addNeighbor(Node node){

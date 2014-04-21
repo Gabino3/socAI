@@ -101,6 +101,6 @@ public class Player
 
 	public int VictoryPoints()
 	{
-		return (1 * NumSettlements()) + (2 * NumCities()) + hand.victoryPoints + GetLargestArmyModifier() + GetLongestRoadModifier();
+		return 1;//return (1 * NumSettlements()) + (2 * NumCities()) + hand.victoryPoints + GetLargestArmyModifier() + GetLongestRoadModifier();
 	}
 }
