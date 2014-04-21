@@ -63,26 +63,26 @@ public class Board : MonoBehaviour
 	 */
 	public bool CanBuildSettlementHere(Transform hitbox, Player player)
 	{
-		for (int i = 0;i<roads.Count;i++){
+		for (int i = 0;i<vertices.Count;i++){
 			if (vertices[i].visual.transform == hitbox && vertices[i].owner == null)
 			{
-				
-				vertices[i].getNeighbors().ForEach(delegate(Node neighbor) {
+				foreach (Node neighbor in vertices[i].getNeighbors())
+				 {
 					if (neighbor.owner != null) {
-						GameEngine.print ("Cannot build a settlement at this location! Another Settlement is too close by.");
+						GameEngine.print ("Cannot build a settlement at this location! Another Settlement/City is too close by.");
 						return false;
 					}
-				});
-
-				vertices[i].getRoads().ForEach(delegate(Edge neighbor) {
+				}
+				foreach (Edge neighbor in vertices[i].getRoads())
+				{
 					if (neighbor.owner == player) {
 						return true;
 					}
-				});
+				}
 				
 			}
 		}
-
+		GameEngine.print ("Cannot build a settlement at this location! No nearby Road.");
 		return false;
 	}
 	public bool CanBuildCityHere(Transform hitbox, Player player)
@@ -94,7 +94,7 @@ public class Board : MonoBehaviour
 				return true;
 			}
 		}
-		GameEngine.print ("Cannot build a city at this location!");
+		GameEngine.print ("Cannot build a city at this location! No settlement.");
 		return false;
 	}
 	public bool CanBuildRoadHere(Transform hitbox, Player player)
@@ -102,23 +102,23 @@ public class Board : MonoBehaviour
 		for (int i = 0;i<roads.Count;i++){
 			if (roads[i].visual.transform == hitbox && roads[i].owner == null)
 			{
-
-				roads[i].getNeighbors().ForEach(delegate(Node neighbor) {
+				foreach (Node neighbor in roads[i].getNeighbors())
+				{
 					if (neighbor.owner == player) {
 						return true;
 					}
-
-					neighbor.getRoads().ForEach(delegate(Edge nextRoad) {
+					foreach (Edge nextRoad in neighbor.getRoads())
+					{
 						if (nextRoad.owner == player) {
 							return true;
 						}
-					});
-				});
+					}
+				}
 			    
 
 			}
 		}
-		GameEngine.print ("Cannot build a road at this location!");
+		GameEngine.print ("Cannot build a road at this location! No nearby road or Settlement/City.");
 		return false;
 	}
 
