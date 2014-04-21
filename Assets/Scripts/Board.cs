@@ -246,6 +246,14 @@ public class Board : MonoBehaviour
 	public void PlaceSettlement(Node node, Player player)
 	{
 		//TODO
+
+		/*
+		for (int i = 0;i<board.roads.Count;i++){
+							if (board.roads[i].visual.transform == hit.transform){
+								board.roads[i].visual = s;
+							}
+		*/
+
 	}
 
 	/*

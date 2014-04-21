@@ -87,8 +87,7 @@ public class GameEngine : MonoBehaviour
 						board.roadHitboxes.Remove(hit.transform);	
 						for (int i = 0;i<board.roads.Count;i++){
 							if (board.roads[i].visual.transform == hit.transform){
-								print ("its in here");
-								print (board.roads[i].visual.transform);
+								board.roads[i].visual = s;
 							}
 						}
 						objectToBuild = null;
