@@ -1,4 +1,5 @@
 using UnityEngine;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -27,28 +28,48 @@ public class Player
 			case 3: color = Color.yellow; break;
 			default: color = Color.black; break;
 		}
-
+		structures = new List<Node> (54);
 		hand = new PlayerHand();
 	}
 
-	public void AddStructure()
+	public void AddStructure(Node structure)
 	{
-		//TODO
+		structures.Add (structure);
+	}
+
+	public void AddRoad(Edge road)
+	{
+		roads.Add (road);
 	}
 
 	public bool CanBuildCity()
 	{
-		return (hand.ore >= 3) && (hand.grain >= 2);
+		if ( (hand.ore >= 3) && (hand.grain >= 2) ) {
+			return true;
+		}
+		GameEngine.print ("Not Enough Resources!");
+		return false;
 	}
 
 	public bool CanBuildRoad()
 	{
-		return (hand.brick >= 1) && (hand.wood >= 1);
+		if ( (hand.brick >= 1) && (hand.wood >= 1) ) {
+			return true;
+		}
+		
+		GameEngine.print ("Not Enough Resources!");
+		return false;
+
 	}
 
 	public bool CanBuildSettlement()
 	{
-		return (hand.brick >= 1) && (hand.wood >= 1) && (hand.grain >= 1) && (hand.sheep >= 1);
+			if ( (hand.brick >= 1) && (hand.wood >= 1) && (hand.grain >= 1) && (hand.sheep >= 1) ) {
+				return true;
+			}
+			
+		GameEngine.print ("Not Enough Resources!");
+			return false;
 	}
 
 	// Dummy method to include largest army; will relocate to GameState at a future point
@@ -101,6 +122,6 @@ public class Player
 
 	public int VictoryPoints()
 	{
-		return 1;//return (1 * NumSettlements()) + (2 * NumCities()) + hand.victoryPoints + GetLargestArmyModifier() + GetLongestRoadModifier();
+		return (1 * NumSettlements()) + (2 * NumCities()) + hand.victoryPoints + GetLargestArmyModifier() + GetLongestRoadModifier();
 	}
 }

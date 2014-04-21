@@ -64,17 +64,17 @@ public class Board : MonoBehaviour
 	public bool CanBuildSettlementHere(Player player)
 	{
 		// TODO
-		return false;
+		return true;
 	}
 	public bool CanBuildCityHere(Player player)
 	{
 		// TODO
-		return false;
+		return true;
 	}
 	public bool CanBuildRoadHere(Player player)
 	{
 		// TODO
-		return false;
+		return true;
 	}
 
 	/*
@@ -247,13 +247,6 @@ public class Board : MonoBehaviour
 	{
 		//TODO
 
-		/*
-		for (int i = 0;i<board.roads.Count;i++){
-							if (board.roads[i].visual.transform == hit.transform){
-								board.roads[i].visual = s;
-							}
-		*/
-
 	}
 
 	/*
@@ -261,13 +254,63 @@ public class Board : MonoBehaviour
 	 */
 	public void PlaceSettlement(Transform hitbox, Player player)
 	{
-		GameObject s = Instantiate(Resources.Load("settlement"), hitbox.position , Quaternion.identity) as GameObject;
+		GameObject s = Instantiate (Resources.Load ("settlement"), hitbox.position, Quaternion.identity) as GameObject;
 		s.renderer.material.color = player.color;
-		settlements.Add(s.transform, s);
-		Destroy(settlementHitboxes[hitbox]);
-		settlementHitboxes.Remove(hitbox);
-		//TODO add settlement node to Player's 'structures' variable
+		settlements.Add (s.transform, s);
+		Destroy (settlementHitboxes [hitbox]);
+		settlementHitboxes.Remove (hitbox);
+		for (int i = 0; i<vertices.Count; i++) {
+				if (vertices [i].visual.transform == hitbox) {
+					vertices [i].visual = s;
+					vertices [i].owner = player;
+					vertices[i].occupied = Node.Occupation.settlement;
+					player.AddStructure(vertices[i]);
+				}
+		}
+		
 	}
+
+	/*
+	 * Places a human player's road.
+	 */
+	public void PlaceRoad(Transform hitbox, Player player)
+	{
+		GameObject s = Instantiate(Resources.Load("road"), hitbox.position , Quaternion.identity) as GameObject;
+		s.transform.eulerAngles = hitbox.eulerAngles;
+		s.renderer.material.color = player.color;
+		Destroy(roadHitboxes[hitbox]);
+		roadHitboxes.Remove(hitbox);	
+		for (int i = 0;i<roads.Count;i++){
+			if (roads[i].visual.transform == hitbox){
+				roads[i].visual = s;
+				roads[i].owner = player;
+				player.AddRoad(roads[i]);
+			}
+		}
+	}
+
+
+	/*
+	 * Places a human player's city.
+	 */
+	public void PlaceCity(Transform hitbox, Player player)
+	{
+
+		GameObject s = Instantiate (Resources.Load ("city"), hitbox.position, Quaternion.identity) as GameObject;
+		s.renderer.material.color = player.color;
+		Destroy (settlements [hitbox]);
+		settlements.Remove (hitbox);
+		for (int i = 0;i<roads.Count;i++){
+			if (vertices[i].visual.transform == hitbox){
+				vertices [i].visual = s;
+				vertices [i].owner = player;
+				vertices[i].occupied = Node.Occupation.city;
+				player.AddStructure(vertices[i]);
+			}
+		}
+
+	}
+
 
 	/*
 	 * Assigns and displays tiles.

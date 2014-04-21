@@ -74,39 +74,41 @@ public class GameEngine : MonoBehaviour
 			RaycastHit hit;
 			print ("mouse press");
 			if (Physics.Raycast(ray, out hit)){
-				if(hit.transform == citySelector.transform || hit.transform == settlementSelector.transform || hit.transform == roadSelector.transform){
+				if( hit.transform == roadSelector.transform && gamestate.GetCurrentTurnPlayer().CanBuildRoad()){
+					objectToBuild = hit.transform;
+					print ("on a building");
+				}
+				else if (hit.transform == citySelector.transform && gamestate.GetCurrentTurnPlayer().CanBuildCity()){
+					objectToBuild = hit.transform;
+					print ("on a building");
+				}
+				else if (hit.transform == settlementSelector.transform && gamestate.GetCurrentTurnPlayer().CanBuildSettlement()){
 					objectToBuild = hit.transform;
 					print ("on a building");
 				}
 				else if(objectToBuild != null ){
 					if (objectToBuild == roadSelector.transform && board.roadHitboxes.ContainsKey(hit.transform)) {
-						GameObject s = Instantiate(Resources.Load("road"), hit.transform.position , Quaternion.identity) as GameObject;
-						s.transform.eulerAngles = hit.transform.eulerAngles;
-						s.renderer.material.color = Color.red;
-						Destroy(board.roadHitboxes[hit.transform]);
-						board.roadHitboxes.Remove(hit.transform);	
-						for (int i = 0;i<board.roads.Count;i++){
-							if (board.roads[i].visual.transform == hit.transform){
-								board.roads[i].visual = s;
-							}
+						if(board.CanBuildRoadHere(gamestate.GetCurrentTurnPlayer())){
+							board.PlaceRoad(hit.transform, gamestate.GetCurrentTurnPlayer());
+							objectToBuild = null;
+							print ("road built!");
+							//TODO add color based on player and save the road in an list/array/dict
 						}
-						objectToBuild = null;
-						print ("road built!");
-						//TODO add color based on player and save the road in an list/array/dict
 					}
 					else if(objectToBuild == settlementSelector.transform && board.settlementHitboxes.ContainsKey(hit.transform)){
-						board.PlaceSettlement(hit.transform, gamestate.GetCurrentTurnPlayer());
-						objectToBuild = null;
-						print ("settlement built!");
+						if(board.CanBuildSettlementHere(gamestate.GetCurrentTurnPlayer())){
+							board.PlaceSettlement(hit.transform, gamestate.GetCurrentTurnPlayer());
+							objectToBuild = null;
+							print ("settlement built!");
+						}
 					}
 					else if (objectToBuild == citySelector.transform && board.settlements.ContainsKey(hit.transform)) {
-						GameObject s = Instantiate(Resources.Load("city"), hit.transform.position , Quaternion.identity) as GameObject;
-						s.renderer.material.color = Color.red;
-						Destroy(board.settlements[hit.transform]);
-						board.settlements.Remove(hit.transform);
-						objectToBuild = null;
-						print ("city built!");
-						//TODO add color based on player and save the city in an list/array/dict
+						if(board.CanBuildCityHere(gamestate.GetCurrentTurnPlayer())){
+							board.PlaceCity(hit.transform, gamestate.GetCurrentTurnPlayer());
+							objectToBuild = null;
+							print ("city built!");
+							//TODO add color based on player and save the city in an list/array/dict
+						}
 					}
 				}
 			}
