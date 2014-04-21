@@ -88,7 +88,7 @@ public class GameEngine : MonoBehaviour
 				}
 				else if(objectToBuild != null ){
 					if (objectToBuild == roadSelector.transform && board.roadHitboxes.ContainsKey(hit.transform)) {
-						if(board.CanBuildRoadHere(gamestate.GetCurrentTurnPlayer())){
+						if(board.CanBuildRoadHere(hit.transform, gamestate.GetCurrentTurnPlayer())){
 							board.PlaceRoad(hit.transform, gamestate.GetCurrentTurnPlayer());
 							objectToBuild = null;
 							print ("road built!");
@@ -96,14 +96,14 @@ public class GameEngine : MonoBehaviour
 						}
 					}
 					else if(objectToBuild == settlementSelector.transform && board.settlementHitboxes.ContainsKey(hit.transform)){
-						if(board.CanBuildSettlementHere(gamestate.GetCurrentTurnPlayer())){
+						if(board.CanBuildSettlementHere(hit.transform, gamestate.GetCurrentTurnPlayer())){
 							board.PlaceSettlement(hit.transform, gamestate.GetCurrentTurnPlayer());
 							objectToBuild = null;
 							print ("settlement built!");
 						}
 					}
 					else if (objectToBuild == citySelector.transform && board.settlements.ContainsKey(hit.transform)) {
-						if(board.CanBuildCityHere(gamestate.GetCurrentTurnPlayer())){
+						if(board.CanBuildCityHere(hit.transform, gamestate.GetCurrentTurnPlayer())){
 							board.PlaceCity(hit.transform, gamestate.GetCurrentTurnPlayer());
 							objectToBuild = null;
 							print ("city built!");

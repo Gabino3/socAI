@@ -25,6 +25,10 @@ public class Edge  {
 	public void addNeighbor(Node node){
 		neighbors.Add(node);
 	}
+
+	public List<Node> getNeighbors(){
+		return neighbors;
+	}
 	
 	public Vector3 getLoc(){
 		return geoLocation;

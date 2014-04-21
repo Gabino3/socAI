@@ -61,20 +61,65 @@ public class Board : MonoBehaviour
 	/*
 	 * Methods for determining valid object placement.
 	 */
-	public bool CanBuildSettlementHere(Player player)
+	public bool CanBuildSettlementHere(Transform hitbox, Player player)
 	{
-		// TODO
-		return true;
+		for (int i = 0;i<roads.Count;i++){
+			if (vertices[i].visual.transform == hitbox && vertices[i].owner == null)
+			{
+				
+				vertices[i].getNeighbors().ForEach(delegate(Node neighbor) {
+					if (neighbor.owner != null) {
+						GameEngine.print ("Cannot build a settlement at this location! Another Settlement is too close by.");
+						return false;
+					}
+				});
+
+				vertices[i].getRoads().ForEach(delegate(Edge neighbor) {
+					if (neighbor.owner == player) {
+						return true;
+					}
+				});
+				
+			}
+		}
+
+		return false;
 	}
-	public bool CanBuildCityHere(Player player)
+	public bool CanBuildCityHere(Transform hitbox, Player player)
 	{
-		// TODO
-		return true;
+		//check to see if a settlement that this player owns is already there
+		for (int i = 0;i<vertices.Count;i++){
+			if (vertices[i].visual.transform == hitbox && vertices[i].occupied == Node.Occupation.settlement 
+			    && vertices[i].owner == player){
+				return true;
+			}
+		}
+		GameEngine.print ("Cannot build a city at this location!");
+		return false;
 	}
-	public bool CanBuildRoadHere(Player player)
+	public bool CanBuildRoadHere(Transform hitbox, Player player)
 	{
-		// TODO
-		return true;
+		for (int i = 0;i<roads.Count;i++){
+			if (roads[i].visual.transform == hitbox && roads[i].owner == null)
+			{
+
+				roads[i].getNeighbors().ForEach(delegate(Node neighbor) {
+					if (neighbor.owner == player) {
+						return true;
+					}
+
+					neighbor.getRoads().ForEach(delegate(Edge nextRoad) {
+						if (nextRoad.owner == player) {
+							return true;
+						}
+					});
+				});
+			    
+
+			}
+		}
+		GameEngine.print ("Cannot build a road at this location!");
+		return false;
 	}
 
 	/*
