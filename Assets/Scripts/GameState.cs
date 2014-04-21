@@ -30,17 +30,20 @@ public class GameState : MonoBehaviour
 		longestRoadPlayer = null;	// Requires 5+ consecutive roads to first attain 'Longest Road'
 		largestArmyPlayer = null;	// Requires 3+ total knights to first attain 'Largest Army'
 
+		int gameOver = false;
+
 		do
 		{
-			// Play Game
+			//TODO Dice roll / robber
+			//TODO Trading phase
+			//TODO Building phase
 
-			for (int i = 0; i < 20; i++) {
-				RollDice ();
-			}
-
-			//EndTurn();
+			//TODO fix this construction
+			EndTurn ();
+			gameOver = IsGameOver ();
+			UpdateGameState ();
 		}
-		while(!IsGameOver());
+		while(!gameOver);
 	}
 
 	/*
@@ -92,13 +95,9 @@ public class GameState : MonoBehaviour
 		
 		if(GetCurrentTurnPlayer().HasWon())
 		{
-			// Game Over; player 'getCurrentTurnPlayer' has won
+			//Game Over; player 'getCurrentTurnPlayer' has won
 			gameOver = true;
 		}
-		/*else
-		{
-			UpdateGameState();
-		}*/
 		
 		return true;
 		//return gameOver;
