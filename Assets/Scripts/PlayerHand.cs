@@ -45,4 +45,5 @@ public class PlayerHand
 	{
 		return brick + ore + wood + grain + sheep;
 	}
+
 }

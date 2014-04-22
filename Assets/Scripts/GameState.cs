@@ -101,7 +101,7 @@ public class GameState
 	}
 
 	/*
-	 * Main game logic.
+	 * Handles gameplay FSM.
 	 */
 	public State IncrementState()
 	{
@@ -219,15 +219,4 @@ public class GameState
 		curState = state;
 		return curState;
 	}
-
-//	private void UpdateGameState()
-//	{
-//		turnCounter++;
-//		UpdatePlayerTurn();
-//	}
-
-//	private void UpdatePlayerTurn()
-//	{
-//		currentPlayerTurn = turnCounter % numPlayers;
-//	}
 }

@@ -161,8 +161,8 @@ public class GameEngine : MonoBehaviour
 	}
 
 	/*
-	* Handles interactions with game FSM and player input.
-	*/
+	 * Handles interactions with game FSM and player input.
+	 */
 	void Update ()
 	{
 		//AI Interaction
@@ -173,13 +173,16 @@ public class GameEngine : MonoBehaviour
 			System.Random rand = new System.Random();
 
 			if (curState == GameState.State.placeSettlement) {
-				while (!structurePlaced) {
-					int location = rand.Next (54);
-					if (board.CanBuildSettlementHere(board.vertices[location].visual.transform, gamestate.GetCurrentTurnPlayer(), true)) {
-						lastStructurePlaced = board.PlaceSettlement(board.vertices[location].visual.transform, gamestate.GetCurrentTurnPlayer());
+				List<Node> locationOptions = AIEngine.GetFavorableStartingLocations(board);
+
+				//Attempt to place elements in decreasing score order
+				for (int i = 0; i < locationOptions.Count && !structurePlaced; i++) {
+					if (board.CanBuildSettlementHere(locationOptions[i].visual.transform, gamestate.GetCurrentTurnPlayer(), true)) {
+						lastStructurePlaced = board.PlaceSettlement(locationOptions[i].visual.transform, gamestate.GetCurrentTurnPlayer());
 						structurePlaced = true;
 					}
 				}
+
 				IncrementState ();
 			}
 			else if (curState == GameState.State.placeRoad) {
@@ -284,6 +287,7 @@ public class GameEngine : MonoBehaviour
 							}
 						}
 					}
+					//Request trades with other players
 					else if (curState == GameState.State.trade) {
 						UpdateTradePanel (hit.transform);
 						
