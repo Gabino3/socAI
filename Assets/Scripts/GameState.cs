@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-public class GameState : MonoBehaviour
+public class GameState
 {
 	//Debug variables
 	bool debug = true;
@@ -169,13 +169,13 @@ public class GameState : MonoBehaviour
 
 		return gameOver;
 	}
-	
+
 	public int RollDice()
 	{
 		int roll = rand.Next (6) + rand.Next (6) + 2;
 
 		string timestamp = System.DateTime.Now.ToString ("yyyy/MM/dd HH:mm:ss:ffff");
-		print ("[" + timestamp + "] DICE ROLL: " + roll);
+		GameEngine.print ("[" + timestamp + "] DICE ROLL: " + roll);
 
 		return roll;
 	}
@@ -184,7 +184,7 @@ public class GameState : MonoBehaviour
 	{
 		if (debug) {
 			string timestamp = System.DateTime.Now.ToString ("yyyy/MM/dd HH:mm:ss:ffff");
-			print ("[" + timestamp + "] CURRENT PLAYER TURN: " + currentPlayerTurn);
+			GameEngine.print ("[" + timestamp + "] CURRENT PLAYER TURN: " + currentPlayerTurn);
 		}
 
 		this.currentPlayerTurn = currentPlayerTurn;
@@ -207,7 +207,7 @@ public class GameState : MonoBehaviour
 			case State.unstarted:		stateName = "unstarted"; break;
 			default:					stateName = "failure/unknown"; break;
 			}
-			print ("[" + timestamp + "] STATE CHANGE: " + stateName);
+			GameEngine.print ("[" + timestamp + "] STATE CHANGE: " + stateName);
 		}
 
 		curState = state;

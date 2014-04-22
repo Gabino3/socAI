@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class PlayerHand : MonoBehaviour
+public class PlayerHand
 {
 	public int brick;
 	public int ore;
