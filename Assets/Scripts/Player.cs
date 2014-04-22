@@ -125,12 +125,14 @@ public class Player
 	// Dummy method to include largest army; will relocate to GameState at a future point
 	public int GetLargestArmyModifier()
 	{
+		//TODO remove dependence on GameState
 		return GameState.HasLargestArmy (this) ? 2 : 0;
 	}
 
 	// Dummy method to include longest road; will relocate to GameState at a future point
 	public int GetLongestRoadModifier()
 	{
+		//TODO remove dependence on GameState
 		return GameState.HasLongestRoad (this) ? 2 : 0;
 	}
 
