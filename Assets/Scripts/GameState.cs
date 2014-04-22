@@ -5,13 +5,14 @@ using System.Collections.Generic;
 public class GameState
 {
 	//Debug variables
-	bool debug = true;
+	public bool debug = true;
 
 	Player[] playersArray;
 	int numPlayers;
 	int turnCounter;
 	int currentPlayerTurn;
 	Board board;
+	int roll;
 
 	public enum State {
 		unstarted, placeSettlement, placeRoad, roll, robber, trade, place, end, failure
@@ -33,6 +34,7 @@ public class GameState
 			playersArray[i] = new Player(i, i!=0);
 		}
 
+		roll = 0;
 		SetState (State.unstarted);
 		turnCounter = -1;
 		currentPlayerTurn = 0;
@@ -71,6 +73,10 @@ public class GameState
 	public Player GetCurrentTurnPlayer()
 	{
 		return playersArray[currentPlayerTurn];
+	}
+
+	public int getRoll(){
+		return roll;
 	}
 
 	public Player GetPlayerAtIndex(int index)
@@ -130,7 +136,7 @@ public class GameState
 		//Main game
 		else {
 			if (curState == State.roll) {
-				int roll = RollDice ();
+				roll = RollDice ();
 				if (roll == 7) {
 					return SetState(State.robber);
 				}

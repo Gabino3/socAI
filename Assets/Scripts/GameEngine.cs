@@ -21,7 +21,12 @@ public class GameEngine : MonoBehaviour
 	GameObject[] forThisText;
 	GameObject[] tradeThis;
 	GameObject[] forThis;
+
 	GameObject tradeButton;
+	GameObject endTurnButton;
+
+	GameObject dice;
+	GameObject diceNum;
 
 	GameObject[] humanCardCounts;
 
@@ -37,6 +42,7 @@ public class GameEngine : MonoBehaviour
 		BuildPlayerTurnWindow ();
 		BuildSelectionPanel ();
 		BuildHumanPlayerHandDisplay ();
+		BuildEndTurnButton ();
 		BuildDiceRoller ();
 		BuildTradePanel ();
 		curState = gamestate.IncrementState (); // initial increment
@@ -44,7 +50,17 @@ public class GameEngine : MonoBehaviour
 
 	private void BuildDiceRoller() 
 	{
-		Instantiate (Resources.Load ("dice"), new Vector3 (-4f, 6f, 1), Quaternion.identity);
+		dice = Instantiate (Resources.Load ("dice"), new Vector3 (-4f, 6f, 1), Quaternion.identity) as GameObject;
+		diceNum = Instantiate (Resources.Load ("text"), new Vector3 (-2f, 6f, 1f), Quaternion.identity) as GameObject;
+		diceNum.GetComponent<TextMesh> ().text = "" ;
+	}
+
+	private void BuildEndTurnButton()
+	{
+		endTurnButton = Instantiate (Resources.Load ("backing"), new Vector3(6f,0f,1f), Quaternion.identity) as GameObject;
+		endTurnButton.transform.localScale = new Vector3(3f,1f,1f);
+		GameObject temp = Instantiate (Resources.Load ("text"), new Vector3 (5.2f,0.25f,-1f), Quaternion.identity) as GameObject;
+		temp.GetComponent<TextMesh> ().text = "End Turn" ;
 	}
 
 	private void BuildHumanPlayerHandDisplay()
@@ -176,6 +192,28 @@ public class GameEngine : MonoBehaviour
 				}
 				IncrementState ();
 			}
+			else if (curState == GameState.State.roll ){
+
+				if(gamestate.debug){
+					if (Input.GetMouseButtonDown (0)){
+						Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+						RaycastHit hit;
+						print ("mouse press");
+						if (Physics.Raycast(ray, out hit)) {
+							if (hit.transform == dice.transform){
+								IncrementState ();
+								updateDice();
+							}
+						}
+					}
+				}else{
+					IncrementState ();
+					updateDice();
+				}
+				
+			}
+
+
 		}
 		//Human Interaction
 		else {
@@ -184,6 +222,8 @@ public class GameEngine : MonoBehaviour
 				RaycastHit hit;
 				print ("mouse press");
 				if (Physics.Raycast(ray, out hit)) {
+
+
 
 					//Need to place something
 					if (curState == GameState.State.placeSettlement || curState == GameState.State.placeRoad || curState == GameState.State.place || curState == GameState.State.robber) {
@@ -249,17 +289,29 @@ public class GameEngine : MonoBehaviour
 						
 						if (hit.transform == tradeButton.transform) {
 							OfferTrade();
+							IncrementState ();
 						}
-						
-						IncrementState ();
+
 					}
-					//TODO do this on button click
-					//else if (curState == GameState.State.roll) {
-					//	IncrementState ();
-					//}
+					//listen for click on dice
+					else if (curState == GameState.State.roll ){
+						print (hit.transform == dice.transform);
+						if (hit.transform == dice.transform){
+							IncrementState ();
+							updateDice();
+						}
+
+					}
+					else {
+						print ("should not be here");
+					}
 				}
 			}
 		}
+	}
+
+	public void updateDice() {
+		diceNum.GetComponent<TextMesh> ().text = ""+gamestate.getRoll() ;
 	}
 
 	private void UpdateHumanCardCounts()
