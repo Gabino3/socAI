@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-public class GameState : MonoBehaviour
+public class GameState
 {
 	Player[] playersArray;
 	int numPlayers;
@@ -102,13 +102,13 @@ public class GameState : MonoBehaviour
 		return true;
 		//return gameOver;
 	}
-	
+
 	public int RollDice()
 	{
 		int roll = rand.Next (6) + rand.Next (6) + 2;
 		string timestamp = System.DateTime.Now.ToString ("yyyy/MM/dd HH:mm:ss:ffff");
 
-		print ("[" + timestamp + "] DICE ROLL: " + roll);
+		GameEngine.print ("[" + timestamp + "] DICE ROLL: " + roll);
 
 		return roll;
 	}
