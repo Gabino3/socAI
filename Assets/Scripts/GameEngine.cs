@@ -258,7 +258,10 @@ public class GameEngine : MonoBehaviour
 
 						if(objectToBuild != null) {
 							if (objectToBuild == roadSelector.transform && board.roadHitboxes.ContainsKey(hit.transform)) {
-								if(board.CanBuildRoadHere(hit.transform, gamestate.GetCurrentTurnPlayer(), lastStructurePlaced)) {
+								Node structureToBuildNear = (curState == GameState.State.placeRoad) ? lastStructurePlaced : null;
+
+								if(board.CanBuildRoadHere(hit.transform, gamestate.GetCurrentTurnPlayer(), structureToBuildNear)) {
+								//if(board.CanBuildRoadHere(hit.transform, gamestate.GetCurrentTurnPlayer(), lastStructurePlaced)) {
 									lastRoadPlaced = board.PlaceRoad(hit.transform, gamestate.GetCurrentTurnPlayer());
 									objectToBuild = null;
 									print ("road built!");
