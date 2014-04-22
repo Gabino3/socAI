@@ -46,6 +46,23 @@ public class Player
 		roads.Add (road);
 	}
 
+	public void BuyCity(){
+		hand.grain += -2;
+		hand.ore += -3;
+	}
+
+	public void BuyRoad(){
+		hand.brick += -1;
+		hand.wood += -1;
+	}
+
+	public void BuySettlement(){
+		hand.brick += -1;
+		hand.wood += -1;
+		hand.grain += -1;
+		hand.sheep += -1;
+		}
+
 	public bool CanBuildCity()
 	{
 		if ((hand.ore >= 3) && (hand.grain >= 2)) {

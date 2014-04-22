@@ -216,6 +216,14 @@ public class GameEngine : MonoBehaviour
 				}
 				
 			}
+			else if (curState == GameState.State.trade){
+				//TODO
+				IncrementState();
+			}
+			else if(curState == GameState.State.place){
+				//TODO
+				IncrementState();
+			}
 
 
 		}
@@ -248,6 +256,9 @@ public class GameEngine : MonoBehaviour
 								objectToBuild = hit.transform;
 								print ("on a building");
 							}
+							else if (hit.transform == endTurnButton.transform){
+								IncrementState();
+							}
 						}
 						else if (curState == GameState.State.placeSettlement) {
 							objectToBuild = settlementSelector.transform;
@@ -262,7 +273,7 @@ public class GameEngine : MonoBehaviour
 
 								if(board.CanBuildRoadHere(hit.transform, gamestate.GetCurrentTurnPlayer(), structureToBuildNear)) {
 								//if(board.CanBuildRoadHere(hit.transform, gamestate.GetCurrentTurnPlayer(), lastStructurePlaced)) {
-									lastRoadPlaced = board.PlaceRoad(hit.transform, gamestate.GetCurrentTurnPlayer());
+									lastRoadPlaced = board.PlaceRoad(hit.transform, gamestate.GetCurrentTurnPlayer(), !isSetup);
 									objectToBuild = null;
 									print ("road built!");
 									//TODO add color based on player and save the road in an list/array/dict
@@ -273,7 +284,7 @@ public class GameEngine : MonoBehaviour
 							}
 							else if(objectToBuild == settlementSelector.transform && board.settlementHitboxes.ContainsKey(hit.transform)) {
 								if(board.CanBuildSettlementHere(hit.transform, gamestate.GetCurrentTurnPlayer(), isSetup)){
-									lastStructurePlaced = board.PlaceSettlement(hit.transform, gamestate.GetCurrentTurnPlayer());
+									lastStructurePlaced = board.PlaceSettlement(hit.transform, gamestate.GetCurrentTurnPlayer(), !isSetup);
 									objectToBuild = null;
 									print ("settlement built!");
 									if (curState == GameState.State.placeSettlement) {

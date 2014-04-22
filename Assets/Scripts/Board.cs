@@ -168,7 +168,7 @@ public class Board : MonoBehaviour
 	 */
 	static List<Node> FindNeighboringTiles(List<Node> vertices, List<Tile> tiles, float size)
 	{
-		float threshold = size + 0.6f;
+		float threshold = size + 0.8f;
 		
 		for (var i = 0; i<vertices.Count; i++) {
 			for (var j = 0; j<tiles.Count;j++){
@@ -320,7 +320,7 @@ public class Board : MonoBehaviour
 	/*
 	 * Places a human player's settlement.
 	 */
-	public Node PlaceSettlement(Transform hitbox, Player player)
+	public Node PlaceSettlement(Transform hitbox, Player player, bool isPaying = true)
 	{
 		GameObject s = Instantiate (Resources.Load ("settlement"), hitbox.position, Quaternion.identity) as GameObject;
 		s.renderer.material.color = player.color;
@@ -329,6 +329,9 @@ public class Board : MonoBehaviour
 		settlementHitboxes.Remove (hitbox);
 		for (int i = 0; i<vertices.Count; i++) {
 				if (vertices [i].visual.transform == hitbox) {
+					if (isPaying){
+						player.BuySettlement();
+					}
 					vertices [i].visual = s;
 					vertices [i].owner = player;
 					vertices[i].occupied = Node.Occupation.settlement;
@@ -343,7 +346,7 @@ public class Board : MonoBehaviour
 	/*
 	 * Places a human player's road.
 	 */
-	public Edge PlaceRoad(Transform hitbox, Player player)
+	public Edge PlaceRoad(Transform hitbox, Player player, bool isPaying = true)
 	{
 		GameObject s = Instantiate(Resources.Load("road"), hitbox.position , Quaternion.identity) as GameObject;
 		s.transform.eulerAngles = hitbox.eulerAngles;
@@ -352,6 +355,9 @@ public class Board : MonoBehaviour
 		roadHitboxes.Remove(hitbox);	
 		for (int i = 0;i<roads.Count;i++){
 			if (roads[i].visual.transform == hitbox){
+				if (isPaying){
+					player.BuyRoad();
+				}
 				roads[i].visual = s;
 				roads[i].owner = player;
 				player.AddRoad(roads[i]);
@@ -365,7 +371,7 @@ public class Board : MonoBehaviour
 	/*
 	 * Places a human player's city.
 	 */
-	public Node PlaceCity(Transform hitbox, Player player)
+	public Node PlaceCity(Transform hitbox, Player player, bool isPaying = true)
 	{
 		GameObject s = Instantiate (Resources.Load ("city"), hitbox.position, Quaternion.identity) as GameObject;
 		s.renderer.material.color = player.color;
@@ -373,6 +379,9 @@ public class Board : MonoBehaviour
 		settlements.Remove (hitbox);
 		for (int i = 0; i < vertices.Count; i++){
 			if (vertices[i].visual.transform == hitbox){
+				if (isPaying){
+					player.BuyCity();
+				}
 				vertices [i].visual = s;
 				vertices [i].owner = player;
 				vertices[i].occupied = Node.Occupation.city;
@@ -420,7 +429,6 @@ public class Board : MonoBehaviour
 		}
 
 		tileCorners = MergeDuplicates (tileCorners);
-
 		this.vertices = VecToNodes (tileCorners, tiles, hexSize);
 		this.roads = FindRoadPos (vertices, out vertices);
 		this.tiles = tiles;
