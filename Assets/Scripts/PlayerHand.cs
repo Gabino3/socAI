@@ -16,11 +16,11 @@ public class PlayerHand : MonoBehaviour
 	
 	public PlayerHand()
 	{
-		brick = 5;
-		ore = 5;
-		wood = 5;
-		grain = 5;
-		sheep = 5;
+		brick = 0;
+		ore = 0;
+		wood = 0;
+		grain = 0;
+		sheep = 0;
 		victoryPoints = 0;
 		//knights = 0;
 		//roadBuilding = 0;

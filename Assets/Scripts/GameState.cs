@@ -4,6 +4,9 @@ using System.Collections.Generic;
 
 public class GameState : MonoBehaviour
 {
+	//Debug variables
+	bool debug = true;
+
 	Player[] playersArray;
 	int numPlayers;
 	int turnCounter;
@@ -11,7 +14,7 @@ public class GameState : MonoBehaviour
 	Board board;
 
 	public enum State {
-		placeSettlement, placeRoad, roll, robber, trade, place, end, failure
+		unstarted, placeSettlement, placeRoad, roll, robber, trade, place, end, failure
 	};
 	public State curState;
 
@@ -30,7 +33,7 @@ public class GameState : MonoBehaviour
 			playersArray[i] = new Player(i, i!=0);
 		}
 
-		curState = State.placeSettlement;
+		SetState (State.unstarted);
 		turnCounter = -1;
 		currentPlayerTurn = 0;
 		longestRoadPlayer = null;	// Requires 5+ consecutive roads to first attain 'Longest Road'
@@ -43,7 +46,14 @@ public class GameState : MonoBehaviour
 	public void CollectPlayerResources(int diceRoll)
 	{
 		for (int i = 0; i < numPlayers; i++) {
-			playersArray[i].CollectResources(diceRoll);
+			playersArray[i].CollectResourcesFromRoll(diceRoll);
+		}
+	}
+
+	public void CollectSecondPlacementResources()
+	{
+		for (int i = 0; i < numPlayers; i++) {
+			playersArray[i].CollectResourcesFromStructure (1); // second structure
 		}
 	}
 
@@ -80,7 +90,8 @@ public class GameState : MonoBehaviour
 
 	public void IncrementPlayer()
 	{
-		currentPlayerTurn = turnCounter % numPlayers;
+		turnCounter++;
+		SetCurrentPlayerTurn (turnCounter % numPlayers);
 	}
 
 	/*
@@ -88,58 +99,59 @@ public class GameState : MonoBehaviour
 	 */
 	public State IncrementState()
 	{
-		turnCounter++;
+		if (curState == State.unstarted) {
+			turnCounter = 0;
+			return SetState (State.placeSettlement);
+		}
 
 		//Setup
 		if (turnCounter < numPlayers*2) {
-
 			if (curState == State.placeSettlement) {
-				return State.placeRoad;
+				return SetState(State.placeRoad);
+			}
+			else if (curState == State.placeRoad) {
+				turnCounter++;
 
-			} else if (curState == State.placeRoad) {
-				// 0, 1, 2, 3
 				if (turnCounter < numPlayers) {
-					currentPlayerTurn = turnCounter;
-					return State.placeSettlement;
-				
-				// 4, 5, 6
-				} else if (turnCounter >= numPlayers && turnCounter < numPlayers*2 - 1) {
-					currentPlayerTurn = (numPlayers - 1) - turnCounter % numPlayers;
-					return State.placeSettlement;
-				
-				// 7
-				} else {
-					currentPlayerTurn = 0;
-					return State.roll;
+					SetCurrentPlayerTurn (turnCounter);
+					return SetState(State.placeSettlement);
+				}
+				else if (turnCounter >= numPlayers && turnCounter < numPlayers*2) {
+					SetCurrentPlayerTurn ((numPlayers - 1) - turnCounter % numPlayers);
+					return SetState(State.placeSettlement);
+				}
+				else {
+					SetCurrentPlayerTurn (0);
+					CollectSecondPlacementResources();
+					return SetState(State.roll);
 				}
 			}
-
+		}
 		//Main game
-		} else {
-
+		else {
 			if (curState == State.roll) {
 				int roll = RollDice ();
-
 				if (roll == 7) {
-					return State.robber;
-				} else {
-					return State.trade;
+					return SetState(State.robber);
 				}
-			
-			} else if (curState == State.robber) {
-				return State.trade;
-
-			} else if (curState == State.trade) {
-				return State.place;
-
-			} else if (curState == State.place) {
+				else {
+					CollectPlayerResources (roll);
+					return SetState(State.trade);
+				}
+			}
+			else if (curState == State.robber) {
+				return SetState(State.trade);
+			}
+			else if (curState == State.trade) {
+				return SetState(State.place);
+			}
+			else if (curState == State.place) {
 				DetermineObjectivesOwnership();
 				if (IsGameOver ()) {
-					return State.end;
+					return SetState(State.end);
 				}
 				IncrementPlayer ();
-				return State.roll;
-
+				return SetState(State.roll);
 			}
 		}
 
@@ -161,11 +173,45 @@ public class GameState : MonoBehaviour
 	public int RollDice()
 	{
 		int roll = rand.Next (6) + rand.Next (6) + 2;
-		string timestamp = System.DateTime.Now.ToString ("yyyy/MM/dd HH:mm:ss:ffff");
 
+		string timestamp = System.DateTime.Now.ToString ("yyyy/MM/dd HH:mm:ss:ffff");
 		print ("[" + timestamp + "] DICE ROLL: " + roll);
 
 		return roll;
+	}
+
+	private void SetCurrentPlayerTurn(int currentPlayerTurn)
+	{
+		if (debug) {
+			string timestamp = System.DateTime.Now.ToString ("yyyy/MM/dd HH:mm:ss:ffff");
+			print ("[" + timestamp + "] CURRENT PLAYER TURN: " + currentPlayerTurn);
+		}
+
+		this.currentPlayerTurn = currentPlayerTurn;
+	}
+
+	private State SetState(State state)
+	{
+		if (debug) {
+			string stateName = "";
+			string timestamp = System.DateTime.Now.ToString ("yyyy/MM/dd HH:mm:ss:ffff");
+			//TODO print new state here
+			switch (state) {
+			case State.end: 			stateName = "end"; break;
+			case State.place: 			stateName = "place"; break;
+			case State.placeRoad: 		stateName = "placeRoad"; break;
+			case State.placeSettlement: stateName = "placeSettlement"; break;
+			case State.robber: 			stateName = "robber"; break;
+			case State.roll: 			stateName = "roll"; break;
+			case State.trade: 			stateName = "trade"; break;
+			case State.unstarted:		stateName = "unstarted"; break;
+			default:					stateName = "failure/unknown"; break;
+			}
+			print ("[" + timestamp + "] STATE CHANGE: " + stateName);
+		}
+
+		curState = state;
+		return curState;
 	}
 
 //	private void UpdateGameState()

@@ -31,6 +31,7 @@ public class Player
 			case 3: color = Color.blue; break;
 			default: color = Color.black; break;
 		}
+		roads = new List<Edge> (72);
 		structures = new List<Node> (54);
 		hand = new PlayerHand();
 	}
@@ -78,47 +79,58 @@ public class Player
 	/*
 	 * Collects a player's resources at the dice-rolling portion of the turn based on their settlements.
 	 */
-	public void CollectResources(int diceRoll)
+	public void CollectResourcesFromRoll(int diceRoll)
 	{
-		//Search adjacent tiles of all structures
 		structures.ForEach (delegate(Node structure) {
-			structure.getTiles().ForEach (delegate(Tile tile) {
-				if (tile.GetChitValue () == diceRoll) {
+			CollectResourcesFromStructure (structure, diceRoll);
+		});
+	}
 
-					int resourceModifier = 0;
-					string resource = "";
+	public void CollectResourcesFromStructure(int index)
+	{
+		CollectResourcesFromStructure (structures [index]);
+	}
 
-					//Give 1 resource for settlement, 2 for city
-					if (structure.occupied == Node.Occupation.settlement) {
-						resourceModifier = 1;
-					} else if (structure.occupied == Node.Occupation.city) {
-						resourceModifier = 2;
-					}
+	private void CollectResourcesFromStructure(Node structure, int diceRoll = -1)
+	{
+		int resourceModifier = 0;
 
-					//Give player appropriate resource
-					if (tile.GetResource() == Tile.Resource.brick) {
-						hand.brick += resourceModifier;
-						resource = "brick";
-					} else if (tile.GetResource() == Tile.Resource.ore) {
-						hand.ore += resourceModifier;
-						resource = "ore";
-					} else if (tile.GetResource() == Tile.Resource.wood) {
-						hand.wood += resourceModifier;
-						resource = "wood";
-					} else if (tile.GetResource() == Tile.Resource.grain) {
-						hand.grain += resourceModifier;
-						resource = "grain";
-					} else if (tile.GetResource() == Tile.Resource.sheep) {
-						hand.sheep += resourceModifier;
-						resource = "sheep";
-					}
+		//Give 1 resource for settlement, 2 for city
+		if (structure.occupied == Node.Occupation.settlement) {
+			resourceModifier = 1;
+		} else if (structure.occupied == Node.Occupation.city) {
+			resourceModifier = 2;
+		}
 
-					if (debug) {
-						GameEngine.print ("Gave player " + resourceModifier + " " + resource);
-						GameEngine.print ("b: " + hand.brick + ", o: " + hand.ore + ", w: " + hand.wood + ", g: " + hand.grain + ", s: " + hand.sheep);
-					}
+		GameEngine.print (" HAS " + structure.getTiles ().Count + " TILES");
+
+		structure.getTiles().ForEach (delegate(Tile tile) {
+			if (tile.GetChitValue () == diceRoll || diceRoll == -1) {
+				string resource = "";
+				
+				//Give player appropriate resource
+				if (tile.GetResource() == Tile.Resource.brick) {
+					hand.brick += resourceModifier;
+					resource = "brick";
+				} else if (tile.GetResource() == Tile.Resource.ore) {
+					hand.ore += resourceModifier;
+					resource = "ore";
+				} else if (tile.GetResource() == Tile.Resource.wood) {
+					hand.wood += resourceModifier;
+					resource = "wood";
+				} else if (tile.GetResource() == Tile.Resource.grain) {
+					hand.grain += resourceModifier;
+					resource = "grain";
+				} else if (tile.GetResource() == Tile.Resource.sheep) {
+					hand.sheep += resourceModifier;
+					resource = "sheep";
 				}
-			});
+				
+				if (debug) {
+					GameEngine.print ("Gave player #" + id + ": " + resourceModifier + " " + resource);
+					GameEngine.print ("Player #" + id + " Hand: b > " + hand.brick + ", o > " + hand.ore + ", w > " + hand.wood + ", g > " + hand.grain + ", s > " + hand.sheep);
+				}
+			}
 		});
 	}
 

@@ -11,6 +11,10 @@ public class GameEngine : MonoBehaviour
 	GameObject settlementSelector;
 	GameObject roadSelector;
 	Transform objectToBuild = null;
+	Node lastStructurePlaced = null;
+	Edge lastRoadPlaced = null;
+
+	GameState.State curState;
 
 	GameObject[] humanCardCounts;
 
@@ -23,6 +27,8 @@ public class GameEngine : MonoBehaviour
 		BuildSelectionPanel ();
 		BuildHumanPlayerHandDisplay ();
 		BuildDiceRoller ();
+
+		curState = gamestate.IncrementState (); // initial increment
 	}
 
 	private void BuildDiceRoller() 
@@ -73,49 +79,118 @@ public class GameEngine : MonoBehaviour
 		settlementSelector.transform.localScale += settlementSelector.transform.localScale;
 	}
 
+	private void IncrementState ()
+	{
+		curState = gamestate.IncrementState ();
+	}
+
+	/*
+	 * Handles interactions with game FSM and player input.
+	 */
 	void Update ()
 	{
-		if (Input.GetMouseButtonDown(0)){ // if left button pressed...
-			Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-			RaycastHit hit;
-			print ("mouse press");
-			if (Physics.Raycast(ray, out hit)){
-				if( hit.transform == roadSelector.transform && gamestate.GetCurrentTurnPlayer().CanBuildRoad()){
-					objectToBuild = hit.transform;
-					print ("on a building");
+		//AI Interaction
+		if (gamestate.GetCurrentTurnPlayer().isAI) {
+			//TODO replace logic here with AIEngine calls
+
+			bool structurePlaced = false;
+			System.Random rand = new System.Random();
+
+			if (curState == GameState.State.placeSettlement) {
+				while (!structurePlaced) {
+					int location = rand.Next (54);
+					if (board.CanBuildSettlementHere(board.vertices[location].visual.transform, gamestate.GetCurrentTurnPlayer(), true)) {
+						lastStructurePlaced = board.PlaceSettlement(board.vertices[location].visual.transform, gamestate.GetCurrentTurnPlayer());
+						structurePlaced = true;
+					}
 				}
-				else if (hit.transform == citySelector.transform && gamestate.GetCurrentTurnPlayer().CanBuildCity()){
-					objectToBuild = hit.transform;
-					print ("on a building");
+				IncrementState ();
+			}
+			else if (curState == GameState.State.placeRoad) {
+				//Only allow roads placed from previous settlement
+				foreach (Edge road in lastStructurePlaced.getRoads()) {
+					if (board.CanBuildRoadHere(road.visual.transform, gamestate.GetCurrentTurnPlayer())) {
+						lastRoadPlaced = board.PlaceRoad(road.visual.transform, gamestate.GetCurrentTurnPlayer());
+						break;
+					}
 				}
-				else if (hit.transform == settlementSelector.transform && gamestate.GetCurrentTurnPlayer().CanBuildSettlement()){
-					objectToBuild = hit.transform;
-					print ("on a building");
-				}
-				else if(objectToBuild != null ){
-					if (objectToBuild == roadSelector.transform && board.roadHitboxes.ContainsKey(hit.transform)) {
-						if(board.CanBuildRoadHere(hit.transform, gamestate.GetCurrentTurnPlayer())){
-							board.PlaceRoad(hit.transform, gamestate.GetCurrentTurnPlayer());
-							objectToBuild = null;
-							print ("road built!");
-							//TODO add color based on player and save the road in an list/array/dict
+				IncrementState ();
+			}
+		}
+		//Human Interaction
+		else {
+			if (Input.GetMouseButtonDown (0)) {
+				Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+				RaycastHit hit;
+				print ("mouse press");
+				if (Physics.Raycast(ray, out hit)) {
+
+					//Need to place something
+					if (curState == GameState.State.placeSettlement || curState == GameState.State.placeRoad || curState == GameState.State.place || curState == GameState.State.robber) {
+
+						bool isSetup = (curState == GameState.State.placeSettlement || curState == GameState.State.placeRoad);
+
+						//Choose what to build or use preselected
+						if (curState == GameState.State.place) {
+							if( hit.transform == roadSelector.transform && gamestate.GetCurrentTurnPlayer().CanBuildRoad()){
+								objectToBuild = hit.transform;
+								print ("on a building");
+							}
+							else if (hit.transform == citySelector.transform && gamestate.GetCurrentTurnPlayer().CanBuildCity()){
+								objectToBuild = hit.transform;
+								print ("on a building");
+							}
+							else if (hit.transform == settlementSelector.transform && gamestate.GetCurrentTurnPlayer().CanBuildSettlement()){
+								objectToBuild = hit.transform;
+								print ("on a building");
+							}
+						}
+						else if (curState == GameState.State.placeSettlement) {
+							objectToBuild = settlementSelector.transform;
+						}
+						else if (curState == GameState.State.placeRoad) {
+							objectToBuild = roadSelector.transform;
+						}
+
+						if(objectToBuild != null) {
+							if (objectToBuild == roadSelector.transform && board.roadHitboxes.ContainsKey(hit.transform)) {
+								if(board.CanBuildRoadHere(hit.transform, gamestate.GetCurrentTurnPlayer(), lastStructurePlaced)){
+									lastRoadPlaced = board.PlaceRoad(hit.transform, gamestate.GetCurrentTurnPlayer());
+									objectToBuild = null;
+									print ("road built!");
+									//TODO add color based on player and save the road in an list/array/dict
+									if (curState == GameState.State.placeRoad) {
+										IncrementState ();
+									}
+								}
+							}
+							else if(objectToBuild == settlementSelector.transform && board.settlementHitboxes.ContainsKey(hit.transform)){
+								if(board.CanBuildSettlementHere(hit.transform, gamestate.GetCurrentTurnPlayer(), isSetup)){
+									lastStructurePlaced = board.PlaceSettlement(hit.transform, gamestate.GetCurrentTurnPlayer());
+									objectToBuild = null;
+									print ("settlement built!");
+									if (curState == GameState.State.placeSettlement) {
+										IncrementState ();
+									}
+								}
+							}
+							else if (objectToBuild == citySelector.transform && board.settlements.ContainsKey(hit.transform)) {
+								if(board.CanBuildCityHere(hit.transform, gamestate.GetCurrentTurnPlayer())){
+									lastStructurePlaced = board.PlaceCity(hit.transform, gamestate.GetCurrentTurnPlayer());
+									objectToBuild = null;
+									print ("city built!");
+									//TODO add color based on player and save the city in an list/array/dict
+								}
+							}
 						}
 					}
-					else if(objectToBuild == settlementSelector.transform && board.settlementHitboxes.ContainsKey(hit.transform)){
-						if(board.CanBuildSettlementHere(hit.transform, gamestate.GetCurrentTurnPlayer())){
-							board.PlaceSettlement(hit.transform, gamestate.GetCurrentTurnPlayer());
-							objectToBuild = null;
-							print ("settlement built!");
-						}
+					else if (curState == GameState.State.trade) {
+						IncrementState ();
 					}
-					else if (objectToBuild == citySelector.transform && board.settlements.ContainsKey(hit.transform)) {
-						if(board.CanBuildCityHere(hit.transform, gamestate.GetCurrentTurnPlayer())){
-							board.PlaceCity(hit.transform, gamestate.GetCurrentTurnPlayer());
-							objectToBuild = null;
-							print ("city built!");
-							//TODO add color based on player and save the city in an list/array/dict
-						}
-					}
+					//TODO do this on button click
+					//else if (curState == GameState.State.roll) {
+					//	IncrementState ();
+					//}
 				}
 			}
 		}

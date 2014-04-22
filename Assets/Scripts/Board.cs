@@ -61,61 +61,71 @@ public class Board : MonoBehaviour
 	/*
 	 * Methods for determining valid object placement.
 	 */
-	public bool CanBuildSettlementHere(Transform hitbox, Player player)
+	public bool CanBuildSettlementHere(Transform hitbox, Player player, bool setup)
 	{
-		for (int i = 0;i<vertices.Count;i++){
-			if (vertices[i].visual.transform == hitbox && vertices[i].owner == null)
-			{
-				foreach (Node neighbor in vertices[i].getNeighbors())
-				 {
+		for (int i = 0;i<vertices.Count;i++) {
+			if (vertices[i].visual.transform == hitbox && vertices[i].owner == null) {
+				foreach (Node neighbor in vertices[i].getNeighbors()) {
 					if (neighbor.owner != null) {
 						GameEngine.print ("Cannot build a settlement at this location! Another Settlement/City is too close by.");
 						return false;
 					}
 				}
-				foreach (Edge neighbor in vertices[i].getRoads())
-				{
-					if (neighbor.owner == player) {
-						return true;
+
+				if (setup) {
+					return true;
+				}
+				else {
+					foreach (Edge neighbor in vertices[i].getRoads()) {
+						if (neighbor.owner == player) {
+							return true;
+						}
 					}
 				}
-				
 			}
 		}
 		GameEngine.print ("Cannot build a settlement at this location! No nearby Road.");
 		return false;
 	}
+
 	public bool CanBuildCityHere(Transform hitbox, Player player)
 	{
 		//check to see if a settlement that this player owns is already there
-		for (int i = 0;i<vertices.Count;i++){
+		for (int i = 0; i < vertices.Count; i++) {
 			if (vertices[i].visual.transform == hitbox && vertices[i].occupied == Node.Occupation.settlement 
-			    && vertices[i].owner == player){
+			    && vertices[i].owner == player) {
 				return true;
 			}
 		}
 		GameEngine.print ("Cannot build a city at this location! No settlement.");
 		return false;
 	}
-	public bool CanBuildRoadHere(Transform hitbox, Player player)
+
+	public bool CanBuildRoadHere(Transform hitbox, Player player, Node structureToBuildNear = null)
 	{
-		for (int i = 0;i<roads.Count;i++){
+		for (int i = 0; i < roads.Count; i++) {
 			if (roads[i].visual.transform == hitbox && roads[i].owner == null)
 			{
 				foreach (Node neighbor in roads[i].getNeighbors())
 				{
 					if (neighbor.owner == player) {
-						return true;
-					}
-					foreach (Edge nextRoad in neighbor.getRoads())
-					{
-						if (nextRoad.owner == player) {
+						if (structureToBuildNear == null) {
+							return true;
+						}
+						else if (structureToBuildNear == neighbor) {
 							return true;
 						}
 					}
-				}
-			    
 
+					if (structureToBuildNear == null) {
+						foreach (Edge nextRoad in neighbor.getRoads())
+						{
+							if (nextRoad.owner == player) {
+								return true;
+							}
+						}
+					}
+				}
 			}
 		}
 		GameEngine.print ("Cannot build a road at this location! No nearby road or Settlement/City.");
@@ -158,7 +168,7 @@ public class Board : MonoBehaviour
 	 */
 	static List<Node> FindNeighboringTiles(List<Node> vertices, List<Tile> tiles, float size)
 	{
-		float threshold = size + 0.2f;
+		float threshold = size + 0.6f;
 		
 		for (var i = 0; i<vertices.Count; i++) {
 			for (var j = 0; j<tiles.Count;j++){
@@ -168,7 +178,20 @@ public class Board : MonoBehaviour
 				}	
 			}
 		}
-		
+		int threes = 0;
+		int twos = 0;
+		int ones = 0;
+		foreach (Node n in vertices) {
+			if(n.ToString() == "3")
+				threes++;
+			if(n.ToString() == "2")
+				twos++;
+			if(n.ToString() == "1")
+				ones++;
+				}
+		print (threes);
+		print (twos);
+		print (ones);
 		return vertices;
 	}
 
@@ -297,7 +320,7 @@ public class Board : MonoBehaviour
 	/*
 	 * Places a human player's settlement.
 	 */
-	public void PlaceSettlement(Transform hitbox, Player player)
+	public Node PlaceSettlement(Transform hitbox, Player player)
 	{
 		GameObject s = Instantiate (Resources.Load ("settlement"), hitbox.position, Quaternion.identity) as GameObject;
 		s.renderer.material.color = player.color;
@@ -310,15 +333,17 @@ public class Board : MonoBehaviour
 					vertices [i].owner = player;
 					vertices[i].occupied = Node.Occupation.settlement;
 					player.AddStructure(vertices[i]);
+					return vertices[i];
 				}
 		}
-		
+
+		return null;
 	}
 
 	/*
 	 * Places a human player's road.
 	 */
-	public void PlaceRoad(Transform hitbox, Player player)
+	public Edge PlaceRoad(Transform hitbox, Player player)
 	{
 		GameObject s = Instantiate(Resources.Load("road"), hitbox.position , Quaternion.identity) as GameObject;
 		s.transform.eulerAngles = hitbox.eulerAngles;
@@ -330,17 +355,18 @@ public class Board : MonoBehaviour
 				roads[i].visual = s;
 				roads[i].owner = player;
 				player.AddRoad(roads[i]);
+				return roads[i];
 			}
 		}
+
+		return null;
 	}
-
-
+	
 	/*
 	 * Places a human player's city.
 	 */
-	public void PlaceCity(Transform hitbox, Player player)
+	public Node PlaceCity(Transform hitbox, Player player)
 	{
-
 		GameObject s = Instantiate (Resources.Load ("city"), hitbox.position, Quaternion.identity) as GameObject;
 		s.renderer.material.color = player.color;
 		Destroy (settlements [hitbox]);
@@ -350,11 +376,12 @@ public class Board : MonoBehaviour
 				vertices [i].visual = s;
 				vertices [i].owner = player;
 				vertices[i].occupied = Node.Occupation.city;
+				return vertices[i];
 			}
 		}
 
+		return null;
 	}
-
 
 	/*
 	 * Assigns and displays tiles.

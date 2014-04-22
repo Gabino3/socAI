@@ -66,7 +66,7 @@ public class Node {
 	}
 
 	public override string ToString(){
-		return (neighbors.Count).ToString();
+		return (adjTiles.Count).ToString();
 	}
 
 }
