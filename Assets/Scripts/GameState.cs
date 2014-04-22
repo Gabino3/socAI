@@ -10,6 +10,11 @@ public class GameState : MonoBehaviour
 	int currentPlayerTurn;
 	Board board;
 
+	public enum State {
+		placeSettlement, placeRoad, roll, robber, trade, place, end, failure
+	};
+	public State curState;
+
 	private static System.Random rand = new System.Random();
 	private static Player longestRoadPlayer;
 	private static Player largestArmyPlayer;
@@ -18,32 +23,18 @@ public class GameState : MonoBehaviour
 	{
 		this.numPlayers = numPlayers;
 		this.board = board;
+		bool start = false;
 
 		playersArray = new Player[numPlayers];
-		for (int i = 0; i < numPlayers; i++)
-		{
+		for (int i = 0; i < numPlayers; i++) {
 			playersArray[i] = new Player(i, i!=0);
 		}
 
-		turnCounter = 0;
+		curState = State.placeSettlement;
+		turnCounter = -1;
 		currentPlayerTurn = 0;
 		longestRoadPlayer = null;	// Requires 5+ consecutive roads to first attain 'Longest Road'
 		largestArmyPlayer = null;	// Requires 3+ total knights to first attain 'Largest Army'
-
-		bool gameOver = false;
-
-		do
-		{
-			//TODO Dice roll / robber
-			//TODO Trading phase
-			//TODO Building phase
-
-			//TODO fix this construction
-			EndTurn ();
-			gameOver = IsGameOver ();
-			UpdateGameState ();
-		}
-		while(!gameOver);
 	}
 
 	/*
@@ -56,15 +47,13 @@ public class GameState : MonoBehaviour
 		}
 	}
 
-	private void EndTurn()
+	private void DetermineObjectivesOwnership()
 	{
-		if(GetCurrentTurnPlayer().longestRoad >= 5 && (longestRoadPlayer == null || GetCurrentTurnPlayer().longestRoad > longestRoadPlayer.longestRoad))
-		{
+		if(GetCurrentTurnPlayer().longestRoad >= 5 && (longestRoadPlayer == null || GetCurrentTurnPlayer().longestRoad > longestRoadPlayer.longestRoad)) {
 			longestRoadPlayer = GetCurrentTurnPlayer();
 		}
 
-		if(GetCurrentTurnPlayer().largestArmy >= 3 && (largestArmyPlayer == null || GetCurrentTurnPlayer().largestArmy > largestArmyPlayer.largestArmy))
-		{
+		if(GetCurrentTurnPlayer().largestArmy >= 3 && (largestArmyPlayer == null || GetCurrentTurnPlayer().largestArmy > largestArmyPlayer.largestArmy)) {
 			largestArmyPlayer = GetCurrentTurnPlayer();
 		}
 	}
@@ -89,18 +78,84 @@ public class GameState : MonoBehaviour
 		return player == longestRoadPlayer;
 	}
 
+	public void IncrementPlayer()
+	{
+		currentPlayerTurn = turnCounter % numPlayers;
+	}
+
+	/*
+	 * Main game logic.
+	 */
+	public State IncrementState()
+	{
+		turnCounter++;
+
+		//Setup
+		if (turnCounter < numPlayers*2) {
+
+			if (curState == State.placeSettlement) {
+				return State.placeRoad;
+
+			} else if (curState == State.placeRoad) {
+				// 0, 1, 2, 3
+				if (turnCounter < numPlayers) {
+					currentPlayerTurn = turnCounter;
+					return State.placeSettlement;
+				
+				// 4, 5, 6
+				} else if (turnCounter >= numPlayers && turnCounter < numPlayers*2 - 1) {
+					currentPlayerTurn = (numPlayers - 1) - turnCounter % numPlayers;
+					return State.placeSettlement;
+				
+				// 7
+				} else {
+					currentPlayerTurn = 0;
+					return State.roll;
+				}
+			}
+
+		//Main game
+		} else {
+
+			if (curState == State.roll) {
+				int roll = RollDice ();
+
+				if (roll == 7) {
+					return State.robber;
+				} else {
+					return State.trade;
+				}
+			
+			} else if (curState == State.robber) {
+				return State.trade;
+
+			} else if (curState == State.trade) {
+				return State.place;
+
+			} else if (curState == State.place) {
+				DetermineObjectivesOwnership();
+				if (IsGameOver ()) {
+					return State.end;
+				}
+				IncrementPlayer ();
+				return State.roll;
+
+			}
+		}
+
+		return State.failure;
+	}
+
 	private bool IsGameOver()
 	{
 		bool gameOver = false;
 		
-		if(GetCurrentTurnPlayer().HasWon())
-		{
+		if(GetCurrentTurnPlayer().HasWon()) {
 			//Game Over; player 'getCurrentTurnPlayer' has won
 			gameOver = true;
 		}
-		
-		return true;
-		//return gameOver;
+
+		return gameOver;
 	}
 	
 	public int RollDice()
@@ -113,14 +168,14 @@ public class GameState : MonoBehaviour
 		return roll;
 	}
 
-	private void UpdateGameState()
-	{
-		turnCounter++;
-		UpdatePlayerTurn();
-	}
+//	private void UpdateGameState()
+//	{
+//		turnCounter++;
+//		UpdatePlayerTurn();
+//	}
 
-	private void UpdatePlayerTurn()
-	{
-		currentPlayerTurn = turnCounter % numPlayers;
-	}
+//	private void UpdatePlayerTurn()
+//	{
+//		currentPlayerTurn = turnCounter % numPlayers;
+//	}
 }
