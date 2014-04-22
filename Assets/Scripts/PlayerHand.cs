@@ -29,6 +29,17 @@ public class PlayerHand
 		
 		//randomizeHand();
 	}
+
+	public int getResourceAmount(int index){
+		switch (index) {
+		case 0: return brick;
+		case 1: return ore;
+		case 2: return wood;
+		case 3: return grain;
+		case 4: return sheep;
+		default: return -1;
+				}
+	}
 	
 	public void randomize()
 	{

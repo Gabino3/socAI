@@ -165,6 +165,7 @@ public class GameEngine : MonoBehaviour
 	 */
 	void Update ()
 	{
+		UpdateHumanCardCounts ();
 		//AI Interaction
 		if (gamestate.GetCurrentTurnPlayer().isAI) {
 			//TODO replace logic here with AIEngine calls
@@ -334,7 +335,7 @@ public class GameEngine : MonoBehaviour
 			if (tradeThis[i].transform == hitbox){
 				tradeThisText[i].GetComponent<TextMesh>().text = "" + 
 					((Convert.ToInt32(tradeThisText[i].GetComponent<TextMesh>().text)+1) % 
-					 (Convert.ToInt32(humanCardCounts[i].GetComponent<TextMesh> ().text)+1) );
+					 (gamestate.GetPlayerAtIndex(0).Hand().getResourceAmount(i)+1) );
 			}
 			else if(forThis[i].transform == hitbox){
 				forThisText[i].GetComponent<TextMesh>().text = "" + 
