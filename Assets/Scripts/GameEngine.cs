@@ -57,11 +57,17 @@ public class GameEngine : MonoBehaviour
 		Instantiate(Resources.Load("backing"), new Vector3(-3.598929f,1f,1f), Quaternion.identity);
 		
 		citySelector = Instantiate(Resources.Load("city"), new Vector3(-5f,2f,-1f), Quaternion.identity) as GameObject;
+		GameObject temp = Instantiate (Resources.Load ("text"), new Vector3 (-5.4f,3f,-1f), Quaternion.identity) as GameObject;
+		temp.GetComponent<TextMesh> ().text = "City" ;
 		citySelector.renderer.material.color = Color.red;
 		citySelector.transform.localScale += citySelector.transform.localScale;
+		temp = Instantiate (Resources.Load ("text"), new Vector3 (-3f,.95f,-1f), Quaternion.identity) as GameObject;
+		temp.GetComponent<TextMesh> ().text = "Road" ;
 		roadSelector = Instantiate(Resources.Load("road"), new Vector3(-2.5f,0f,-1f), Quaternion.identity) as GameObject;
 		roadSelector.renderer.material.color = Color.red;
 		roadSelector.transform.localScale += roadSelector.transform.localScale;
+		temp = Instantiate (Resources.Load ("text"), new Vector3 (-3.6f,3f,-1f), Quaternion.identity) as GameObject;
+		temp.GetComponent<TextMesh> ().text = "Settlement" ;
 		settlementSelector = Instantiate(Resources.Load("settlement"), new Vector3(-2.5f,2f,-1f), Quaternion.identity) as GameObject;
 		settlementSelector.renderer.material.color = Color.red;
 		settlementSelector.transform.localScale += settlementSelector.transform.localScale;
