@@ -5,7 +5,9 @@ using System.Collections.Generic;
 public class GameState
 {
 	//Debug variables
-	private bool debug = true;
+	private bool diceDebug = false;
+	private bool stateDebug = true;
+	private bool objectiveDebug = true;
 
 	Player[] playersArray;
 	int numPlayers;
@@ -20,8 +22,11 @@ public class GameState
 	public State curState;
 
 	private static System.Random rand = new System.Random();
-	private static Player longestRoadPlayer;
-	private static Player largestArmyPlayer;
+
+	private int largestArmy;
+	private int longestRoad;
+	private Player largestArmyPlayer;
+	private Player longestRoadPlayer;
 
 	public GameState(int numPlayers, Board board)
 	{
@@ -38,8 +43,10 @@ public class GameState
 		SetState (State.unstarted);
 		turnCounter = -1;
 		currentPlayerTurn = 0;
-		longestRoadPlayer = null;	// Requires 5+ consecutive roads to first attain 'Longest Road'
-		largestArmyPlayer = null;	// Requires 3+ total knights to first attain 'Largest Army'
+		largestArmy = 2; //Requires 3+ total knights to first attain 'Largest Army'
+		longestRoad = 4; //Requires 5+ consecutive roads to first attain 'Longest Road'
+		largestArmyPlayer = null;
+		longestRoadPlayer = null;
 	}
 
 	/*
@@ -59,15 +66,26 @@ public class GameState
 		}
 	}
 
-	private void DetermineObjectivesOwnership()
+	private void DetermineCurrentPlayerObjectives()
 	{
-		if(GetCurrentTurnPlayer().longestRoad >= 5 && (longestRoadPlayer == null || GetCurrentTurnPlayer().longestRoad > longestRoadPlayer.longestRoad)) {
+		int playerLongestRoad = Board.LongestRoadOfPlayer (GetCurrentTurnPlayer());
+
+		//Assign longest road player
+		if (playerLongestRoad > longestRoad) {
+			longestRoad = playerLongestRoad;
 			longestRoadPlayer = GetCurrentTurnPlayer();
 		}
 
-		if(GetCurrentTurnPlayer().largestArmy >= 3 && (largestArmyPlayer == null || GetCurrentTurnPlayer().largestArmy > largestArmyPlayer.largestArmy)) {
-			largestArmyPlayer = GetCurrentTurnPlayer();
+		if (objectiveDebug) {
+			GameEngine.print ("PLAYER " + GetCurrentTurnPlayer ().id + " HAS ROAD OF " + playerLongestRoad + " LENGTH.");
+			if (longestRoadPlayer != null) {
+				GameEngine.print ("LONGEST ROAD PLAYER: " + longestRoadPlayer.id);
+			} else {
+				GameEngine.print ("LONGEST ROAD PLAYER: null");
+			}
 		}
+
+		//TODO largest army?
 	}
 
 	public Player GetCurrentTurnPlayer()
@@ -84,12 +102,12 @@ public class GameState
 		return playersArray[index];
 	}
 
-	public static bool HasLargestArmy(Player player)
+	public bool HasLargestArmy(Player player)
 	{
 		return player == largestArmyPlayer;
 	}
 
-	public static bool HasLongestRoad(Player player)
+	public bool HasLongestRoad(Player player)
 	{
 		return player == longestRoadPlayer;
 	}
@@ -152,8 +170,9 @@ public class GameState
 				return SetState(State.place);
 			}
 			else if (curState == State.place) {
-				DetermineObjectivesOwnership();
+				DetermineCurrentPlayerObjectives();
 				if (IsGameOver ()) {
+					GameEngine.print ("HOLY SHIT WE FINISHED A GAME!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 					return SetState(State.end);
 				}
 				IncrementPlayer ();
@@ -167,8 +186,10 @@ public class GameState
 	private bool IsGameOver()
 	{
 		bool gameOver = false;
-		
-		if(GetCurrentTurnPlayer().HasWon()) {
+		bool hasLargestArmy = (GetCurrentTurnPlayer () == largestArmyPlayer);
+		bool hasLongestRoad = (GetCurrentTurnPlayer () == longestRoadPlayer);
+
+		if(GetCurrentTurnPlayer().HasWon(hasLargestArmy, hasLongestRoad)) {
 			//Game Over; player 'getCurrentTurnPlayer' has won
 			gameOver = true;
 		}
@@ -180,15 +201,17 @@ public class GameState
 	{
 		int roll = rand.Next (6) + rand.Next (6) + 2;
 
-		string timestamp = System.DateTime.Now.ToString ("yyyy/MM/dd HH:mm:ss:ffff");
-		GameEngine.print ("[" + timestamp + "] DICE ROLL: " + roll);
+		if (diceDebug) {
+			string timestamp = System.DateTime.Now.ToString ("yyyy/MM/dd HH:mm:ss:ffff");
+			GameEngine.print ("[" + timestamp + "] DICE ROLL: " + roll);
+		}
 
 		return roll;
 	}
 
 	private void SetCurrentPlayerTurn(int currentPlayerTurn)
 	{
-		if (debug) {
+		if (stateDebug) {
 			string timestamp = System.DateTime.Now.ToString ("yyyy/MM/dd HH:mm:ss:ffff");
 			GameEngine.print ("[" + timestamp + "] CURRENT PLAYER TURN: " + currentPlayerTurn);
 		}
@@ -198,10 +221,9 @@ public class GameState
 
 	private State SetState(State state)
 	{
-		if (debug) {
+		if (stateDebug) {
 			string stateName = "";
 			string timestamp = System.DateTime.Now.ToString ("yyyy/MM/dd HH:mm:ss:ffff");
-			//TODO print new state here
 			switch (state) {
 			case State.end: 			stateName = "end"; break;
 			case State.place: 			stateName = "place"; break;

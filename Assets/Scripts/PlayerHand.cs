@@ -13,14 +13,18 @@ public class PlayerHand
 	//int roadBuilding;
 	//int yearOfPlenty;
 	//int monopoly;
-	
-	public PlayerHand()
+
+	public PlayerHand() : this(0)
 	{
-		brick = 0;
-		ore = 0;
-		wood = 0;
-		grain = 0;
-		sheep = 0;
+	}
+
+	public PlayerHand(int amount)
+	{
+		brick = amount;
+		ore = amount;
+		wood = amount;
+		grain = amount;
+		sheep = amount;
 		victoryPoints = 0;
 		//knights = 0;
 		//roadBuilding = 0;

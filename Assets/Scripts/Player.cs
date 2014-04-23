@@ -6,17 +6,15 @@ using System.Collections.Generic;
 public class Player
 {
 	//Debug variables
-	private bool debug = true;
+	private bool debug = false;
 
 	public int id;
 	public bool isAI;
 	public Color color;
 	private PlayerHand hand;
 	
-	private List<Edge> roads;
-	private List<Node> structures;
-	public int longestRoad;
-	public int largestArmy;
+	public List<Edge> roads;
+	public List<Node> structures;
 	
 	public Player(int id, bool isAI)
 	{
@@ -33,7 +31,7 @@ public class Player
 		}
 		roads = new List<Edge> (72);
 		structures = new List<Node> (54);
-		hand = new PlayerHand();
+		hand = new PlayerHand(100); //TODO just testing...
 	}
 
 	public void AddStructure(Node structure)
@@ -46,22 +44,25 @@ public class Player
 		roads.Add (road);
 	}
 
-	public void BuyCity(){
+	public void BuyCity()
+	{
 		hand.grain += -2;
 		hand.ore += -3;
 	}
 
-	public void BuyRoad(){
+	public void BuyRoad()
+	{
 		hand.brick += -1;
 		hand.wood += -1;
 	}
 
-	public void BuySettlement(){
+	public void BuySettlement()
+	{
 		hand.brick += -1;
 		hand.wood += -1;
 		hand.grain += -1;
 		hand.sheep += -1;
-		}
+	}
 
 	public bool CanBuildCity()
 	{
@@ -156,28 +157,14 @@ public class Player
 		});
 	}
 
-	// Dummy method to include largest army; will relocate to GameState at a future point
-	public int GetLargestArmyModifier()
-	{
-		//TODO remove dependence on GameState
-		return GameState.HasLargestArmy (this) ? 2 : 0;
-	}
-
-	// Dummy method to include longest road; will relocate to GameState at a future point
-	public int GetLongestRoadModifier()
-	{
-		//TODO remove dependence on GameState
-		return GameState.HasLongestRoad (this) ? 2 : 0;
-	}
-
 	public PlayerHand Hand()
 	{
 		return hand;
 	}
 
-	public bool HasWon()
+	public bool HasWon(bool hasLargestArmy, bool hasLongestRoad)
 	{
-		return VictoryPoints() >= 10;
+		return VictoryPoints(hasLargestArmy, hasLongestRoad) >= 10;
 	}
 
 	private int NumCities()
@@ -206,8 +193,10 @@ public class Player
 		return numSettlements;
 	}
 
-	public int VictoryPoints()
+	public int VictoryPoints(bool hasLargestArmy, bool hasLongestRoad)
 	{
-		return (1 * NumSettlements()) + (2 * NumCities()) + hand.victoryPoints + GetLargestArmyModifier() + GetLongestRoadModifier();
+		int largestArmyPoints = (hasLargestArmy) ? 2 : 0;
+		int longestRoadPoints = (hasLongestRoad) ? 2 : 0;
+		return (1 * NumSettlements()) + (2 * NumCities()) + hand.victoryPoints + largestArmyPoints + longestRoadPoints;
 	}
 }

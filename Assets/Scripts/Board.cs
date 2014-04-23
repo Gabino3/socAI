@@ -255,9 +255,64 @@ public class Board : MonoBehaviour
 	}
 
 	/*
+	 * Returns the length of a player's longest road.
+	 */
+	public static int LongestRoadOfPlayer(Player player)
+	{
+		int longestRoad = 0;
+
+		foreach (Edge road in player.roads) {
+			List<Edge> visitedEdges = new List<Edge> ();
+			List<Node> visitedNodes = new List<Node> ();
+
+			int testRoad = LongestRoadOfPlayer(player, road, visitedEdges, visitedNodes, 0);
+			if (testRoad > longestRoad) {
+				longestRoad = testRoad;
+			}
+		}
+
+		return longestRoad;
+	}
+	private static int LongestRoadOfPlayer(Player player, Edge visiting, List<Edge> visitedEdges, List<Node> visitedNodes, int length)
+	{
+		int longestRoad = 0;
+		int totalNeighborLongest = 0;
+		visitedEdges.Add (visiting);
+
+		foreach (Node neighbor in visiting.getNeighbors ()) {
+			int neighborLongest = 0;
+
+			if (!visitedNodes.Contains (neighbor)) {
+				visitedNodes.Add (neighbor);
+
+				foreach (Edge neighborEdge in neighbor.getRoads ()) {
+					if (!visitedEdges.Contains (neighborEdge) && neighborEdge.owner == player) {
+						int testLength = LongestRoadOfPlayer (player, neighborEdge, visitedEdges, visitedNodes, length+1);
+						if (testLength > longestRoad) {
+							longestRoad = testLength;
+						}
+						if (testLength > neighborLongest) {
+							neighborLongest = testLength;
+						}
+					}
+				}
+			}
+
+			totalNeighborLongest += neighborLongest;
+		}
+
+		if (length == 0) {
+			return totalNeighborLongest + 1;
+		}
+		else {
+			return Math.Max (longestRoad, length);
+		}
+	}
+
+	/*
 	 * Removes duplicate hex corners.
 	 */
-	static List<Vector3> MergeDuplicates(List<Vector3> tileCorners)
+	private static List<Vector3> MergeDuplicates(List<Vector3> tileCorners)
 	{
 		int threshold = 1;
 		List<Vector3> corners = new List<Vector3> ();
