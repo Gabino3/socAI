@@ -165,11 +165,11 @@ public class GameEngine : MonoBehaviour
 	 */
 	void Update ()
 	{
+		Player currentTurnPlayer = gamestate.GetCurrentTurnPlayer ();
+
 		UpdateHumanCardCounts ();
 		//AI Interaction
-		if (gamestate.GetCurrentTurnPlayer().isAI) {
-			//TODO replace logic here with AIEngine calls
-
+		if (currentTurnPlayer.isAI) {
 			bool structurePlaced = false;
 			System.Random rand = new System.Random();
 
@@ -178,8 +178,8 @@ public class GameEngine : MonoBehaviour
 
 				//Attempt to place elements in decreasing score order
 				for (int i = 0; i < locationOptions.Count && !structurePlaced; i++) {
-					if (board.CanBuildSettlementHere(locationOptions[i].visual.transform, gamestate.GetCurrentTurnPlayer(), true)) {
-						lastStructurePlaced = board.PlaceSettlement(locationOptions[i].visual.transform, gamestate.GetCurrentTurnPlayer());
+					if (board.CanBuildSettlementHere(locationOptions[i].visual.transform, currentTurnPlayer, true)) {
+						lastStructurePlaced = board.PlaceSettlement(locationOptions[i].visual.transform, currentTurnPlayer);
 						structurePlaced = true;
 					}
 				}
@@ -187,40 +187,45 @@ public class GameEngine : MonoBehaviour
 				IncrementState ();
 			}
 			else if (curState == GameState.State.placeRoad) {
+				//TODO position road intelligently
+//				Edge favorableRoad = AIEngine.GetMostFavorableEdge(currentTurnPlayer, lastStructurePlaced);
+//				lastRoadPlaced = board.PlaceRoad(favorableRoad.visual.transform, currentTurnPlayer);
+
 				//Only allow roads placed from previous settlement
 				foreach (Edge road in lastStructurePlaced.getRoads()) {
-					if (board.CanBuildRoadHere(road.visual.transform, gamestate.GetCurrentTurnPlayer())) {
-						lastRoadPlaced = board.PlaceRoad(road.visual.transform, gamestate.GetCurrentTurnPlayer());
+					if (board.CanBuildRoadHere(road.visual.transform, currentTurnPlayer)) {
+						lastRoadPlaced = board.PlaceRoad(road.visual.transform, currentTurnPlayer);
 						break;
 					}
 				}
 				IncrementState ();
 			}
-			else if (curState == GameState.State.roll ){
+			else if (curState == GameState.State.roll) {
 
-				if(gamestate.debug){
-					if (Input.GetMouseButtonDown (0)){
+				if (gamestate.debug) {
+					if (Input.GetMouseButtonDown (0)) {
 						Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 						RaycastHit hit;
 						print ("mouse press");
 						if (Physics.Raycast(ray, out hit)) {
-							if (hit.transform == dice.transform){
+							if (hit.transform == dice.transform) {
 								IncrementState ();
 								updateDice();
 							}
 						}
 					}
-				}else{
+				}
+				else {
 					IncrementState ();
 					updateDice();
 				}
 				
 			}
-			else if (curState == GameState.State.trade){
+			else if (curState == GameState.State.trade) {
 				//TODO
 				IncrementState();
 			}
-			else if(curState == GameState.State.place){
+			else if(curState == GameState.State.place) {
 				//TODO
 				IncrementState();
 			}
@@ -235,8 +240,6 @@ public class GameEngine : MonoBehaviour
 				print ("mouse press");
 				if (Physics.Raycast(ray, out hit)) {
 
-
-
 					//Need to place something
 					if (curState == GameState.State.placeSettlement || curState == GameState.State.placeRoad || curState == GameState.State.place || curState == GameState.State.robber) {
 
@@ -244,15 +247,15 @@ public class GameEngine : MonoBehaviour
 
 						//Choose what to build or use preselected
 						if (curState == GameState.State.place) {
-							if( hit.transform == roadSelector.transform && gamestate.GetCurrentTurnPlayer().CanBuildRoad()){
+							if( hit.transform == roadSelector.transform && currentTurnPlayer.CanBuildRoad()){
 								objectToBuild = hit.transform;
 								print ("on a building");
 							}
-							else if (hit.transform == citySelector.transform && gamestate.GetCurrentTurnPlayer().CanBuildCity()){
+							else if (hit.transform == citySelector.transform && currentTurnPlayer.CanBuildCity()){
 								objectToBuild = hit.transform;
 								print ("on a building");
 							}
-							else if (hit.transform == settlementSelector.transform && gamestate.GetCurrentTurnPlayer().CanBuildSettlement()){
+							else if (hit.transform == settlementSelector.transform && currentTurnPlayer.CanBuildSettlement()){
 								objectToBuild = hit.transform;
 								print ("on a building");
 							}
@@ -271,20 +274,18 @@ public class GameEngine : MonoBehaviour
 							if (objectToBuild == roadSelector.transform && board.roadHitboxes.ContainsKey(hit.transform)) {
 								Node structureToBuildNear = (curState == GameState.State.placeRoad) ? lastStructurePlaced : null;
 
-								if(board.CanBuildRoadHere(hit.transform, gamestate.GetCurrentTurnPlayer(), structureToBuildNear)) {
-								//if(board.CanBuildRoadHere(hit.transform, gamestate.GetCurrentTurnPlayer(), lastStructurePlaced)) {
-									lastRoadPlaced = board.PlaceRoad(hit.transform, gamestate.GetCurrentTurnPlayer(), !isSetup);
+								if(board.CanBuildRoadHere(hit.transform, currentTurnPlayer, structureToBuildNear)) {
+									lastRoadPlaced = board.PlaceRoad(hit.transform, currentTurnPlayer, !isSetup);
 									objectToBuild = null;
 									print ("road built!");
-									//TODO add color based on player and save the road in an list/array/dict
 									if (curState == GameState.State.placeRoad) {
 										IncrementState ();
 									}
 								}
 							}
 							else if(objectToBuild == settlementSelector.transform && board.settlementHitboxes.ContainsKey(hit.transform)) {
-								if(board.CanBuildSettlementHere(hit.transform, gamestate.GetCurrentTurnPlayer(), isSetup)){
-									lastStructurePlaced = board.PlaceSettlement(hit.transform, gamestate.GetCurrentTurnPlayer(), !isSetup);
+								if(board.CanBuildSettlementHere(hit.transform, currentTurnPlayer, isSetup)){
+									lastStructurePlaced = board.PlaceSettlement(hit.transform, currentTurnPlayer, !isSetup);
 									objectToBuild = null;
 									print ("settlement built!");
 									if (curState == GameState.State.placeSettlement) {
@@ -293,11 +294,10 @@ public class GameEngine : MonoBehaviour
 								}
 							}
 							else if (objectToBuild == citySelector.transform && board.settlements.ContainsKey(hit.transform)) {
-								if(board.CanBuildCityHere(hit.transform, gamestate.GetCurrentTurnPlayer())){
-									lastStructurePlaced = board.PlaceCity(hit.transform, gamestate.GetCurrentTurnPlayer());
+								if(board.CanBuildCityHere(hit.transform, currentTurnPlayer)){
+									lastStructurePlaced = board.PlaceCity(hit.transform, currentTurnPlayer);
 									objectToBuild = null;
 									print ("city built!");
-									//TODO add color based on player and save the city in an list/array/dict
 								}
 							}
 						}
@@ -310,16 +310,14 @@ public class GameEngine : MonoBehaviour
 							OfferTrade();
 							IncrementState ();
 						}
-
 					}
 					//listen for click on dice
-					else if (curState == GameState.State.roll ){
+					else if (curState == GameState.State.roll ) {
 						print (hit.transform == dice.transform);
-						if (hit.transform == dice.transform){
+						if (hit.transform == dice.transform) {
 							IncrementState ();
 							updateDice();
 						}
-
 					}
 					else {
 						print ("should not be here");

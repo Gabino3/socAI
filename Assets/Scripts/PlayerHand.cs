@@ -38,7 +38,7 @@ public class PlayerHand
 		case 3: return grain;
 		case 4: return sheep;
 		default: return -1;
-				}
+		}
 	}
 	
 	public void randomize()

@@ -41,10 +41,62 @@ public class AIEngine
 	/*
 	 * Returns the best edge to expand to, given a player's node.
 	 */
-	public static List<Edge> GetMostFavorableEdge(Player player, Node node)
+	public static Edge GetMostFavorableEdge(Player player, Node node)
 	{
 		//TODO
-		return null;
+		Edge bestEdge = null;
+		double bestScore = Double.MinValue;
+
+		foreach (Edge edge in node.getRoads()) {
+			if (!edge.occupied || edge.owner == player) {
+				double score = ScoreEdgeByBreadthFirstSearch (player, edge, node, 3);
+				if (score > bestScore) {
+					bestScore = score;
+					bestEdge = edge;
+					GameEngine.print ("SCORE: " + bestScore);
+				}
+			}
+		}
+
+		return bestEdge;
+	}
+
+	private static double ScoreEdgeByBreadthFirstSearch(Player player, Edge edge, Node startNode, int maxDepth)
+	{
+		List<Node> visitedNodes = new List<Node> ();
+		visitedNodes.Add (startNode);
+
+		return ScoreEdgeByBreadthFirstSearch (player, edge, new List<Edge>(), visitedNodes, 0, maxDepth);
+	}
+
+	private static double ScoreEdgeByBreadthFirstSearch(Player player, Edge edge, List<Edge> visitedEdges, List<Node> visitedNodes, int depth, int maxDepth)
+	{
+		if (depth == maxDepth) {
+			return 0;
+		}
+
+		double[] distModifier = { 1, 1.2, 0.7, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5 };
+		double edgeScore = 0;
+		visitedEdges.Add (edge);
+
+		//TODO
+		foreach (Node neighborNode in edge.getNeighbors()) {
+
+			if (!visitedNodes.Contains (neighborNode) && (neighborNode.occupied == Node.Occupation.none || neighborNode.owner == player)) {
+				visitedNodes.Add (neighborNode);
+
+				edgeScore += distModifier[depth] * VertexScore (neighborNode);
+
+				foreach(Edge visitingEdge in neighborNode.getRoads()) {
+
+					if (!visitedEdges.Contains (visitingEdge) && (!visitingEdge.occupied || visitingEdge.owner == player)) {
+						return edgeScore + ScoreEdgeByBreadthFirstSearch (player, visitingEdge, visitedEdges, visitedNodes, ++depth, maxDepth);
+					}
+				}
+			}
+		}
+
+		return edgeScore;
 	}
 
 	/*
