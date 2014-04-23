@@ -15,7 +15,10 @@ public class Board : MonoBehaviour
 	public Dictionary<Transform, GameObject> settlements;
 	public Dictionary<Transform, GameObject> roadHitboxes;
 	public Dictionary<Transform, GameObject> settlementHitboxes;
-	public List<GameObject> robberPositions;
+	public List<GameObject> tileHitboxes;
+
+	public GameObject robber;
+	public Tile robberOwner;
 
 	//Board metrics
 	readonly int boardWidth = 7;
@@ -297,12 +300,29 @@ public class Board : MonoBehaviour
 	}
 
 	/*
+	 * Places robber on specified tile if not already existing on tile.
+	 */
+	public bool PlaceRobber(Transform hitbox)
+	{
+		//TODO
+		for (int i = 0; i < tileHitboxes.Count; i++) {
+			Transform tileTransform = tileHitboxes[i].transform;
+			if (tileTransform == hitbox && tiles[i] != robberOwner) {
+				robberOwner = tiles[i];
+				robber.transform.position = new Vector3(tileTransform.position.x, tileTransform.position.y, robber.transform.position.z);
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/*
 	 * Places an AI's settlement.
 	 */
 	public void PlaceSettlement(Node node, Player player)
 	{
 		//TODO
-
 	}
 
 	/*
@@ -315,17 +335,19 @@ public class Board : MonoBehaviour
 		settlements.Add (s.transform, s);
 		Destroy (settlementHitboxes [hitbox]);
 		settlementHitboxes.Remove (hitbox);
+
 		for (int i = 0; i<vertices.Count; i++) {
-				if (vertices [i].visual.transform == hitbox) {
-					if (isPaying){
-						player.BuySettlement();
-					}
-					vertices [i].visual = s;
-					vertices [i].owner = player;
-					vertices[i].occupied = Node.Occupation.settlement;
-					player.AddStructure(vertices[i]);
-					return vertices[i];
+			if (vertices[i].visual.transform == hitbox) {
+				if (isPaying) {
+					player.BuySettlement();
 				}
+				vertices[i].visual = s;
+				vertices[i].owner = player;
+				vertices[i].occupied = Node.Occupation.settlement;
+				player.AddStructure(vertices[i]);
+				
+						return vertices[i];
+			}
 		}
 
 		return null;
@@ -388,7 +410,7 @@ public class Board : MonoBehaviour
 		List<Vector3> tilePos = new List<Vector3>(19);
 		List<Vector3> tileCorners = new List<Vector3>(114);
 		List<Tile> tiles = new List<Tile>(19);
-		robberPositions = new List<GameObject>(19);
+		tileHitboxes = new List<GameObject>(19);
 		int counter = 0;
 		int chitCounter = 0;
 
@@ -398,7 +420,7 @@ public class Board : MonoBehaviour
 			{
 				if(tilesToDraw.Contains(y*10+x)){
 					tilePos.Add(GetWorldCoordinates(x,y,0));
-					robberPositions.Add(Instantiate(Resources.Load(tileDeck[counter]), tilePos[counter], Quaternion.identity) as GameObject);
+					tileHitboxes.Add(Instantiate(Resources.Load(tileDeck[counter]), tilePos[counter], Quaternion.identity) as GameObject);
 					switch(tileDeck[counter]){
 					case "tile_lumber"	: tiles.Add(new Tile(Tile.Resource.wood, tilePos[counter], new Vector2(x,y),chitConversions[chitDeck[chitCounter]])); break;
 					case "tile_ore"		: tiles.Add(new Tile(Tile.Resource.ore, tilePos[counter], new Vector2(x,y),chitConversions[chitDeck[chitCounter]])); break;
@@ -406,7 +428,9 @@ public class Board : MonoBehaviour
 					case "tile_grain"	: tiles.Add(new Tile(Tile.Resource.grain, tilePos[counter], new Vector2(x,y),chitConversions[chitDeck[chitCounter]])); break;
 					case "tile_brick"	: tiles.Add(new Tile(Tile.Resource.brick, tilePos[counter], new Vector2(x,y),chitConversions[chitDeck[chitCounter]])); break;
 					default				: tiles.Add(new Tile(Tile.Resource.none, tilePos[counter], new Vector2(x,y),chitConversions[chitDeck[chitCounter]])); 
-						tiles[counter].robber =  Instantiate(Resources.Load("robber"), new Vector3((tilePos[counter]).x, (tilePos[counter]).y, -1), Quaternion.identity) as GameObject; 
+						robber =  Instantiate(Resources.Load("robber"), new Vector3((tilePos[counter]).x, (tilePos[counter]).y, -1), Quaternion.identity) as GameObject; 
+						robber.renderer.material.color = Color.black;
+						robberOwner = tiles[counter];
 						break;
 					}
 					tileCorners.AddRange(GetHexCorners((tilePos[counter]).x,(tilePos[counter]).y, 0.0f, hexSize ));

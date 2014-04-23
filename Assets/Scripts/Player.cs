@@ -96,19 +96,19 @@ public class Player
 	/*
 	 * Collects a player's resources at the dice-rolling portion of the turn based on their settlements.
 	 */
-	public void CollectResourcesFromRoll(int diceRoll)
+	public void CollectResourcesFromRoll(Board board, int diceRoll)
 	{
 		structures.ForEach (delegate(Node structure) {
-			CollectResourcesFromStructure (structure, diceRoll);
+			CollectResourcesFromStructure (board, structure, diceRoll);
 		});
 	}
 
-	public void CollectResourcesFromStructure(int index)
+	public void CollectResourcesFromStructure(Board board, int index)
 	{
-		CollectResourcesFromStructure (structures [index]);
+		CollectResourcesFromStructure (board, structures [index]);
 	}
 
-	private void CollectResourcesFromStructure(Node structure, int diceRoll = -1)
+	private void CollectResourcesFromStructure(Board board, Node structure, int diceRoll = -1)
 	{
 		int resourceModifier = 0;
 
@@ -119,33 +119,38 @@ public class Player
 			resourceModifier = 2;
 		}
 
-		GameEngine.print (" HAS " + structure.getTiles ().Count + " TILES");
-
 		structure.getTiles().ForEach (delegate(Tile tile) {
 			if (tile.GetChitValue () == diceRoll || diceRoll == -1) {
-				string resource = "";
-				
-				//Give player appropriate resource
-				if (tile.GetResource() == Tile.Resource.brick) {
-					hand.brick += resourceModifier;
-					resource = "brick";
-				} else if (tile.GetResource() == Tile.Resource.ore) {
-					hand.ore += resourceModifier;
-					resource = "ore";
-				} else if (tile.GetResource() == Tile.Resource.wood) {
-					hand.wood += resourceModifier;
-					resource = "wood";
-				} else if (tile.GetResource() == Tile.Resource.grain) {
-					hand.grain += resourceModifier;
-					resource = "grain";
-				} else if (tile.GetResource() == Tile.Resource.sheep) {
-					hand.sheep += resourceModifier;
-					resource = "sheep";
+				if (tile != board.robberOwner) {
+					string resource = "";
+					
+					//Give player appropriate resource
+					if (tile.GetResource() == Tile.Resource.brick) {
+						hand.brick += resourceModifier;
+						resource = "brick";
+					} else if (tile.GetResource() == Tile.Resource.ore) {
+						hand.ore += resourceModifier;
+						resource = "ore";
+					} else if (tile.GetResource() == Tile.Resource.wood) {
+						hand.wood += resourceModifier;
+						resource = "wood";
+					} else if (tile.GetResource() == Tile.Resource.grain) {
+						hand.grain += resourceModifier;
+						resource = "grain";
+					} else if (tile.GetResource() == Tile.Resource.sheep) {
+						hand.sheep += resourceModifier;
+						resource = "sheep";
+					}
+					
+					if (debug) {
+						GameEngine.print ("Gave player #" + id + ": " + resourceModifier + " " + resource);
+						GameEngine.print ("Player #" + id + " Hand: b > " + hand.brick + ", o > " + hand.ore + ", w > " + hand.wood + ", g > " + hand.grain + ", s > " + hand.sheep);
+					}
 				}
-				
-				if (debug) {
-					GameEngine.print ("Gave player #" + id + ": " + resourceModifier + " " + resource);
-					GameEngine.print ("Player #" + id + " Hand: b > " + hand.brick + ", o > " + hand.ore + ", w > " + hand.wood + ", g > " + hand.grain + ", s > " + hand.sheep);
+				else {
+					if (debug) {
+						GameEngine.print ("Player #" + id + " didn't receive some of their resources due to robber.");
+					}
 				}
 			}
 		});

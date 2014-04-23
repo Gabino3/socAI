@@ -1,10 +1,14 @@
 using UnityEngine;
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using System;
 
 public class GameEngine : MonoBehaviour
 {
+	//Debug variables
+	private bool rollForAI = false;
+	private bool interactDebug = false;
+
 	Board board;
 	GameState gamestate;
 	GameObject citySelector;
@@ -29,6 +33,9 @@ public class GameEngine : MonoBehaviour
 	GameObject diceNum;
 
 	GameObject[] humanCardCounts;
+	DateTime lastAIActionTime; //used to slow down AI players
+	readonly DateTime EPOCH = new DateTime(2001, 1, 1);
+	readonly float FORCED_TIME_BETWEEN_AI_ACTIONS = 0.5f;
 
 	void Start () {
 		board = new Board (); // instantiates and draws
@@ -45,6 +52,8 @@ public class GameEngine : MonoBehaviour
 		BuildEndTurnButton ();
 		BuildDiceRoller ();
 		BuildTradePanel ();
+
+		lastAIActionTime = EPOCH;
 		curState = gamestate.IncrementState (); // initial increment
 	}
 
@@ -166,82 +175,103 @@ public class GameEngine : MonoBehaviour
 	void Update ()
 	{
 		Player currentTurnPlayer = gamestate.GetCurrentTurnPlayer ();
-
 		UpdateHumanCardCounts ();
+
+		long elapsedTicksSinceLastAIAction = DateTime.Now.Ticks - lastAIActionTime.Ticks;
+		double secondsSinceLastAIAction = new TimeSpan(elapsedTicksSinceLastAIAction).TotalSeconds;
+
+
 		//AI Interaction
 		if (currentTurnPlayer.isAI) {
-			bool structurePlaced = false;
-			System.Random rand = new System.Random();
+			if (secondsSinceLastAIAction >= FORCED_TIME_BETWEEN_AI_ACTIONS) {
+				bool structurePlaced = false;
+				System.Random rand = new System.Random();
 
-			if (curState == GameState.State.placeSettlement) {
-				List<Node> locationOptions = AIEngine.GetFavorableStartingLocations(board);
+				//Initial settlement placement
+				if (curState == GameState.State.placeSettlement) {
+					List<Node> locationOptions = AIEngine.GetFavorableStartingLocations(board);
 
-				//Attempt to place elements in decreasing score order
-				for (int i = 0; i < locationOptions.Count && !structurePlaced; i++) {
-					if (board.CanBuildSettlementHere(locationOptions[i].visual.transform, currentTurnPlayer, true)) {
-						lastStructurePlaced = board.PlaceSettlement(locationOptions[i].visual.transform, currentTurnPlayer);
-						structurePlaced = true;
+					//Attempt to place elements in decreasing score order
+					for (int i = 0; i < locationOptions.Count && !structurePlaced; i++) {
+						if (board.CanBuildSettlementHere(locationOptions[i].visual.transform, currentTurnPlayer, true)) {
+							lastStructurePlaced = board.PlaceSettlement(locationOptions[i].visual.transform, currentTurnPlayer);
+							structurePlaced = true;
+						}
 					}
+
+					IncrementState ();
 				}
+				//Initial road placement
+				else if (curState == GameState.State.placeRoad) {
+					//TODO position road intelligently
+//					Edge favorableRoad = AIEngine.GetMostFavorableEdge(currentTurnPlayer, lastStructurePlaced);
+//					lastRoadPlaced = board.PlaceRoad(favorableRoad.visual.transform, currentTurnPlayer);
 
-				IncrementState ();
-			}
-			else if (curState == GameState.State.placeRoad) {
-				//TODO position road intelligently
-//				Edge favorableRoad = AIEngine.GetMostFavorableEdge(currentTurnPlayer, lastStructurePlaced);
-//				lastRoadPlaced = board.PlaceRoad(favorableRoad.visual.transform, currentTurnPlayer);
-
-				//Only allow roads placed from previous settlement
-				foreach (Edge road in lastStructurePlaced.getRoads()) {
-					if (board.CanBuildRoadHere(road.visual.transform, currentTurnPlayer)) {
-						lastRoadPlaced = board.PlaceRoad(road.visual.transform, currentTurnPlayer);
-						break;
+					//Only allow roads placed from previous settlement
+					foreach (Edge road in lastStructurePlaced.getRoads()) {
+						if (board.CanBuildRoadHere(road.visual.transform, currentTurnPlayer)) {
+							lastRoadPlaced = board.PlaceRoad(road.visual.transform, currentTurnPlayer);
+							break;
+						}
 					}
+					IncrementState ();
 				}
-				IncrementState ();
-			}
-			else if (curState == GameState.State.roll) {
-
-				if (gamestate.debug) {
-					if (Input.GetMouseButtonDown (0)) {
-						Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-						RaycastHit hit;
-						print ("mouse press");
-						if (Physics.Raycast(ray, out hit)) {
-							if (hit.transform == dice.transform) {
-								IncrementState ();
-								updateDice();
+				//Roll dice
+				else if (curState == GameState.State.roll) {
+					if (rollForAI) {
+						if (Input.GetMouseButtonDown (0)) {
+							Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+							RaycastHit hit;
+							if (interactDebug) { print ("mouse press"); }
+							if (Physics.Raycast(ray, out hit)) {
+								if (hit.transform == dice.transform) {
+									IncrementState ();
+									updateDice();
+								}
 							}
 						}
 					}
+					else {
+						IncrementState ();
+						updateDice();
+					}
 				}
-				else {
-					IncrementState ();
-					updateDice();
+				//Trade with players
+				else if (curState == GameState.State.trade) {
+					//TODO
+					IncrementState();
 				}
-				
-			}
-			else if (curState == GameState.State.trade) {
-				//TODO
-				IncrementState();
-			}
-			else if(curState == GameState.State.place) {
-				//TODO
-				IncrementState();
-			}
+				//Building phase
+				else if (curState == GameState.State.place) {
+					//TODO
+					IncrementState();
+				}
+				//Place robber
+				else if (curState == GameState.State.robber) {
+					//TODO
+					bool robberPlaced = false;
 
+					while (!robberPlaced) {
+						int tileIndex = rand.Next (board.tiles.Count);
+						robberPlaced = board.PlaceRobber(board.tileHitboxes[tileIndex].transform);
+					}
 
+					IncrementState();
+				}
+
+				lastAIActionTime = DateTime.Now; //Prevent AI from acting too quickly
+			}
 		}
 		//Human Interaction
 		else {
 			if (Input.GetMouseButtonDown (0)) {
 				Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 				RaycastHit hit;
-				print ("mouse press");
+				if (interactDebug) { print ("mouse press"); }
 				if (Physics.Raycast(ray, out hit)) {
 
 					//Need to place something
-					if (curState == GameState.State.placeSettlement || curState == GameState.State.placeRoad || curState == GameState.State.place || curState == GameState.State.robber) {
+					if (curState == GameState.State.placeSettlement || curState == GameState.State.placeRoad || curState == GameState.State.place) {
 
 						bool isSetup = (curState == GameState.State.placeSettlement || curState == GameState.State.placeRoad);
 
@@ -249,15 +279,15 @@ public class GameEngine : MonoBehaviour
 						if (curState == GameState.State.place) {
 							if( hit.transform == roadSelector.transform && currentTurnPlayer.CanBuildRoad()){
 								objectToBuild = hit.transform;
-								print ("on a building");
+								if (interactDebug) { print ("on a building"); }
 							}
 							else if (hit.transform == citySelector.transform && currentTurnPlayer.CanBuildCity()){
 								objectToBuild = hit.transform;
-								print ("on a building");
+								if (interactDebug) { print ("on a building"); }
 							}
 							else if (hit.transform == settlementSelector.transform && currentTurnPlayer.CanBuildSettlement()){
 								objectToBuild = hit.transform;
-								print ("on a building");
+								if (interactDebug) { print ("on a building"); }
 							}
 							else if (hit.transform == endTurnButton.transform){
 								IncrementState();
@@ -277,7 +307,7 @@ public class GameEngine : MonoBehaviour
 								if(board.CanBuildRoadHere(hit.transform, currentTurnPlayer, structureToBuildNear)) {
 									lastRoadPlaced = board.PlaceRoad(hit.transform, currentTurnPlayer, !isSetup);
 									objectToBuild = null;
-									print ("road built!");
+									if (interactDebug) { print ("road built!"); }
 									if (curState == GameState.State.placeRoad) {
 										IncrementState ();
 									}
@@ -287,7 +317,7 @@ public class GameEngine : MonoBehaviour
 								if(board.CanBuildSettlementHere(hit.transform, currentTurnPlayer, isSetup)){
 									lastStructurePlaced = board.PlaceSettlement(hit.transform, currentTurnPlayer, !isSetup);
 									objectToBuild = null;
-									print ("settlement built!");
+									if (interactDebug) { print ("settlement built!"); }
 									if (curState == GameState.State.placeSettlement) {
 										IncrementState ();
 									}
@@ -297,9 +327,15 @@ public class GameEngine : MonoBehaviour
 								if(board.CanBuildCityHere(hit.transform, currentTurnPlayer)){
 									lastStructurePlaced = board.PlaceCity(hit.transform, currentTurnPlayer);
 									objectToBuild = null;
-									print ("city built!");
+									if (interactDebug) { print ("city built!"); }
 								}
 							}
+						}
+					}
+					//Place robber on a chit
+					else if (curState == GameState.State.robber) {
+						if (board.PlaceRobber(hit.transform)) {
+							IncrementState (); //increment if successfully placed
 						}
 					}
 					//Request trades with other players
@@ -307,20 +343,20 @@ public class GameEngine : MonoBehaviour
 						UpdateTradePanel (hit.transform);
 						
 						if (hit.transform == tradeButton.transform) {
-							OfferTrade();
+							OfferTrade ();
 							IncrementState ();
 						}
 					}
 					//listen for click on dice
 					else if (curState == GameState.State.roll ) {
-						print (hit.transform == dice.transform);
+						if (interactDebug) { print (hit.transform == dice.transform); }
 						if (hit.transform == dice.transform) {
 							IncrementState ();
-							updateDice();
+							updateDice ();
 						}
 					}
 					else {
-						print ("should not be here");
+						if (interactDebug) { print ("should not be here"); }
 					}
 				}
 			}
@@ -328,7 +364,7 @@ public class GameEngine : MonoBehaviour
 	}
 
 	public void updateDice() {
-		diceNum.GetComponent<TextMesh> ().text = ""+gamestate.getRoll() ;
+		diceNum.GetComponent<TextMesh> ().text = "" + gamestate.getRoll();
 	}
 
 	private void UpdateHumanCardCounts()
@@ -342,7 +378,7 @@ public class GameEngine : MonoBehaviour
 
 	private void UpdateTradePanel(Transform hitbox)
 	{
-		print ("This is trade");
+		if (interactDebug) { print ("This is trade"); }
 		for (int i = 0; i<5; i++) {
 			if (tradeThis[i].transform == hitbox){
 				tradeThisText[i].GetComponent<TextMesh>().text = "" + 

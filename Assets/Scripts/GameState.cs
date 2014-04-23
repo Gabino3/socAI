@@ -5,7 +5,7 @@ using System.Collections.Generic;
 public class GameState
 {
 	//Debug variables
-	public bool debug = true;
+	private bool debug = true;
 
 	Player[] playersArray;
 	int numPlayers;
@@ -48,14 +48,14 @@ public class GameState
 	public void CollectPlayerResources(int diceRoll)
 	{
 		for (int i = 0; i < numPlayers; i++) {
-			playersArray[i].CollectResourcesFromRoll(diceRoll);
+			playersArray[i].CollectResourcesFromRoll(board, diceRoll);
 		}
 	}
 
 	public void CollectSecondPlacementResources()
 	{
 		for (int i = 0; i < numPlayers; i++) {
-			playersArray[i].CollectResourcesFromStructure (1); // second structure
+			playersArray[i].CollectResourcesFromStructure(board, 1); // second structure
 		}
 	}
 
@@ -213,7 +213,7 @@ public class GameState
 			case State.unstarted:		stateName = "unstarted"; break;
 			default:					stateName = "failure/unknown"; break;
 			}
-			GameEngine.print ("[" + timestamp + "] STATE CHANGE: " + stateName);
+			GameEngine.print ("[" + timestamp + "] PLAYER " + GetCurrentTurnPlayer().id + " -> STATE CHANGE: " + stateName);
 		}
 
 		curState = state;
