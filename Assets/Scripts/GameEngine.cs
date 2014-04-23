@@ -383,7 +383,7 @@ public class GameEngine : MonoBehaviour
 			if (tradeThis[i].transform == hitbox){
 				tradeThisText[i].GetComponent<TextMesh>().text = "" + 
 					((Convert.ToInt32(tradeThisText[i].GetComponent<TextMesh>().text)+1) % 
-					 (gamestate.GetPlayerAtIndex(0).Hand().getResourceAmount(i)+1) );
+					 (gamestate.GetPlayerAtIndex(0).Hand().GetResourceAmount(i)+1) );
 			}
 			else if(forThis[i].transform == hitbox){
 				forThisText[i].GetComponent<TextMesh>().text = "" + 

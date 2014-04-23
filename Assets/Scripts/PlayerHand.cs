@@ -30,7 +30,7 @@ public class PlayerHand
 		//randomizeHand();
 	}
 
-	public int getResourceAmount(int index){
+	public int GetResourceAmount(int index){
 		switch (index) {
 		case 0: return brick;
 		case 1: return ore;
@@ -41,18 +41,18 @@ public class PlayerHand
 		}
 	}
 	
-	public void randomize()
+	public void Randomize(int max)
 	{
 		System.Random rand = new System.Random();
 		
-		brick = rand.Next(4);
-		ore = rand.Next(4);
-		wood = rand.Next(4);
-		grain = rand.Next(4);
-		sheep = rand.Next(4);
+		brick = rand.Next(max);
+		ore = rand.Next(max);
+		wood = rand.Next(max);
+		grain = rand.Next(max);
+		sheep = rand.Next(max);
 	}
 
-	public int totalResources()
+	public int TotalResources()
 	{
 		return brick + ore + wood + grain + sheep;
 	}
