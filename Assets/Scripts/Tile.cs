@@ -10,6 +10,7 @@ public class Tile {
 	Vector3 geoLocation;
 	Vector2 position;
 	int chitValue;
+	public GameObject robber {get;set;}
 
 	public Tile(Resource r, Vector3 gl, Vector2 p, int chitValue)
 	{
@@ -17,6 +18,7 @@ public class Tile {
 		geoLocation = gl;
 		position = p;
 		this.chitValue = chitValue;
+		robber = null;
 	}
 
 	public int GetChitValue()

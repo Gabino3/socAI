@@ -15,6 +15,7 @@ public class Board : MonoBehaviour
 	public Dictionary<Transform, GameObject> settlements;
 	public Dictionary<Transform, GameObject> roadHitboxes;
 	public Dictionary<Transform, GameObject> settlementHitboxes;
+	public List<GameObject> robberPositions;
 
 	//Board metrics
 	readonly int boardWidth = 7;
@@ -168,30 +169,17 @@ public class Board : MonoBehaviour
 	 */
 	static List<Node> FindNeighboringTiles(List<Node> vertices, List<Tile> tiles, float size)
 	{
-		float threshold = size + 0.8f;
+		float threshold = size + 0.5f;
 		
 		for (var i = 0; i<vertices.Count; i++) {
 			for (var j = 0; j<tiles.Count;j++){
 				double d = Math.Sqrt( Math.Pow((vertices[i]).getLoc().x - (tiles[j]).GetLoc().x, 2) + Math.Pow((vertices[i]).getLoc().y - (tiles[j]).GetLoc().y, 2));
-				if(d<threshold && i!=j){
+				if(d<threshold){
 					vertices[i].addTile(tiles[j]);
 				}	
 			}
 		}
-		int threes = 0;
-		int twos = 0;
-		int ones = 0;
-		foreach (Node n in vertices) {
-			if(n.ToString() == "3")
-				threes++;
-			if(n.ToString() == "2")
-				twos++;
-			if(n.ToString() == "1")
-				ones++;
-				}
-		print (threes);
-		print (twos);
-		print (ones);
+
 		return vertices;
 	}
 
@@ -400,6 +388,7 @@ public class Board : MonoBehaviour
 		List<Vector3> tilePos = new List<Vector3>(19);
 		List<Vector3> tileCorners = new List<Vector3>(114);
 		List<Tile> tiles = new List<Tile>(19);
+		robberPositions = new List<GameObject>(19);
 		int counter = 0;
 		int chitCounter = 0;
 
@@ -409,14 +398,16 @@ public class Board : MonoBehaviour
 			{
 				if(tilesToDraw.Contains(y*10+x)){
 					tilePos.Add(GetWorldCoordinates(x,y,0));
-					Instantiate(Resources.Load(tileDeck[counter]), tilePos[counter], Quaternion.identity);
+					robberPositions.Add(Instantiate(Resources.Load(tileDeck[counter]), tilePos[counter], Quaternion.identity) as GameObject);
 					switch(tileDeck[counter]){
 					case "tile_lumber"	: tiles.Add(new Tile(Tile.Resource.wood, tilePos[counter], new Vector2(x,y),chitConversions[chitDeck[chitCounter]])); break;
 					case "tile_ore"		: tiles.Add(new Tile(Tile.Resource.ore, tilePos[counter], new Vector2(x,y),chitConversions[chitDeck[chitCounter]])); break;
 					case "tile_sheep"	: tiles.Add(new Tile(Tile.Resource.sheep, tilePos[counter], new Vector2(x,y),chitConversions[chitDeck[chitCounter]])); break;
 					case "tile_grain"	: tiles.Add(new Tile(Tile.Resource.grain, tilePos[counter], new Vector2(x,y),chitConversions[chitDeck[chitCounter]])); break;
 					case "tile_brick"	: tiles.Add(new Tile(Tile.Resource.brick, tilePos[counter], new Vector2(x,y),chitConversions[chitDeck[chitCounter]])); break;
-					default				: tiles.Add(new Tile(Tile.Resource.none, tilePos[counter], new Vector2(x,y),chitConversions[chitDeck[chitCounter]])); break;
+					default				: tiles.Add(new Tile(Tile.Resource.none, tilePos[counter], new Vector2(x,y),chitConversions[chitDeck[chitCounter]])); 
+						tiles[counter].robber =  Instantiate(Resources.Load("robber"), new Vector3((tilePos[counter]).x, (tilePos[counter]).y, -1), Quaternion.identity) as GameObject; 
+						break;
 					}
 					tileCorners.AddRange(GetHexCorners((tilePos[counter]).x,(tilePos[counter]).y, 0.0f, hexSize ));
 					if (tileDeck[counter] != "tile_desert"){
