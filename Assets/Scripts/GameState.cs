@@ -89,6 +89,11 @@ public class GameState
 		//TODO largest army?
 	}
 
+	public int getTurnCounter()
+	{
+		return turnCounter;
+	}
+
 	public Player GetCurrentTurnPlayer()
 	{
 		return playersArray[currentPlayerTurn];

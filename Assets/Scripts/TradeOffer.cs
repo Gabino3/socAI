@@ -5,6 +5,8 @@ public class TradeOffer : MonoBehaviour
 {
 	public Player tradeHost;
 
+	public int turnOffered;
+
 	public int giveBrick;
 	public int giveOre;
 	public int giveWood;
@@ -17,9 +19,16 @@ public class TradeOffer : MonoBehaviour
 	public int getGrain;
 	public int getSheep;
 
-	public TradeOffer (Player tradeHost, int[] giveResources, int[] getResources)
+	public int[] giveResources;
+	public int[] getResources;
+
+	public TradeOffer (Player tradeHost, int currentTurn, int[] giveResources, int[] getResources)
 	{
 		this.tradeHost = tradeHost;
+		this.turnOffered = currentTurn;
+
+		this.giveResources = giveResources;
+		this.getResources = getResources;
 
 		for(int i = 0; i < 5; i++)
 		{
@@ -48,6 +57,4 @@ public class TradeOffer : MonoBehaviour
 			}
 		}
 	}
-
-
 }

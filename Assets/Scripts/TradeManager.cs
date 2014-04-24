@@ -3,21 +3,19 @@ using System.Collections;
 
 public class TradeManager : MonoBehaviour
 {
-	Player tradeHost;
 	GameState gamestate;
 
-	public TradeManager (TradeOffer offer, GameState gamestate)
+	public TradeManager (GameState gamestate)
 	{
-		tradeHost = offer.tradeHost;
 		gamestate = gamestate;
-
-		ExecuteTradeOffer (offer);
 	}
 
-	private void ExecuteTradeOffer(TradeOffer offer)
+	public void ExecuteTradeOfferNotification(TradeOffer offer)
 	{
+		Player tradeHost = offer.tradeHost;
+
 		bool tradeIsAccepted = false;
-		Player tradeWithPlayer = gamestate.GetPlayerAtIndex(0);
+		Player tradeWithPlayer = null;
 
 		for(int i = 0; i < gamestate.numPlayers && !tradeIsAccepted; i++)
 		{
@@ -42,7 +40,7 @@ public class TradeManager : MonoBehaviour
 		}
 		else
 		{
-			// Prevent repeat trades
+			// Nobody Accepts Trade.  Alert Human via GUI
 		}
 	}
 
@@ -51,7 +49,7 @@ public class TradeManager : MonoBehaviour
 		return tradeWithPlayer.acceptTradeRequest(offer);
 	}
 
-	public void ExecuteTradeOffer(TradeOffer offer, Player tradeHost, Player tradeWith)
+	private void ExecuteTradeOffer(TradeOffer offer, Player tradeHost, Player tradeWith)
 	{
 		PlayerHand hostHand = tradeHost.GetPlayerHand();
 		PlayerHand withHand = tradeWith.GetPlayerHand();
@@ -63,7 +61,7 @@ public class TradeManager : MonoBehaviour
 		exchangeResources(hostHand.sheep, withHand.sheep, offer.getSheep, offer.giveSheep);
 	}
 
-	public void exchangeResources(int hostResource, int withResource, int getResource, int giveResource)
+	private void exchangeResources(int hostResource, int withResource, int getResource, int giveResource)
 	{
 		hostResource += getResource;
 		hostResource -= giveResource;

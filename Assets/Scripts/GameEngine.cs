@@ -11,6 +11,7 @@ public class GameEngine : MonoBehaviour
 
 	Board board;
 	GameState gamestate;
+	TradeManager tradeManager;
 	GameObject citySelector;
 	GameObject settlementSelector;
 	GameObject roadSelector;
@@ -40,6 +41,7 @@ public class GameEngine : MonoBehaviour
 	void Start () {
 		board = new Board (); // instantiates and draws
 		gamestate = new GameState (4, board);
+		tradeManager = new TradeManager (gamestate);
 		humanCardCounts = new GameObject[5];
 		tradeThisText = new GameObject[5];
 		forThisText = new GameObject[5];
@@ -165,8 +167,27 @@ public class GameEngine : MonoBehaviour
 		curState = gamestate.IncrementState ();
 	}
 
-	private void OfferTrade() {
+	private void OfferTrade()
+	{
 		print ("TODO: Trade has been offered!");
+
+		Player humanPlayer = gamestate.GetPlayerAtIndex (0);
+
+		int[] giveResources = new int[5]{Convert.ToInt32(tradeThisText[0].GetComponent<TextMesh>().text), 
+		                              	 Convert.ToInt32(tradeThisText[1].GetComponent<TextMesh>().text), 
+		                              	 Convert.ToInt32(tradeThisText[2].GetComponent<TextMesh>().text), 
+		                              	 Convert.ToInt32(tradeThisText[3].GetComponent<TextMesh>().text), 
+										 Convert.ToInt32(tradeThisText[4].GetComponent<TextMesh>().text)};
+
+		int[] getResources = new int[5]{Convert.ToInt32(forThisText[0].GetComponent<TextMesh>().text), 
+		                             	Convert.ToInt32(forThisText[1].GetComponent<TextMesh>().text), 
+		                             	Convert.ToInt32(forThisText[2].GetComponent<TextMesh>().text), 
+		                             	Convert.ToInt32(forThisText[3].GetComponent<TextMesh>().text), 
+		                             	Convert.ToInt32(forThisText[4].GetComponent<TextMesh>().text)};
+
+		TradeOffer offer = humanPlayer.generateHumanTradeRequest(gamestate.getTurnCounter(), giveResources, getResources);
+
+		tradeManager.ExecuteTradeOfferNotification (offer);
 	}
 
 	/*

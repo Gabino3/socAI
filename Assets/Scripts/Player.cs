@@ -15,7 +15,9 @@ public class Player
 	
 	public List<Edge> roads;
 	public List<Node> structures;
-	
+
+	Dictionary <String, int> recentTradeRequests = new Dictionary<String, int> ();
+
 	public Player(int id, bool isAI)
 	{
 		this.id = id;
@@ -234,5 +236,41 @@ public class Player
 		}
 
 		return false;
+	}
+
+	public TradeOffer generateHumanTradeRequest(int currentTurn, int[] giveResources, int[] getResources)
+	{
+		return new TradeOffer(this, currentTurn, giveResources, getResources);
+	}
+
+	public TradeOffer generateAITradeRequest(int currentTurn, int[] giveResources, int[] getResources)
+	{
+		String key = generateKeyForTrade (getResources);
+
+		int lastRequestTurn = 0;
+		if (recentTradeRequests.TryGetValue (key, out lastRequestTurn))
+		{
+		}
+
+		if(lastRequestTurn < currentTurn)
+		{
+			TradeOffer newTrade = new TradeOffer(this, currentTurn, giveResources, getResources);
+
+			if(lastRequestTurn != 0)
+			{
+				recentTradeRequests.Remove(key);
+			}
+
+			recentTradeRequests.Add(key, currentTurn);
+
+			return newTrade;
+		}
+
+		return null;
+	}
+
+	private String generateKeyForTrade(int[] getResources)
+	{
+		return getResources[0].ToString() + "_" + getResources[1].ToString() + " " + getResources[2].ToString() + "_" + getResources[3].ToString() + "_" + getResources[4].ToString();
 	}
 }
