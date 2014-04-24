@@ -243,6 +243,7 @@ public class Player
 		return new TradeOffer(this, currentTurn, giveResources, getResources);
 	}
 
+	// Returns a TradeOffer if the trade is valid (an identical request has not recently been made); If this is not true, returns null
 	public TradeOffer generateAITradeRequest(int currentTurn, int[] giveResources, int[] getResources)
 	{
 		String key = generateKeyForTrade (getResources);
