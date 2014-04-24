@@ -66,7 +66,8 @@ public class Player
 
 	public bool CanBuildCity()
 	{
-		if ((hand.ore >= 3) && (hand.grain >= 2)) {
+		if ((hand.ore >= 3) && (hand.grain >= 2))
+		{
 			return true;
 		}
 		GameEngine.print ("Not Enough Resources!");
@@ -75,7 +76,8 @@ public class Player
 
 	public bool CanBuildRoad()
 	{
-		if ((hand.brick >= 1) && (hand.wood >= 1)) {
+		if ((hand.brick >= 1) && (hand.wood >= 1))
+		{
 			return true;
 		}
 		
@@ -86,7 +88,8 @@ public class Player
 
 	public bool CanBuildSettlement()
 	{
-		if ((hand.brick >= 1) && (hand.wood >= 1) && (hand.grain >= 1) && (hand.sheep >= 1)) {
+		if ((hand.brick >= 1) && (hand.wood >= 1) && (hand.grain >= 1) && (hand.sheep >= 1))
+		{
 			return true;
 		}
 			
@@ -164,7 +167,7 @@ public class Player
 
 	public bool HasWon(bool hasLargestArmy, bool hasLongestRoad)
 	{
-		return VictoryPoints(hasLargestArmy, hasLongestRoad) >= 10;
+		return VictoryPointsCount(hasLargestArmy, hasLongestRoad) >= 10;
 	}
 
 	private int NumCities()
@@ -193,7 +196,7 @@ public class Player
 		return numSettlements;
 	}
 
-	public int VictoryPoints(bool hasLargestArmy, bool hasLongestRoad)
+	public int VictoryPointsCount(bool hasLargestArmy, bool hasLongestRoad)
 	{
 		int largestArmyPoints = (hasLargestArmy) ? 2 : 0;
 		int longestRoadPoints = (hasLongestRoad) ? 2 : 0;

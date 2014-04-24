@@ -35,7 +35,8 @@ public class GameState
 		bool start = false;
 
 		playersArray = new Player[numPlayers];
-		for (int i = 0; i < numPlayers; i++) {
+		for (int i = 0; i < numPlayers; i++)
+		{
 			playersArray[i] = new Player(i, i!=0);
 		}
 
@@ -93,7 +94,8 @@ public class GameState
 		return playersArray[currentPlayerTurn];
 	}
 
-	public int getRoll(){
+	public int GetRoll()
+	{
 		return roll;
 	}
 
@@ -186,10 +188,11 @@ public class GameState
 	private bool IsGameOver()
 	{
 		bool gameOver = false;
-		bool hasLargestArmy = (GetCurrentTurnPlayer () == largestArmyPlayer);
-		bool hasLongestRoad = (GetCurrentTurnPlayer () == longestRoadPlayer);
+		bool hasLargestArmy = (GetCurrentTurnPlayer() == largestArmyPlayer);
+		bool hasLongestRoad = (GetCurrentTurnPlayer() == longestRoadPlayer);
 
-		if(GetCurrentTurnPlayer().HasWon(hasLargestArmy, hasLongestRoad)) {
+		if(GetCurrentTurnPlayer().HasWon(hasLargestArmy, hasLongestRoad))
+		{
 			//Game Over; player 'getCurrentTurnPlayer' has won
 			gameOver = true;
 		}
@@ -211,7 +214,8 @@ public class GameState
 
 	private void SetCurrentPlayerTurn(int currentPlayerTurn)
 	{
-		if (stateDebug) {
+		if (stateDebug)
+		{
 			string timestamp = System.DateTime.Now.ToString ("yyyy/MM/dd HH:mm:ss:ffff");
 			GameEngine.print ("[" + timestamp + "] CURRENT PLAYER TURN: " + currentPlayerTurn);
 		}
@@ -221,7 +225,8 @@ public class GameState
 
 	private State SetState(State state)
 	{
-		if (stateDebug) {
+		if (stateDebug)
+		{
 			string stateName = "";
 			string timestamp = System.DateTime.Now.ToString ("yyyy/MM/dd HH:mm:ss:ffff");
 			switch (state) {
