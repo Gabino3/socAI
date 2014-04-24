@@ -11,31 +11,64 @@ public class TradeManager : MonoBehaviour
 		tradeHost = offer.tradeHost;
 		gamestate = gamestate;
 
-		ExecuteTradeOffer ();
+		ExecuteTradeOffer (offer);
 	}
 
-	private void ExecuteTradeOffer()
+	private void ExecuteTradeOffer(TradeOffer offer)
 	{
-		// Alert Human Player
-		if(tradeHost.isAI)
+		bool tradeIsAccepted = false;
+		Player tradeWithPlayer = gamestate.GetPlayerAtIndex(0);
+
+		for(int i = 0; i < gamestate.numPlayers && !tradeIsAccepted; i++)
 		{
-			if(proposeTradeToPlayer(gamestate.GetPlayerAtIndex(0)))
+			tradeWithPlayer = gamestate.GetPlayerAtIndex(i);
+			if(tradeHost != tradeWithPlayer)
 			{
-				// Alerts Human Player to Trade
+				if(!tradeHost.isAI)
+				{
+					// Alert Human Player to Trade via GUI
+					tradeIsAccepted = proposeTradeToPlayer(offer, tradeWithPlayer);
+				}
+				else
+				{
+					tradeIsAccepted = proposeTradeToPlayer(offer, tradeWithPlayer);
+				}
 			}
 		}
 
-
-
-
+		if(tradeIsAccepted)
+		{
+			ExecuteTradeOffer(offer, tradeHost, tradeWithPlayer);
+		}
+		else
+		{
+			// Prevent repeat trades
+		}
 	}
 
-	private bool proposeTradeToPlayer(Player Player)
+	private bool proposeTradeToPlayer(TradeOffer offer, Player tradeWithPlayer)
 	{
+		return tradeWithPlayer.acceptTradeRequest(offer);
+	}
 
+	public void ExecuteTradeOffer(TradeOffer offer, Player tradeHost, Player tradeWith)
+	{
+		PlayerHand hostHand = tradeHost.GetPlayerHand();
+		PlayerHand withHand = tradeWith.GetPlayerHand();
 
+		exchangeResources(hostHand.brick, withHand.brick, offer.getBrick, offer.giveBrick);
+		exchangeResources(hostHand.ore, withHand.ore, offer.getOre, offer.giveOre);
+		exchangeResources(hostHand.wood, withHand.wood, offer.getWood, offer.giveWood);
+		exchangeResources(hostHand.grain, withHand.grain, offer.getGrain, offer.giveGrain);
+		exchangeResources(hostHand.sheep, withHand.sheep, offer.getSheep, offer.giveSheep);
+	}
 
+	public void exchangeResources(int hostResource, int withResource, int getResource, int giveResource)
+	{
+		hostResource += getResource;
+		hostResource -= giveResource;
 
-		return true;
+		withResource += giveResource;
+		withResource -= getResource;
 	}
 }

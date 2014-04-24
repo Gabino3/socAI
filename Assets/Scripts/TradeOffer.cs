@@ -7,13 +7,13 @@ public class TradeOffer : MonoBehaviour
 
 	public int giveBrick;
 	public int giveOre;
-	public int giveWool;
+	public int giveWood;
 	public int giveGrain;
 	public int giveSheep;
 
 	public int getBrick;
 	public int getOre;
-	public int getWool;
+	public int getWood;
 	public int getGrain;
 	public int getSheep;
 
@@ -34,8 +34,8 @@ public class TradeOffer : MonoBehaviour
 					getOre = getResources[i];
 					break;
 				case 2:
-					giveWool = giveResources[i];
-					getWool = getResources[i];
+					giveWood = giveResources[i];
+					getWood = getResources[i];
 					break;
 				case 3:
 					giveGrain = giveResources[i];

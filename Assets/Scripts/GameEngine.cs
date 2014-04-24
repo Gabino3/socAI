@@ -378,16 +378,31 @@ public class GameEngine : MonoBehaviour
 
 	private void UpdateTradePanel(Transform hitbox)
 	{
-		if (interactDebug) { print ("This is trade"); }
-		for (int i = 0; i<5; i++) {
-			if (tradeThis[i].transform == hitbox){
+		if (interactDebug)
+		{
+			print ("This is trade");
+		}
+
+		for (int i = 0; i<5; i++)
+		{
+			if (tradeThis[i].transform == hitbox)
+			{
+				if(Convert.ToInt32(forThisText[i].GetComponent<TextMesh>().text) > 0)
+				{
+					forThisText[i].GetComponent<TextMesh>().text = "" + 0;
+				}
+
 				tradeThisText[i].GetComponent<TextMesh>().text = "" + 
-					((Convert.ToInt32(tradeThisText[i].GetComponent<TextMesh>().text)+1) % 
-					 (gamestate.GetPlayerAtIndex(0).Hand().GetResourceQuantity(i)+1) );
+					((Convert.ToInt32(tradeThisText[i].GetComponent<TextMesh>().text)+1) % (gamestate.GetPlayerAtIndex(0).Hand().GetResourceQuantity(i)+1) );
 			}
-			else if(forThis[i].transform == hitbox){
-				forThisText[i].GetComponent<TextMesh>().text = "" + 
-					((Convert.ToInt32(forThisText[i].GetComponent<TextMesh>().text)+1) % 11);
+			else if(forThis[i].transform == hitbox)
+			{
+				if(Convert.ToInt32(tradeThisText[i].GetComponent<TextMesh>().text) > 0)
+				{
+					tradeThisText[i].GetComponent<TextMesh>().text = "" + 0;
+				}
+
+				forThisText[i].GetComponent<TextMesh>().text = "" + ((Convert.ToInt32(forThisText[i].GetComponent<TextMesh>().text)+1) % 11);
 			}
 		}
 	}

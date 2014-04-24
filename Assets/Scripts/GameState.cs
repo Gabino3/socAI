@@ -10,7 +10,7 @@ public class GameState
 	private bool objectiveDebug = true;
 
 	Player[] playersArray;
-	int numPlayers;
+	public int numPlayers;
 	int turnCounter;
 	int currentPlayerTurn;
 	Board board;

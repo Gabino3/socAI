@@ -34,6 +34,11 @@ public class Player
 		hand = new PlayerHand(100); //TODO just testing...
 	}
 
+	public PlayerHand GetPlayerHand()
+	{
+		return hand;
+	}
+
 	public void AddStructure(Node structure)
 	{
 		structures.Add (structure);
@@ -201,5 +206,33 @@ public class Player
 		int largestArmyPoints = (hasLargestArmy) ? 2 : 0;
 		int longestRoadPoints = (hasLongestRoad) ? 2 : 0;
 		return (1 * NumSettlements()) + (2 * NumCities()) + hand.victoryPoints + largestArmyPoints + longestRoadPoints;
+	}
+
+	public bool acceptTradeRequest(TradeOffer trade)
+	{
+		bool doesAcceptTrade = false;
+
+		// Verify that trade is permissible based on player hand
+		if(hand.isViableTradeRequest(trade))
+		{
+			// if player trade evaluation returns true, accept trade request
+			doesAcceptTrade = evaluateTradeRequest(trade);
+		}
+
+		return doesAcceptTrade;
+	}
+
+	private bool evaluateTradeRequest(TradeOffer trade)
+	{
+		if(!isAI)
+		{
+			// Allow player to accept / reject / modify trade
+		}
+		else
+		{
+			// AI logic to determine whether or not to accept trade
+		}
+
+		return false;
 	}
 }

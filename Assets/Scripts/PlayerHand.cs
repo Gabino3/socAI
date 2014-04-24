@@ -63,4 +63,8 @@ public class PlayerHand
 		return brick + ore + wood + grain + sheep;
 	}
 
+	public bool isViableTradeRequest(TradeOffer trade)
+	{
+		return brick >= trade.giveBrick && ore >= trade.giveOre && wood >= trade.giveWood && grain >= trade.giveGrain && sheep >= trade.giveSheep;
+	}
 }
