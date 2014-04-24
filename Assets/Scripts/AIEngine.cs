@@ -11,6 +11,79 @@ public class AIEngine
 	private static readonly double CITY_VALUE = 1;
 
 	private static readonly double[] CHIT_PROBABILITIES = { 1, 0, .0278, .0556, .0833, .1111, .1389, .1667, .1389, .1111, .0833, .0556, .0278 };
+	private static readonly double[] DEPTH_MODIFIERS = { 0, 1, 1.2, 0.7, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5 }; //can be modified
+
+	/*
+	 * Returns a sorted list of all player's possible expansions from most to least favorable.
+	 */
+	public static List<Edge> GetFavorableRoadExpansions(Player player, Board board)
+	{
+		return GetFavorableRoadExpansions (player, board, player.roads);
+	}
+
+	/*
+	 * Returns a sorted list of new expansions from a set of roads from most to least favorable.
+	 */
+	public static List<Edge> GetFavorableRoadExpansions(Player player, Board board, List<Edge> roads)
+	{
+		List<ScoredEdge> possibleExpansions = new List<ScoredEdge>();
+
+		foreach (Edge road in roads) {
+			foreach (Node neighbor in road.getNeighbors ()) {
+				foreach (Edge possibleExpansion in neighbor.getRoads ()) {
+					if (!possibleExpansion.occupied) {
+						List<Edge> visitedEdges = new List<Edge>();
+						List<Node> visitedNodes = new List<Node>();
+						visitedNodes.Add (neighbor); //avoid muddling results with other edges
+						double score = ScoreEdge (player, board, possibleExpansion, visitedEdges, visitedNodes, 1, 4);
+						possibleExpansions.Add(new ScoredEdge(possibleExpansion, score));
+					}
+				}
+			}
+		}
+
+		possibleExpansions = possibleExpansions.OrderByDescending (e => e.score).ToList ();
+
+		List<Edge> favorableEdges = new List<Edge>();
+		foreach (ScoredEdge scoredEdge in possibleExpansions) {
+			GameEngine.print(scoredEdge.edge.occupied);
+			favorableEdges.Add (scoredEdge.edge);
+		}
+
+		return favorableEdges;
+	}
+
+	/*
+	 * Score an edge based on possible future expansions up to a crtain depth. Scoring changes with distance from start.
+	 */
+	public static double ScoreEdge(Player player, Board board, Edge edge, List<Edge> visitedEdges, List<Node> visitedNodes, int depth, int maxDepth) {
+
+		if (depth > maxDepth) {
+			return 0;
+		}
+
+		double score = 0;
+		visitedEdges.Add (edge);
+
+		foreach (Node neighbor in edge.getNeighbors ()) {
+			if (neighbor.occupied == Node.Occupation.none && board.CanBuildSettlementHere(neighbor.visual.transform, player, false)) {
+				foreach (Tile tile in neighbor.getTiles ()) {
+					score += TileScore (tile) * DEPTH_MODIFIERS[depth];
+				}
+			}
+
+			if (!visitedNodes.Contains (neighbor)) {
+				visitedNodes.Add (neighbor);
+				foreach(Edge neighborEdge in neighbor.getRoads ()) {
+					if (!visitedEdges.Contains (neighborEdge)) {
+						score += ScoreEdge (player, board, neighborEdge, visitedEdges, visitedNodes, depth+1, maxDepth);
+					}
+				}
+			}
+		}
+
+		return score;
+	}
 
 	/*
 	 * Returns a sorted list of starting locations from most to least favorable.
@@ -22,7 +95,7 @@ public class AIEngine
 
 		//retrieve unoccupied nodes and score
 		foreach (Node vertex in vertices) {
-			if (vertex.owner == null && vertex.getTiles().Count > 2) {
+			if (vertex.owner == null && vertex.getTiles().Count > 1) {
 				scoredVertices.Add (new ScoredNode(vertex, VertexScore(vertex)));
 			}
 		}
@@ -36,67 +109,6 @@ public class AIEngine
 			vertices.Add (scoredVertex.node);
 		}
 		return vertices;
-	}
-
-	/*
-	 * Returns the best edge to expand to, given a player's node.
-	 */
-	public static Edge GetMostFavorableEdge(Player player, Node node)
-	{
-		//TODO
-		Edge bestEdge = null;
-		double bestScore = Double.MinValue;
-
-		foreach (Edge edge in node.getRoads()) {
-			if (!edge.occupied || edge.owner == player) {
-				double score = ScoreEdgeByBreadthFirstSearch (player, edge, node, 3);
-				if (score > bestScore) {
-					bestScore = score;
-					bestEdge = edge;
-					GameEngine.print ("SCORE: " + bestScore);
-				}
-			}
-		}
-
-		return bestEdge;
-	}
-
-	private static double ScoreEdgeByBreadthFirstSearch(Player player, Edge edge, Node startNode, int maxDepth)
-	{
-		List<Node> visitedNodes = new List<Node> ();
-		visitedNodes.Add (startNode);
-
-		return ScoreEdgeByBreadthFirstSearch (player, edge, new List<Edge>(), visitedNodes, 0, maxDepth);
-	}
-
-	private static double ScoreEdgeByBreadthFirstSearch(Player player, Edge edge, List<Edge> visitedEdges, List<Node> visitedNodes, int depth, int maxDepth)
-	{
-		if (depth == maxDepth) {
-			return 0;
-		}
-
-		double[] distModifier = { 1, 1.2, 0.7, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5 };
-		double edgeScore = 0;
-		visitedEdges.Add (edge);
-
-		//TODO
-		foreach (Node neighborNode in edge.getNeighbors()) {
-
-			if (!visitedNodes.Contains (neighborNode) && (neighborNode.occupied == Node.Occupation.none || neighborNode.owner == player)) {
-				visitedNodes.Add (neighborNode);
-
-				edgeScore += distModifier[depth] * VertexScore (neighborNode);
-
-				foreach(Edge visitingEdge in neighborNode.getRoads()) {
-
-					if (!visitedEdges.Contains (visitingEdge) && (!visitingEdge.occupied || visitingEdge.owner == player)) {
-						return edgeScore + ScoreEdgeByBreadthFirstSearch (player, visitingEdge, visitedEdges, visitedNodes, ++depth, maxDepth);
-					}
-				}
-			}
-		}
-
-		return edgeScore;
 	}
 
 	/*
@@ -166,6 +178,21 @@ public class AIEngine
 		public ScoredNode(Node node, double score)
 		{
 			this.node = node;
+			this.score = score;
+		}
+	}
+
+	/* ======== *
+	 * Edge that has its own score. Used for determining most favorable options.
+	 * ======== */
+	private class ScoredEdge
+	{
+		public Edge edge;
+		public double score;
+
+		public ScoredEdge(Edge edge, double score)
+		{
+			this.edge = edge;
 			this.score = score;
 		}
 	}

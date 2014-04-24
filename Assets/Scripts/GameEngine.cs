@@ -36,7 +36,7 @@ public class GameEngine : MonoBehaviour
 	GameObject[] humanCardCounts;
 	DateTime lastAIActionTime; //used to slow down AI players
 	readonly DateTime EPOCH = new DateTime(2001, 1, 1);
-	readonly float FORCED_TIME_BETWEEN_AI_ACTIONS = 0.5f;
+	readonly float FORCED_TIME_BETWEEN_AI_ACTIONS = 0.0f;
 
 	void Start () {
 		board = new Board (); // instantiates and draws
@@ -68,8 +68,8 @@ public class GameEngine : MonoBehaviour
 
 	private void BuildEndTurnButton()
 	{
-		endTurnButton = Instantiate (Resources.Load ("backing"), new Vector3(6f,0f,1f), Quaternion.identity) as GameObject;
-		endTurnButton.transform.localScale = new Vector3(3f,1f,1f);
+		endTurnButton = Instantiate (Resources.Load ("backing"), new Vector3 (6f,0f,1f), Quaternion.identity) as GameObject;
+		endTurnButton.transform.localScale = new Vector3 (3f,1f,1f);
 		GameObject temp = Instantiate (Resources.Load ("text"), new Vector3 (5.2f,0.25f,-1f), Quaternion.identity) as GameObject;
 		temp.GetComponent<TextMesh> ().text = "End Turn" ;
 	}
@@ -205,7 +205,6 @@ public class GameEngine : MonoBehaviour
 		//AI Interaction
 		if (currentTurnPlayer.isAI) {
 			if (secondsSinceLastAIAction >= FORCED_TIME_BETWEEN_AI_ACTIONS) {
-				bool structurePlaced = false;
 				System.Random rand = new System.Random();
 
 				//Initial settlement placement
@@ -213,10 +212,10 @@ public class GameEngine : MonoBehaviour
 					List<Node> locationOptions = AIEngine.GetFavorableStartingLocations(board);
 
 					//Attempt to place elements in decreasing score order
-					for (int i = 0; i < locationOptions.Count && !structurePlaced; i++) {
+					for (int i = 0; i < locationOptions.Count; i++) {
 						if (board.CanBuildSettlementHere(locationOptions[i].visual.transform, currentTurnPlayer, true)) {
-							lastStructurePlaced = board.PlaceSettlement(locationOptions[i].visual.transform, currentTurnPlayer);
-							structurePlaced = true;
+							lastStructurePlaced = board.PlaceSettlement(locationOptions[i].visual.transform, currentTurnPlayer, false);
+							break;
 						}
 					}
 
@@ -224,27 +223,25 @@ public class GameEngine : MonoBehaviour
 				}
 				//Initial road placement
 				else if (curState == GameState.State.placeRoad) {
-					//TODO position road intelligently
-//					Edge favorableRoad = AIEngine.GetMostFavorableEdge(currentTurnPlayer, lastStructurePlaced);
-//					lastRoadPlaced = board.PlaceRoad(favorableRoad.visual.transform, currentTurnPlayer);
-
-					//Only allow roads placed from previous settlement
-					foreach (Edge road in lastStructurePlaced.getRoads()) {
+					List<Edge> favorableRoads = AIEngine.GetFavorableRoadExpansions(currentTurnPlayer, board, lastStructurePlaced.getRoads());
+					
+					foreach (Edge road in favorableRoads) {
 						if (board.CanBuildRoadHere(road.visual.transform, currentTurnPlayer)) {
-							lastRoadPlaced = board.PlaceRoad(road.visual.transform, currentTurnPlayer);
+							lastRoadPlaced = board.PlaceRoad(road.visual.transform, currentTurnPlayer, false);
 							break;
 						}
 					}
+
 					IncrementState ();
 				}
 				//Roll dice
 				else if (curState == GameState.State.roll) {
 					if (rollForAI) {
 						if (Input.GetMouseButtonDown (0)) {
-							Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+							Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition);
 							RaycastHit hit;
 							if (interactDebug) { print ("mouse press"); }
-							if (Physics.Raycast(ray, out hit)) {
+							if (Physics.Raycast (ray, out hit)) {
 								if (hit.transform == dice.transform) {
 									IncrementState ();
 									updateDice();
@@ -264,7 +261,22 @@ public class GameEngine : MonoBehaviour
 				}
 				//Building phase
 				else if (curState == GameState.State.place) {
-					//TODO
+
+					//TODO replace with new system
+//					List<Edge> favorableRoads = AIEngine.GetFavorableRoadExpansions (currentTurnPlayer, board);
+//
+//					foreach (Edge road in favorableRoads) {
+//						if (currentTurnPlayer.CanBuildRoad()) {
+//							if (board.CanBuildRoadHere (road.visual.transform, currentTurnPlayer)) {
+//								lastRoadPlaced = board.PlaceRoad (road.visual.transform, currentTurnPlayer);
+//								break; //TODO remove this when not testing
+//							}
+//						}
+//						else {
+//							break;
+//						}
+//					}
+
 					IncrementState();
 				}
 				//Place robber
@@ -274,7 +286,7 @@ public class GameEngine : MonoBehaviour
 
 					while (!robberPlaced) {
 						int tileIndex = rand.Next (board.tiles.Count);
-						robberPlaced = board.PlaceRobber(board.tileHitboxes[tileIndex].transform);
+						robberPlaced = board.PlaceRobber (board.tileHitboxes[tileIndex].transform);
 					}
 
 					IncrementState();

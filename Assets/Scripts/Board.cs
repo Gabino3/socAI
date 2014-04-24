@@ -401,7 +401,7 @@ public class Board : MonoBehaviour
 				vertices[i].occupied = Node.Occupation.settlement;
 				player.AddStructure(vertices[i]);
 				
-						return vertices[i];
+				return vertices[i];
 			}
 		}
 
