@@ -37,7 +37,7 @@ public class GameState
 		playersArray = new Player[numPlayers];
 		for (int i = 0; i < numPlayers; i++)
 		{
-			playersArray[i] = new Player(i, i!=0);
+			playersArray[i] = new Player(i, true);//i!=0);
 		}
 
 		roll = 0;
@@ -179,7 +179,7 @@ public class GameState
 			else if (curState == State.place) {
 				DetermineCurrentPlayerObjectives();
 				if (IsGameOver ()) {
-					GameEngine.print ("HOLY SHIT WE FINISHED A GAME!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+					GameEngine.print ("Game Over. Winner: Player " + currentPlayerTurn + ", Total Turns: " + turnCounter);
 					return SetState(State.end);
 				}
 				IncrementPlayer ();

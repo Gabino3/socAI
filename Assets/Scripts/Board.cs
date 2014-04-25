@@ -65,18 +65,18 @@ public class Board : MonoBehaviour
 	/*
 	 * Methods for determining valid object placement.
 	 */
-	public bool CanBuildSettlementHere(Transform hitbox, Player player, bool setup)
+	public bool CanBuildSettlementHere(Transform hitbox, Player player, bool ignoreRoadRequirement, bool playerInput = false)
 	{
 		for (int i = 0;i<vertices.Count;i++) {
 			if (vertices[i].visual.transform == hitbox && vertices[i].owner == null) {
 				foreach (Node neighbor in vertices[i].getNeighbors()) {
 					if (neighbor.owner != null) {
-						GameEngine.print ("Cannot build a settlement at this location! Another Settlement/City is too close by.");
+						if (playerInput) { GameEngine.print ("Cannot build a settlement at this location! Another Settlement/City is too close by."); }
 						return false;
 					}
 				}
 
-				if (setup) {
+				if (ignoreRoadRequirement) {
 					return true;
 				}
 				else {
@@ -88,11 +88,11 @@ public class Board : MonoBehaviour
 				}
 			}
 		}
-		GameEngine.print ("Cannot build a settlement at this location! No nearby Road.");
+		if (playerInput) { GameEngine.print ("Cannot build a settlement at this location! No nearby Road."); }
 		return false;
 	}
 
-	public bool CanBuildCityHere(Transform hitbox, Player player)
+	public bool CanBuildCityHere(Transform hitbox, Player player, bool playerInput = false)
 	{
 		//check to see if a settlement that this player owns is already there
 		for (int i = 0; i < vertices.Count; i++) {
@@ -101,11 +101,11 @@ public class Board : MonoBehaviour
 				return true;
 			}
 		}
-		GameEngine.print ("Cannot build a city at this location! No settlement.");
+		if (playerInput) { GameEngine.print ("Cannot build a city at this location! No settlement."); }
 		return false;
 	}
 
-	public bool CanBuildRoadHere(Transform hitbox, Player player, Node structureToBuildNear = null)
+	public bool CanBuildRoadHere(Transform hitbox, Player player, Node structureToBuildNear = null, bool playerInput = false)
 	{
 		for (int i = 0; i < roads.Count; i++) {
 			if (roads[i].visual.transform == hitbox && roads[i].owner == null)
@@ -132,7 +132,7 @@ public class Board : MonoBehaviour
 				}
 			}
 		}
-		GameEngine.print ("Cannot build a road at this location! No nearby road or Settlement/City.");
+		if (playerInput) { GameEngine.print ("Cannot build a road at this location! No nearby road or Settlement/City."); }
 		return false;
 	}
 

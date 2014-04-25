@@ -241,6 +241,16 @@ public class GameEngine : MonoBehaviour
 				//Building phase
 				else if (curState == GameState.State.place) {
 					//TODO
+					List<AIEngine.Objective> objectives = AIEngine.GetObjectives(currentTurnPlayer, board);
+					foreach(AIEngine.Objective objective in objectives) {
+						print (objective);
+					}
+					foreach(AIEngine.Objective objective in objectives) {
+						if (objective.Score() > 0 && objective.TotalCardsNeeded() == 0) {
+							AIEngine.PerformObjective(objective, board);
+						}
+						break;
+					}
 					IncrementState();
 				}
 				//Place robber
@@ -301,7 +311,7 @@ public class GameEngine : MonoBehaviour
 							if (objectToBuild == roadSelector.transform && board.roadHitboxes.ContainsKey(hit.transform)) {
 								Node structureToBuildNear = (curState == GameState.State.placeRoad) ? lastStructurePlaced : null;
 
-								if(board.CanBuildRoadHere(hit.transform, currentTurnPlayer, structureToBuildNear)) {
+								if(board.CanBuildRoadHere(hit.transform, currentTurnPlayer, structureToBuildNear, true)) {
 									lastRoadPlaced = board.PlaceRoad(hit.transform, currentTurnPlayer, !isSetup);
 									objectToBuild = null;
 									if (interactDebug) { print ("road built!"); }
@@ -311,7 +321,7 @@ public class GameEngine : MonoBehaviour
 								}
 							}
 							else if(objectToBuild == settlementSelector.transform && board.settlementHitboxes.ContainsKey(hit.transform)) {
-								if(board.CanBuildSettlementHere(hit.transform, currentTurnPlayer, isSetup)){
+								if(board.CanBuildSettlementHere(hit.transform, currentTurnPlayer, isSetup, true)){
 									lastStructurePlaced = board.PlaceSettlement(hit.transform, currentTurnPlayer, !isSetup);
 									objectToBuild = null;
 									if (interactDebug) { print ("settlement built!"); }
@@ -321,7 +331,7 @@ public class GameEngine : MonoBehaviour
 								}
 							}
 							else if (objectToBuild == citySelector.transform && board.settlements.ContainsKey(hit.transform)) {
-								if(board.CanBuildCityHere(hit.transform, currentTurnPlayer)){
+								if(board.CanBuildCityHere(hit.transform, currentTurnPlayer, true)){
 									lastStructurePlaced = board.PlaceCity(hit.transform, currentTurnPlayer);
 									objectToBuild = null;
 									if (interactDebug) { print ("city built!"); }
