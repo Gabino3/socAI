@@ -54,6 +54,8 @@ public class Board : MonoBehaviour
 	 */
 	public Board ()
 	{
+		//Shuffle (8);
+
 		settlements = new Dictionary<Transform, GameObject> (54);
 		roadHitboxes = new Dictionary<Transform, GameObject> (54);
 		settlementHitboxes = new Dictionary<Transform, GameObject> (54);
@@ -502,6 +504,19 @@ public class Board : MonoBehaviour
 		this.vertices = VecToNodes (tileCorners, tiles, hexSize);
 		this.roads = FindRoadPos (vertices, out vertices);
 		this.tiles = tiles;
+	}
+
+	public void Shuffle(int times)
+	{
+		System.Random rnd = new System.Random();
+		for (var q = 0; q < times;q++) {
+			for (var i = tileDeck.Count-1; i >= 0; i--) {
+				int j = rnd.Next(0, i+1);
+				string tempTile = tileDeck[j];
+				tileDeck[j] = tileDeck[i];
+				tileDeck[i] = tempTile;
+			}
+		}
 	}
 
 	/*
