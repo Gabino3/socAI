@@ -262,12 +262,12 @@ public class GameEngine : MonoBehaviour
 				//Building phase
 				else if (curState == GameState.State.place) {
 					//TODO
-					List<AIEngine.Objective> objectives = AIEngine.GetObjectives(currentTurnPlayer, board);
+					List<AIEngine.Objective> objectives = AIEngine.GetObjectives(currentTurnPlayer, board, gamestate);
 					foreach(AIEngine.Objective objective in objectives) {
 						print (objective);
 					}
 					foreach(AIEngine.Objective objective in objectives) {
-						if (objective.Score() > 0 && objective.TotalCardsNeeded() == 0) {
+						if (objective.TotalCardsNeeded() == 0) {
 							AIEngine.PerformObjective(objective, board);
 						}
 						break;

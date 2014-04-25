@@ -72,7 +72,7 @@ public class GameState
 		int playerLongestRoad = Board.LongestRoadOfPlayer (GetCurrentTurnPlayer());
 
 		//Assign longest road player
-		if (playerLongestRoad > longestRoad) {
+		if (WouldBeLongestRoad(playerLongestRoad)) {
 			longestRoad = playerLongestRoad;
 			longestRoadPlayer = GetCurrentTurnPlayer();
 		}
@@ -283,5 +283,10 @@ public class GameState
 
 		curState = state;
 		return curState;
+	}
+
+	public bool WouldBeLongestRoad(int roadLength)
+	{
+		return roadLength > longestRoad;
 	}
 }

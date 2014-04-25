@@ -384,6 +384,9 @@ public class Board : MonoBehaviour
 
 	/*
 	 * Places a human player's settlement.
+	 * 
+	 * Optional:
+	 * 	isPaying - for making required starting settlements or simulations free
 	 */
 	public Node PlaceSettlement(Transform hitbox, Player player, bool isPaying = true)
 	{
@@ -412,14 +415,18 @@ public class Board : MonoBehaviour
 
 	/*
 	 * Places a human player's road.
+	 * 
+	 * Optional:
+	 * 	isPaying - for making required starting roads or simulations free
 	 */
 	public Edge PlaceRoad(Transform hitbox, Player player, bool isPaying = true)
 	{
 		GameObject s = Instantiate(Resources.Load("road"), hitbox.position , Quaternion.identity) as GameObject;
 		s.transform.eulerAngles = hitbox.eulerAngles;
 		s.renderer.material.color = player.color;
-		Destroy(roadHitboxes[hitbox]);
-		roadHitboxes.Remove(hitbox);	
+		Destroy (roadHitboxes [hitbox]);
+		roadHitboxes.Remove (hitbox);
+
 		for (int i = 0;i<roads.Count;i++){
 			if (roads[i].visual.transform == hitbox){
 				if (isPaying){
@@ -437,6 +444,9 @@ public class Board : MonoBehaviour
 	
 	/*
 	 * Places a human player's city.
+	 * 
+	 * Optional:
+	 * 	isPaying - ???
 	 */
 	public Node PlaceCity(Transform hitbox, Player player, bool isPaying = true)
 	{

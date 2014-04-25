@@ -203,6 +203,11 @@ public class Player
 		return numSettlements;
 	}
 
+	public bool RemoveRoad(Edge road)
+	{
+		return roads.Remove (road);
+	}
+
 	public int VictoryPointsCount(bool hasLargestArmy, bool hasLongestRoad)
 	{
 		int largestArmyPoints = (hasLargestArmy) ? 2 : 0;

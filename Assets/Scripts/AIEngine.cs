@@ -70,7 +70,7 @@ public class AIEngine
 	/*
 	 * Returns a sorted list of recommended objectives for the AI to pursue
 	 */
-	public static List<Objective> GetObjectives(Player player, Board board)
+	public static List<Objective> GetObjectives(Player player, Board board, GameState gamestate)
 	{
 		/* ********************
 		 | Constructions:     |
@@ -108,13 +108,14 @@ public class AIEngine
 				visitedNodes.Add (visitedNode);
 			}
 
-			Objective objective = new Objective(player);
+			Objective objective = new Objective(player, gamestate);
 			GetObjectivesHelper (player, board, playerNode, objective, objectives, visitedEdges, visitedNodes, 0, 2); //TODO try 3 for maxdepth
 		}
 
 		//Prune unwanted objectives
 		foreach (Objective objective in objectives) {
-			if (objective.TotalCardsNeeded() <= 3) { //TODO prune scoring //TODO FACTOR IN LONGEST ROAD (IMPORTANT!!)
+			objective.RecalculateForLongestRoad ();
+			if (objective.TotalCardsNeeded () <= 3) { //TODO prune scoring
 				prunedObjectives.Add (objective);
 			}
 		}
@@ -304,18 +305,22 @@ public class AIEngine
 		private List<Node> cities; //WARNING! contains settlements to be upgraded, not actual cities
 		private double score;
 		private PlayerHand hand;
+		private int curLongestRoad;
+		private GameState gamestate;
 
-		public Objective(Player player)
+		public Objective(Player player, GameState gamestate)
 		{
 			this.player = player;
+			this.gamestate = gamestate;
 			roads = new List<Edge>();
 			settlements = new List<Node>();
 			cities = new List<Node>();
 			score = 0;
 			hand = new PlayerHand();
+			curLongestRoad = Board.LongestRoadOfPlayer(player);
 		}
 
-		private Objective(Player player, List<Edge> roads, List<Node> settlements, List<Node> cities, double score, PlayerHand hand)
+		private Objective(Player player, GameState gamestate, List<Edge> roads, List<Node> settlements, List<Node> cities, double score, PlayerHand hand, int curLongestRoad)
 		{
 			List<Edge> roadsCopy = new List<Edge>();
 			List<Node> settlementsCopy = new List<Node>();
@@ -331,12 +336,14 @@ public class AIEngine
 				citiesCopy.Add (city);
 			}
 
+			this.player = player;
+			this.gamestate = gamestate;
 			this.roads = roadsCopy;
 			this.settlements = settlementsCopy;
 			this.cities = citiesCopy;
-			this.player = player;
 			this.score = score;
 			this.hand = hand;
+			this.curLongestRoad = curLongestRoad;
 		}
 
 		public void AddCity(Node city)
@@ -346,9 +353,9 @@ public class AIEngine
 			RecalculateHand ();
 		}
 
-		public void AddRoad(Edge road)
+		public void AddRoad(Edge newRoad)
 		{
-			roads.Add (road);
+			roads.Add (newRoad);
 			RecalculateHand ();
 		}
 
@@ -366,7 +373,7 @@ public class AIEngine
 
 		public Objective Clone()
 		{
-			return new Objective (player, roads, settlements, cities, score, hand);
+			return new Objective (player, gamestate, roads, settlements, cities, score, hand, curLongestRoad);
 		}
 
 		public List<Node> GetCities()
@@ -387,6 +394,31 @@ public class AIEngine
 		public List<Node> GetSettlements()
 		{
 			return settlements;
+		}
+
+		public void RecalculateForLongestRoad()
+		{
+			int newLongest;
+			
+			//Add roads to player to simulate new longest road
+			foreach (Edge road in roads) {
+				player.AddRoad (road);
+			}
+			newLongest = Board.LongestRoadOfPlayer (player);
+			
+			//Remove all simulated edges
+			foreach (Edge road in roads) {
+				player.RemoveRoad (road);
+			}
+			
+			//Add extra points if roads connect two previous ones
+			if (newLongest > curLongestRoad) { //TODO correct logic?
+				if (!gamestate.HasLongestRoad(player) && gamestate.WouldBeLongestRoad(newLongest)) {
+					score += 1; //TODO adjust this
+				} else {
+					score += 0.1; //TODO adjust this
+				}
+			}
 		}
 
 		//TODO all card logic here is probably better suited in another class
