@@ -67,6 +67,72 @@ public class AIEngine
 		return vertices;
 	}
 
+	public static List<Tile> GetListOfRobberPlacements(Player currentTurnPlayer, Player competitorPlayer, Board board)
+	{
+		//Get list of current player's tiles
+		List<Tile> myTiles = new List<Tile>();
+		foreach (Node structure in currentTurnPlayer.structures) {
+			foreach (Tile tile in structure.getTiles ()) {
+				myTiles.Add (tile);
+			}
+		}
+
+		List<ScoredTile> scoredCompetitorTiles = new List<ScoredTile> ();
+		
+		//Get scored lists of top competitors tiles that don't neighbor current player
+		foreach (Node structure in competitorPlayer.structures) {
+			foreach (Tile tile in structure.getTiles ()) {
+
+				//Doesn't neighbor current player
+				if (!myTiles.Contains (tile)) {
+					int cityModifier = (structure.occupied == Node.Occupation.city) ? 2 : 1;
+
+					double score = AIEngine.TileScore(tile) * cityModifier;
+					bool updated = false;
+
+					//Append score if already discovered
+					foreach (ScoredTile scoredTile in scoredCompetitorTiles) {
+						if (scoredTile.tile == tile) {
+							scoredTile.score += score;
+							updated = true;
+						}
+					}
+
+					//Add to list of discovered if not already
+					if (!updated) {
+						scoredCompetitorTiles.Add (new ScoredTile(tile, score));
+					}
+				}
+			}
+		}
+
+		List<Tile> competitorTiles = new List<Tile>();
+
+		//Return sorted list of tile options if available
+		if (scoredCompetitorTiles.Count > 0) {
+			scoredCompetitorTiles = scoredCompetitorTiles.OrderByDescending(t => t.score).ToList ();
+
+			foreach (ScoredTile scoredTile in scoredCompetitorTiles) {
+				competitorTiles.Add (scoredTile.tile);
+			}
+		}
+		//If all else fails, just return the desert tile
+		else {
+			Tile desert = null;
+
+			foreach (Tile tile in board.tiles) {
+				if (tile.GetResource () == Tile.Resource.none) {
+					desert = tile;
+					break;
+				}
+			}
+
+			competitorTiles.Add (desert);
+		}
+
+		return competitorTiles;
+	}
+
 	/*
 	 * Returns a sorted list of recommended objectives for the AI to pursue
 	 */
@@ -234,7 +300,7 @@ public class AIEngine
 	/*
 	 * Score tile based on resource and chit value.
 	 */
-	private static double TileScore(Tile tile)
+	public static double TileScore(Tile tile)
 	{
 		double probability = CHIT_PROBABILITIES [tile.GetChitValue ()];
 
@@ -275,7 +341,7 @@ public class AIEngine
 	/*
 	 * Score vertex by surrounding tile values.
 	 */
-	private static double VertexScore(Node vertex)
+	public static double VertexScore(Node vertex)
 	{
 		double score = 0;
 
@@ -488,6 +554,21 @@ public class AIEngine
 		public ScoredEdge(Edge edge, double score)
 		{
 			this.edge = edge;
+			this.score = score;
+		}
+	}
+
+	/* ======== *
+	 * Tile that has its own score. Used for determining most favorable options.
+	 * ======== */
+	private class ScoredTile
+	{
+		public Tile tile;
+		public double score;
+
+		public ScoredTile(Tile tile, double score)
+		{
+			this.tile = tile;
 			this.score = score;
 		}
 	}

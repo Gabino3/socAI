@@ -114,24 +114,20 @@ public class GameState
 		return playersArray[index];
 	}
 
-	public Player biggestCompetitorToPlayer(Player player)
+	public Player BiggestCompetitorToPlayer(Player player)
 	{
 		Player competition = null;
 		int mostVictoryPoints = 0;
-		foreach(Player p in playersArray)
-		{
-			if(p != player)
-			{
-				if(competition == null)
-				{
+
+		foreach (Player p in playersArray) {
+			if (p != player) {
+				if (competition == null) {
 					competition = p;
-					mostVictoryPoints = p.VictoryPointsCount((p == largestArmyPlayer), (p == longestRoadPlayer));
+					mostVictoryPoints = p.VictoryPointsCount(HasLargestArmy (p), HasLongestRoad (p));
 				}
-				else
-				{
-					int numVictoryPoints = p.VictoryPointsCount((p == largestArmyPlayer), (p == longestRoadPlayer));
-					if(numVictoryPoints > mostVictoryPoints)
-					{
+				else {
+					int numVictoryPoints = p.VictoryPointsCount(HasLargestArmy (p), HasLongestRoad (p));
+					if(numVictoryPoints > mostVictoryPoints) {
 						competition = p;
 						mostVictoryPoints = numVictoryPoints;
 					}

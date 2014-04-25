@@ -283,11 +283,9 @@ public class Player
 	public void gotRobbed()
 	{
 		int handCount = hand.GetHandSize();
-		if(handCount > 7)
-		{
+		if (handCount > 7) {
 			int numDiscards = handCount / 2;
-			for(int i = 0; i < numDiscards; i++)
-			{
+			for (int i = 0; i < numDiscards; i++) {
 				hand.discard();
 			}
 		}
