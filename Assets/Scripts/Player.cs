@@ -33,7 +33,7 @@ public class Player
 		}
 		roads = new List<Edge> (72);
 		structures = new List<Node> (54);
-		hand = new PlayerHand(100); //TODO just testing...
+		hand = new PlayerHand ();//(100); //TODO just testing...
 	}
 
 	public PlayerHand GetPlayerHand()

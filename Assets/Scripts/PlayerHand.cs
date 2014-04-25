@@ -58,6 +58,19 @@ public class PlayerHand
 		sheep = rand.Next(max);
 	}
 
+	public void SetResourceQuantity(int index, int value)
+	{
+		switch (index)
+		{
+		case 0: brick = value; break;
+		case 1: ore = value; break;
+		case 2: wood = value; break;
+		case 3: grain = value; break;
+		case 4: sheep = value; break;
+		default: break;
+		}
+	}
+
 	public int GetHandSize()
 	{
 		return brick + ore + wood + grain + sheep;
