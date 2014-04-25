@@ -368,7 +368,7 @@ public class AIEngine
 
 		public int TotalCardsNeeded()
 		{
-			return hand.TotalResources();
+			return hand.GetHandSize();
 		}
 
 		public Objective Clone()
@@ -416,7 +416,7 @@ public class AIEngine
 				if (!gamestate.HasLongestRoad(player) && gamestate.WouldBeLongestRoad(newLongest)) {
 					score += 1; //TODO adjust this
 				} else {
-					score += 0.1; //TODO adjust this
+					score += 0.05; //TODO adjust this
 				}
 			}
 		}

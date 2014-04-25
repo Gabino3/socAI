@@ -196,6 +196,9 @@ public class GameState
 			if (curState == State.roll) {
 				roll = RollDice ();
 				if (roll == 7) {
+					foreach(Player p in GetAllPlayers()) {
+						p.gotRobbed();
+					}
 					return SetState(State.robber);
 				}
 				else {
@@ -212,7 +215,7 @@ public class GameState
 			else if (curState == State.place) {
 				DetermineCurrentPlayerObjectives();
 				if (IsGameOver ()) {
-					GameEngine.print ("Game Over. Winner: Player " + currentPlayerTurn + ", Total Turns: " + turnCounter);
+					GameEngine.print ("Game Over. Winner: Player " + currentPlayerTurn + ", Total Rounds: " + ((double)turnCounter/numPlayers));
 					return SetState(State.end);
 				}
 				IncrementPlayer ();
