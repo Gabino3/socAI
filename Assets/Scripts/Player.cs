@@ -274,4 +274,17 @@ public class Player
 	{
 		return getResources[0].ToString() + "_" + getResources[1].ToString() + " " + getResources[2].ToString() + "_" + getResources[3].ToString() + "_" + getResources[4].ToString();
 	}
+
+	public void gotRobbed()
+	{
+		int handCount = hand.GetHandSize();
+		if(handCount > 7)
+		{
+			int numDiscards = handCount / 2;
+			for(int i = 0; i < numDiscards; i++)
+			{
+				hand.discard();
+			}
+		}
+	}
 }

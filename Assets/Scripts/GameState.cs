@@ -104,9 +104,42 @@ public class GameState
 		return roll;
 	}
 
+	public Player[] GetAllPlayers()
+	{
+		return playersArray;
+	}
+
 	public Player GetPlayerAtIndex(int index)
 	{
 		return playersArray[index];
+	}
+
+	public Player biggestCompetitorToPlayer(Player player)
+	{
+		Player competition = null;
+		int mostVictoryPoints = 0;
+		foreach(Player p in playersArray)
+		{
+			if(p != player)
+			{
+				if(competition == null)
+				{
+					competition = p;
+					mostVictoryPoints = p.VictoryPointsCount((p == largestArmyPlayer), (p == longestRoadPlayer));
+				}
+				else
+				{
+					int numVictoryPoints = p.VictoryPointsCount((p == largestArmyPlayer), (p == longestRoadPlayer));
+					if(numVictoryPoints > mostVictoryPoints)
+					{
+						competition = p;
+						mostVictoryPoints = numVictoryPoints;
+					}
+				}
+			}
+		}
+
+		return competition;
 	}
 
 	public bool HasLargestArmy(Player player)
