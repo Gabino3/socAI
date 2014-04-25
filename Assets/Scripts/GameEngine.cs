@@ -352,6 +352,9 @@ public class GameEngine : MonoBehaviour
 						if (hit.transform == tradeButton.transform) {
 							OfferTrade ();
 							IncrementState ();
+						} else if (hit.transform == endTurnButton.transform){
+							IncrementState ();
+							IncrementState ();
 						}
 					}
 					//listen for click on dice
