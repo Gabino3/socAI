@@ -255,23 +255,44 @@ public class GameEngine : MonoBehaviour
 					}
 				}
 				//Trade with players
-				else if (curState == GameState.State.trade) {
+				else if (curState == GameState.State.trade)
+				{
 					//TODO
+
+					List<AIEngine.Objective> objectives = AIEngine.GetObjectives(currentTurnPlayer, board);
+					foreach(AIEngine.Objective objective in objectives)
+					{
+						print (objective);
+					}
+
+					int tradesThisTurn = 0;
+					foreach(AIEngine.Objective objective in objectives)
+					{
+						if(objective.Score () > 0 && objective.TotalCardsNeeded() > 0 && tradesThisTurn <= 3)
+						{
+							TradeOffer offer = currentTurnPlayer.generateAITradeRequest(gamestate.getTurnCounter(), objective);
+
+							if(null != offer)
+							{
+								tradesThisTurn++;
+								tradeManager.ExecuteTradeOfferNotification(offer);
+							}
+						}
+
+						if(objective.Score() > 0 && objective.TotalCardsNeeded() == 0)
+						{
+							AIEngine.PerformObjective(objective, board);
+							break;
+						}
+					}
+
 					IncrementState();
 				}
 				//Building phase
-				else if (curState == GameState.State.place) {
+				else if (curState == GameState.State.place)
+				{
 					//TODO
-					List<AIEngine.Objective> objectives = AIEngine.GetObjectives(currentTurnPlayer, board);
-					foreach(AIEngine.Objective objective in objectives) {
-						print (objective);
-					}
-					foreach(AIEngine.Objective objective in objectives) {
-						if (objective.Score() > 0 && objective.TotalCardsNeeded() == 0) {
-							AIEngine.PerformObjective(objective, board);
-						}
-						break;
-					}
+
 					IncrementState();
 				}
 				//Place robber
@@ -283,6 +304,9 @@ public class GameEngine : MonoBehaviour
 					}
 
 					Player competitorPlayer = gamestate.biggestCompetitorToPlayer(gamestate.GetCurrentTurnPlayer());
+
+
+
 
 					// Place robber on hex belonging to competitionPlayer
 
@@ -410,11 +434,11 @@ public class GameEngine : MonoBehaviour
 
 	private void UpdateHumanCardCounts()
 	{
-		humanCardCounts[0].GetComponent<TextMesh> ().text = "" + gamestate.GetPlayerAtIndex(0).Hand().brick;
-		humanCardCounts[1].GetComponent<TextMesh> ().text = "" + gamestate.GetPlayerAtIndex(0).Hand().ore;
-		humanCardCounts[2].GetComponent<TextMesh> ().text = "" + gamestate.GetPlayerAtIndex(0).Hand().wood;
-		humanCardCounts[3].GetComponent<TextMesh> ().text = "" + gamestate.GetPlayerAtIndex(0).Hand().grain;
-		humanCardCounts[4].GetComponent<TextMesh> ().text = "" + gamestate.GetPlayerAtIndex(0).Hand().sheep;
+		humanCardCounts[0].GetComponent<TextMesh> ().text = "" + gamestate.GetPlayerAtIndex(0).GetPlayerHand().brick;
+		humanCardCounts[1].GetComponent<TextMesh> ().text = "" + gamestate.GetPlayerAtIndex(0).GetPlayerHand().ore;
+		humanCardCounts[2].GetComponent<TextMesh> ().text = "" + gamestate.GetPlayerAtIndex(0).GetPlayerHand().wood;
+		humanCardCounts[3].GetComponent<TextMesh> ().text = "" + gamestate.GetPlayerAtIndex(0).GetPlayerHand().grain;
+		humanCardCounts[4].GetComponent<TextMesh> ().text = "" + gamestate.GetPlayerAtIndex(0).GetPlayerHand().sheep;
 	}
 
 	private void UpdateTradePanel(Transform hitbox)
@@ -434,7 +458,7 @@ public class GameEngine : MonoBehaviour
 				}
 
 				tradeThisText[i].GetComponent<TextMesh>().text = "" + 
-					((Convert.ToInt32(tradeThisText[i].GetComponent<TextMesh>().text)+1) % (gamestate.GetPlayerAtIndex(0).Hand().GetResourceQuantity(i)+1) );
+					((Convert.ToInt32(tradeThisText[i].GetComponent<TextMesh>().text)+1) % (gamestate.GetPlayerAtIndex(0).GetPlayerHand().GetResourceQuantity(i)+1) );
 			}
 			else if(forThis[i].transform == hitbox)
 			{

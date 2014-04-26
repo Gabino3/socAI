@@ -167,11 +167,6 @@ public class Player
 		});
 	}
 
-	public PlayerHand Hand()
-	{
-		return hand;
-	}
-
 	public bool HasWon(bool hasLargestArmy, bool hasLongestRoad)
 	{
 		return VictoryPointsCount(hasLargestArmy, hasLongestRoad) >= 10;
@@ -210,7 +205,7 @@ public class Player
 		return (1 * NumSettlements()) + (2 * NumCities()) + hand.victoryPoints + largestArmyPoints + longestRoadPoints;
 	}
 
-	public bool acceptTradeRequest(TradeOffer trade)
+	public bool processTradeRequest(GameState gamestate, TradeOffer trade)
 	{
 		bool doesAcceptTrade = false;
 
@@ -218,24 +213,57 @@ public class Player
 		if(hand.isViableTradeRequest(trade))
 		{
 			// if player trade evaluation returns true, accept trade request
-			doesAcceptTrade = evaluateTradeRequest(trade);
+			doesAcceptTrade = evaluateTradeRequest(gamestate, trade);
 		}
 
 		return doesAcceptTrade;
 	}
 
-	private bool evaluateTradeRequest(TradeOffer trade)
+	private bool evaluateTradeRequest(GameState gamestate, TradeOffer trade)
 	{
+		bool acceptTradeRequest = false;
+
 		if(!isAI)
 		{
 			// Allow player to accept / reject / modify trade
 		}
 		else
 		{
-			// AI logic to determine whether or not to accept trade
+			List<AIEngine.Objective> objectives = AIEngine.GetObjectives(this, gamestate.getGamestateBoard());
+
+			foreach(AIEngine.Objective objective in objectives)
+			{
+				PlayerHand thisPlayerNeedResources = objective.GetCardDifferential();
+
+				PlayerHand thisPlayerGiveResources = trade.convertGetResourcesToPlayerHand();	// tradeHost gets the resources that this Player gives
+				PlayerHand thisPlayerGetResources = trade.convertGiveResourcesToPlayerHand();	// tradeHost gives the resources that this Player gets
+
+				// If any resources needed and received overlap && any resources needed and given do not overlap
+				if(thisPlayerNeedResources.handsOverlap(thisPlayerGetResources) && !thisPlayerNeedResources.handsOverlap(thisPlayerGiveResources))
+				{
+					if(trade.isFairTrade())
+					{
+						acceptTradeRequest = true;
+					}
+					else
+					{
+						System.Random rand = new System.Random();
+
+						if(rand.Next (100) > 25)			// 25% Chance to accept an unfair trade
+						{
+							acceptTradeRequest = true;
+						}
+					}
+				}
+
+				if(acceptTradeRequest)
+				{
+					break;
+				}
+			}
 		}
 
-		return false;
+		return acceptTradeRequest;
 	}
 
 	public TradeOffer generateHumanTradeRequest(int currentTurn, int[] giveResources, int[] getResources)
@@ -243,38 +271,76 @@ public class Player
 		return new TradeOffer(this, currentTurn, giveResources, getResources);
 	}
 
-	// Returns a TradeOffer if the trade is valid (an identical request has not recently been made); If this is not true, returns null
-	public TradeOffer generateAITradeRequest(int currentTurn, int[] giveResources, int[] getResources)
+	// Returns a TradeOffer if the trade is valid; If the ratio is not 4:1 or player does not have enough resources, returns null
+	public TradeOffer generateAITradeWithBank(int[] giveResource, int[] getResource)
 	{
-		String key = generateKeyForTrade (getResources);
+		TradeOffer newTrade = new TradeOffer(this, giveResource, getResource);
+		return newTrade;
+	}
 
+	// Returns a TradeOffer if the trade is valid (an identical request has not recently been made); If this is not true, returns null
+	public TradeOffer generateAITradeRequest(int currentTurn, AIEngine.Objective objective)
+	{
+		TradeOffer trade = BuildFairTrade (currentTurn, objective.GetCardDifferential ());
+
+		trade.RandomUnequalizeTrade ();	// Introduces an element of randomness to the trade algorithm
+
+		String key = trade.GenerateTradeKey ();
+		
 		int lastRequestTurn = 0;
 		if (recentTradeRequests.TryGetValue (key, out lastRequestTurn))
 		{
+			
 		}
-
+		
 		if(lastRequestTurn < currentTurn)
 		{
-			TradeOffer newTrade = new TradeOffer(this, currentTurn, giveResources, getResources);
-
 			if(lastRequestTurn != 0)
 			{
 				recentTradeRequests.Remove(key);
 			}
-
+			
 			recentTradeRequests.Add(key, currentTurn);
 
-			return newTrade;
+			return trade;
 		}
-
+		else
+		{
+			trade.dropGetCard();
+			trade.EqualizeTrade();
+		}
+		
 		return null;
 	}
 
-	private String generateKeyForTrade(int[] getResources)
+	// Returns a fair trade proposal
+	private TradeOffer BuildFairTrade(int currentTurn, PlayerHand cardDifferential)
 	{
-		return getResources[0].ToString() + "_" + getResources[1].ToString() + " " + getResources[2].ToString() + "_" + getResources[3].ToString() + "_" + getResources[4].ToString();
+		int[] resourceRequest = new int[5];
+		int[] resourceSurplus = new int[5];
+
+		for(int i = 0; i < 5; i++)
+		{
+			int cards = cardDifferential.GetResourceQuantity(i);
+
+			if(cards < 0)
+			{
+				resourceRequest[i] = - cards;
+			}
+			else
+			{
+				resourceSurplus[i] = cards;
+			}
+		}
+
+		TradeOffer trade = new TradeOffer (this, currentTurn, resourceSurplus, resourceRequest);
+
+		trade.EqualizeTrade ();
+
+		return trade;
 	}
 
+	// Discards half of a player's hand if their card count is greater than 7
 	public void gotRobbed()
 	{
 		int handCount = hand.GetHandSize();

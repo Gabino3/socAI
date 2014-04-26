@@ -132,13 +132,13 @@ public class AIEngine
 		//Why not add a settlement/upgrade?
 		if (node.occupied == Node.Occupation.none) {
 			if (board.CanBuildSettlementHere(node.visual.transform, player, true)) {
-				Objective newObjective = objective.Clone ();
+				Objective newObjective = objective.Clone();
 				newObjective.AddSettlement (node);
 				objectives.Add (newObjective);
 			}
 		}
 		else if (node.occupied == Node.Occupation.settlement && node.owner == player) {
-			Objective newObjective = objective.Clone ();
+			Objective newObjective = objective.Clone();
 			newObjective.AddCity (node);
 			objectives.Add (newObjective);
 		}
@@ -154,7 +154,7 @@ public class AIEngine
 				visitedEdges.Add (road);
 				foreach (Node neighbor in road.getNeighbors ()) {
 					if (!visitedNodes.Contains (neighbor)) {
-						Objective newObjective = objective.Clone ();
+						Objective newObjective = objective.Clone();
 						newObjective.AddRoad (road);
 						objectives.Add (newObjective);
 						GetObjectivesHelper (player, board, neighbor, newObjective, objectives, visitedEdges, visitedNodes, depth+1, maxDepth);
@@ -270,6 +270,10 @@ public class AIEngine
 	{
 		return ROAD_VALUE*0 + SETTLEMENT_VALUE/4 + CITY_VALUE*0 + 0.1;
 	}
+	public static double AverageValue()
+	{
+		return (ValueOfBrick () + ValueOfOre () + ValueOfWood () + ValueOfGrain () + ValueOfSheep ()) / 5;
+	}
 
 	/*
 	 * Score vertex by surrounding tile values.
@@ -303,7 +307,8 @@ public class AIEngine
 		private List<Node> settlements;
 		private List<Node> cities; //WARNING! contains settlements to be upgraded, not actual cities
 		private double score;
-		private PlayerHand hand;
+		private PlayerHand cardsNeeded;
+		private PlayerHand cardDifferentialForObjective;
 
 		public Objective(Player player)
 		{
@@ -312,7 +317,7 @@ public class AIEngine
 			settlements = new List<Node>();
 			cities = new List<Node>();
 			score = 0;
-			hand = new PlayerHand();
+			cardsNeeded = new PlayerHand();
 		}
 
 		private Objective(Player player, List<Edge> roads, List<Node> settlements, List<Node> cities, double score, PlayerHand hand)
@@ -336,7 +341,7 @@ public class AIEngine
 			this.cities = citiesCopy;
 			this.player = player;
 			this.score = score;
-			this.hand = hand;
+			this.cardsNeeded = hand;
 		}
 
 		public void AddCity(Node city)
@@ -359,14 +364,24 @@ public class AIEngine
 			RecalculateHand ();
 		}
 
+		public PlayerHand GetCardDifferential()
+		{
+			return cardDifferentialForObjective;
+		}
+
+		public PlayerHand GetCardsNeeded()
+		{
+			return cardsNeeded;
+		}
+
 		public int TotalCardsNeeded()
 		{
-			return hand.TotalResources();
+			return cardsNeeded.GetHandSize();
 		}
 
 		public Objective Clone()
 		{
-			return new Objective (player, roads, settlements, cities, score, hand);
+			return new Objective(player, roads, settlements, cities, score, cardsNeeded);
 		}
 
 		public List<Node> GetCities()
@@ -392,7 +407,8 @@ public class AIEngine
 		//TODO all card logic here is probably better suited in another class
 		private void RecalculateHand()
 		{
-			hand = new PlayerHand ();
+			// Justian Logic to calculate cards needed; the hand contains positive values for cards required to perform objective
+			cardsNeeded = new PlayerHand ();
 
 			PlayerHand neededCards = new PlayerHand();
 			foreach (Edge road in roads) {
@@ -411,12 +427,22 @@ public class AIEngine
 			}
 
 			for (int i = 0; i < 5; i++) {
-				neededCards.SetResourceQuantity(i, neededCards.GetResourceQuantity(i) - player.Hand ().GetResourceQuantity(i));
+				neededCards.SetResourceQuantity(i, neededCards.GetResourceQuantity(i) - player.GetPlayerHand ().GetResourceQuantity(i));
 
 				if (neededCards.GetResourceQuantity(i) > 0) {
-					hand.SetResourceQuantity(i, neededCards.GetResourceQuantity(i));
+					cardsNeeded.SetResourceQuantity(i, neededCards.GetResourceQuantity(i));
 				}
 			}
+
+
+			// Kevin Logic to calculate cards needed, a differential between cards-needed-to-build and current player's hand.  Negative
+			// 		values indicate a lack of cards, positive values indicate a surplus
+
+			cardDifferentialForObjective = player.GetPlayerHand ().MakeHandDifferentialFromRequiredResources (neededCards.brick, 
+			                                                                                                  neededCards.ore, 
+			                                                                                                  neededCards.wood, 
+			                                                                                                  neededCards.grain, 
+			                                                                                                  neededCards.sheep);
 		}
 
 		public double Score()

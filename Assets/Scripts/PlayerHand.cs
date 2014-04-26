@@ -34,6 +34,26 @@ public class PlayerHand
 		//randomizeHand();
 	}
 
+	public PlayerHand(int[] resources)
+	{
+		brick = resources[0];
+		ore = resources[1];
+		wood = resources[2];
+		grain = resources[3];
+		sheep = resources[4];
+	}
+
+	public void Randomize(int max)
+	{
+		System.Random rand = new System.Random();
+		
+		brick = rand.Next(max);
+		ore = rand.Next(max);
+		wood = rand.Next(max);
+		grain = rand.Next(max);
+		sheep = rand.Next(max);
+	}
+
 	public int GetResourceQuantity(int index)
 	{
 		switch (index)
@@ -45,17 +65,6 @@ public class PlayerHand
 			case 4: return sheep;
 			default: return -1;
 		}
-	}
-	
-	public void Randomize(int max)
-	{
-		System.Random rand = new System.Random();
-		
-		brick = rand.Next(max);
-		ore = rand.Next(max);
-		wood = rand.Next(max);
-		grain = rand.Next(max);
-		sheep = rand.Next(max);
 	}
 
 	public void SetResourceQuantity(int index, int value)
@@ -79,6 +88,11 @@ public class PlayerHand
 	public bool isViableTradeRequest(TradeOffer trade)
 	{
 		return brick >= trade.giveBrick && ore >= trade.giveOre && wood >= trade.giveWood && grain >= trade.giveGrain && sheep >= trade.giveSheep;
+	}
+
+	public PlayerHand MakeHandDifferentialFromRequiredResources(int needBrick, int needOre, int needWood, int needGrain, int needSheep)
+	{
+		return new PlayerHand (new int[5] {this.brick - needBrick, this.ore - needOre, this.wood - needWood, this.grain - needGrain, this.sheep - needSheep});
 	}
 
 	public void discard()
@@ -106,5 +120,53 @@ public class PlayerHand
 		{
 			sheep--;
 		}
+	}
+
+	public int[] GetArrayOfPlayerHand()
+	{
+		return new int[5] {brick, ore, wood, grain, sheep};
+	}
+
+	public double HandValueOfBrick()
+	{
+		return brick * AIEngine.ValueOfBrick ();
+	}
+
+	public double HandValueOfOre()
+	{
+		return ore * AIEngine.ValueOfOre ();
+	}
+
+	public double HandValueOfWood()
+	{
+		return wood * AIEngine.ValueOfWood ();
+	}
+
+	public double HandValueOfGrain()
+	{
+		return grain * AIEngine.ValueOfGrain ();
+	}
+
+	public double HandValueOfSheep()
+	{
+		return sheep * AIEngine.ValueOfSheep ();
+	}
+
+	public double ValueOfHand()
+	{
+		return HandValueOfBrick () + HandValueOfOre () + HandValueOfWood () + HandValueOfGrain () + HandValueOfSheep ();
+	}
+	
+	public bool handsOverlap(PlayerHand hand)
+	{
+		for(int i = 0; i < 5; i++)
+		{
+			if(this.GetResourceQuantity(i) < 0 && hand.GetResourceQuantity(i) > 0)
+			{
+				return true;
+			}
+		}
+
+		return false;
 	}
 }

@@ -50,6 +50,11 @@ public class GameState
 		longestRoadPlayer = null;
 	}
 
+	public Board getGamestateBoard()
+	{
+		return board;
+	}
+
 	/*
 	 * Has each player collect resources from owned tiles based on dice roll.
 	 */
