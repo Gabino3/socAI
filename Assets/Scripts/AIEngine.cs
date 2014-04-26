@@ -67,10 +67,76 @@ public class AIEngine
 		return vertices;
 	}
 
+	public static List<Tile> GetListOfRobberPlacements(Player currentTurnPlayer, Player competitorPlayer, Board board)
+	{
+		//Get list of current player's tiles
+		List<Tile> myTiles = new List<Tile>();
+		foreach (Node structure in currentTurnPlayer.structures) {
+			foreach (Tile tile in structure.getTiles ()) {
+				myTiles.Add (tile);
+			}
+		}
+
+		List<ScoredTile> scoredCompetitorTiles = new List<ScoredTile> ();
+		
+		//Get scored lists of top competitors tiles that don't neighbor current player
+		foreach (Node structure in competitorPlayer.structures) {
+			foreach (Tile tile in structure.getTiles ()) {
+
+				//Doesn't neighbor current player
+				if (!myTiles.Contains (tile)) {
+					int cityModifier = (structure.occupied == Node.Occupation.city) ? 2 : 1;
+
+					double score = AIEngine.TileScore(tile) * cityModifier;
+					bool updated = false;
+
+					//Append score if already discovered
+					foreach (ScoredTile scoredTile in scoredCompetitorTiles) {
+						if (scoredTile.tile == tile) {
+							scoredTile.score += score;
+							updated = true;
+						}
+					}
+
+					//Add to list of discovered if not already
+					if (!updated) {
+						scoredCompetitorTiles.Add (new ScoredTile(tile, score));
+					}
+				}
+			}
+		}
+
+		List<Tile> competitorTiles = new List<Tile>();
+
+		//Return sorted list of tile options if available
+		if (scoredCompetitorTiles.Count > 0) {
+			scoredCompetitorTiles = scoredCompetitorTiles.OrderByDescending(t => t.score).ToList ();
+
+			foreach (ScoredTile scoredTile in scoredCompetitorTiles) {
+				competitorTiles.Add (scoredTile.tile);
+			}
+		}
+		//If all else fails, just return the desert tile
+		else {
+			Tile desert = null;
+
+			foreach (Tile tile in board.tiles) {
+				if (tile.GetResource () == Tile.Resource.none) {
+					desert = tile;
+					break;
+				}
+			}
+
+			competitorTiles.Add (desert);
+		}
+
+		return competitorTiles;
+	}
+
 	/*
 	 * Returns a sorted list of recommended objectives for the AI to pursue
 	 */
-	public static List<Objective> GetObjectives(Player player, Board board)
+	public static List<Objective> GetObjectives(Player player, Board board, GameState gamestate)
 	{
 		/* ********************
 		 | Constructions:     |
@@ -108,13 +174,14 @@ public class AIEngine
 				visitedNodes.Add (visitedNode);
 			}
 
-			Objective objective = new Objective(player);
+			Objective objective = new Objective(player, gamestate);
 			GetObjectivesHelper (player, board, playerNode, objective, objectives, visitedEdges, visitedNodes, 0, 2); //TODO try 3 for maxdepth
 		}
 
 		//Prune unwanted objectives
 		foreach (Objective objective in objectives) {
-			if (objective.TotalCardsNeeded() <= 3) { //TODO prune scoring //TODO FACTOR IN LONGEST ROAD (IMPORTANT!!)
+			objective.RecalculateForLongestRoad ();
+			if (objective.TotalCardsNeeded () <= 3 && objective.Score() > 0.02) { //TODO prune scoring
 				prunedObjectives.Add (objective);
 			}
 		}
@@ -233,7 +300,7 @@ public class AIEngine
 	/*
 	 * Score tile based on resource and chit value.
 	 */
-	private static double TileScore(Tile tile)
+	public static double TileScore(Tile tile)
 	{
 		double probability = CHIT_PROBABILITIES [tile.GetChitValue ()];
 
@@ -278,7 +345,7 @@ public class AIEngine
 	/*
 	 * Score vertex by surrounding tile values.
 	 */
-	private static double VertexScore(Node vertex)
+	public static double VertexScore(Node vertex)
 	{
 		double score = 0;
 
@@ -309,18 +376,22 @@ public class AIEngine
 		private double score;
 		private PlayerHand cardsNeeded;
 		private PlayerHand cardDifferentialForObjective;
+		private int curLongestRoad;
+		private GameState gamestate;
 
-		public Objective(Player player)
+		public Objective(Player player, GameState gamestate)
 		{
 			this.player = player;
+			this.gamestate = gamestate;
 			roads = new List<Edge>();
 			settlements = new List<Node>();
 			cities = new List<Node>();
 			score = 0;
 			cardsNeeded = new PlayerHand();
+			curLongestRoad = Board.LongestRoadOfPlayer(player);
 		}
 
-		private Objective(Player player, List<Edge> roads, List<Node> settlements, List<Node> cities, double score, PlayerHand hand)
+		private Objective(Player player, GameState gamestate, List<Edge> roads, List<Node> settlements, List<Node> cities, double score, PlayerHand hand, int curLongestRoad)
 		{
 			List<Edge> roadsCopy = new List<Edge>();
 			List<Node> settlementsCopy = new List<Node>();
@@ -336,12 +407,14 @@ public class AIEngine
 				citiesCopy.Add (city);
 			}
 
+			this.player = player;
+			this.gamestate = gamestate;
 			this.roads = roadsCopy;
 			this.settlements = settlementsCopy;
 			this.cities = citiesCopy;
-			this.player = player;
 			this.score = score;
 			this.cardsNeeded = hand;
+			this.curLongestRoad = curLongestRoad;
 		}
 
 		public void AddCity(Node city)
@@ -351,9 +424,9 @@ public class AIEngine
 			RecalculateHand ();
 		}
 
-		public void AddRoad(Edge road)
+		public void AddRoad(Edge newRoad)
 		{
-			roads.Add (road);
+			roads.Add (newRoad);
 			RecalculateHand ();
 		}
 
@@ -381,7 +454,7 @@ public class AIEngine
 
 		public Objective Clone()
 		{
-			return new Objective(player, roads, settlements, cities, score, cardsNeeded);
+			return new Objective(player, gamestate, roads, settlements, cities, score, cardsNeeded, curLongestRoad);
 		}
 
 		public List<Node> GetCities()
@@ -402,6 +475,31 @@ public class AIEngine
 		public List<Node> GetSettlements()
 		{
 			return settlements;
+		}
+
+		public void RecalculateForLongestRoad()
+		{
+			int newLongest;
+			
+			//Add roads to player to simulate new longest road
+			foreach (Edge road in roads) {
+				player.AddRoad (road);
+			}
+			newLongest = Board.LongestRoadOfPlayer (player);
+			
+			//Remove all simulated edges
+			foreach (Edge road in roads) {
+				player.RemoveRoad (road);
+			}
+			
+			//Add extra points if roads connect two previous ones
+			if (newLongest > curLongestRoad) { //TODO correct logic?
+				if (!gamestate.HasLongestRoad(player) && gamestate.WouldBeLongestRoad(newLongest)) {
+					score += 1; //TODO adjust this
+				} else {
+					score += 0.01; //TODO adjust this
+				}
+			}
 		}
 
 		//TODO all card logic here is probably better suited in another class
@@ -482,6 +580,21 @@ public class AIEngine
 		public ScoredEdge(Edge edge, double score)
 		{
 			this.edge = edge;
+			this.score = score;
+		}
+	}
+
+	/* ======== *
+	 * Tile that has its own score. Used for determining most favorable options.
+	 * ======== */
+	private class ScoredTile
+	{
+		public Tile tile;
+		public double score;
+
+		public ScoredTile(Tile tile, double score)
+		{
+			this.tile = tile;
 			this.score = score;
 		}
 	}

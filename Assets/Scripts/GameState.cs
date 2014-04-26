@@ -77,7 +77,7 @@ public class GameState
 		int playerLongestRoad = Board.LongestRoadOfPlayer (GetCurrentTurnPlayer());
 
 		//Assign longest road player
-		if (playerLongestRoad > longestRoad) {
+		if (WouldBeLongestRoad(playerLongestRoad)) {
 			longestRoad = playerLongestRoad;
 			longestRoadPlayer = GetCurrentTurnPlayer();
 		}
@@ -119,24 +119,20 @@ public class GameState
 		return playersArray[index];
 	}
 
-	public Player biggestCompetitorToPlayer(Player player)
+	public Player BiggestCompetitorToPlayer(Player player)
 	{
 		Player competition = null;
 		int mostVictoryPoints = 0;
-		foreach(Player p in playersArray)
-		{
-			if(p != player)
-			{
-				if(competition == null)
-				{
+
+		foreach (Player p in playersArray) {
+			if (p != player) {
+				if (competition == null) {
 					competition = p;
-					mostVictoryPoints = p.VictoryPointsCount((p == largestArmyPlayer), (p == longestRoadPlayer));
+					mostVictoryPoints = p.VictoryPointsCount(HasLargestArmy (p), HasLongestRoad (p));
 				}
-				else
-				{
-					int numVictoryPoints = p.VictoryPointsCount((p == largestArmyPlayer), (p == longestRoadPlayer));
-					if(numVictoryPoints > mostVictoryPoints)
-					{
+				else {
+					int numVictoryPoints = p.VictoryPointsCount(HasLargestArmy (p), HasLongestRoad (p));
+					if(numVictoryPoints > mostVictoryPoints) {
 						competition = p;
 						mostVictoryPoints = numVictoryPoints;
 					}
@@ -201,6 +197,9 @@ public class GameState
 			if (curState == State.roll) {
 				roll = RollDice ();
 				if (roll == 7) {
+					foreach(Player p in GetAllPlayers()) {
+						p.gotRobbed();
+					}
 					return SetState(State.robber);
 				}
 				else {
@@ -217,7 +216,7 @@ public class GameState
 			else if (curState == State.place) {
 				DetermineCurrentPlayerObjectives();
 				if (IsGameOver ()) {
-					GameEngine.print ("Game Over. Winner: Player " + currentPlayerTurn + ", Total Turns: " + turnCounter);
+					GameEngine.print ("Game Over. Winner: Player " + currentPlayerTurn + ", Total Rounds: " + ((double)turnCounter/numPlayers));
 					return SetState(State.end);
 				}
 				IncrementPlayer ();
@@ -288,5 +287,10 @@ public class GameState
 
 		curState = state;
 		return curState;
+	}
+
+	public bool WouldBeLongestRoad(int roadLength)
+	{
+		return roadLength > longestRoad;
 	}
 }

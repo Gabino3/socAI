@@ -229,7 +229,7 @@ public class Player
 		}
 		else
 		{
-			List<AIEngine.Objective> objectives = AIEngine.GetObjectives(this, gamestate.getGamestateBoard());
+			List<AIEngine.Objective> objectives = AIEngine.GetObjectives(this, gamestate.getGamestateBoard(), gamestate);
 
 			foreach(AIEngine.Objective objective in objectives)
 			{

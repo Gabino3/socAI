@@ -258,8 +258,7 @@ public class GameEngine : MonoBehaviour
 				else if (curState == GameState.State.trade)
 				{
 					//TODO
-
-					List<AIEngine.Objective> objectives = AIEngine.GetObjectives(currentTurnPlayer, board);
+					List<AIEngine.Objective> objectives = AIEngine.GetObjectives(currentTurnPlayer, board, gamestate);
 					foreach(AIEngine.Objective objective in objectives)
 					{
 						print (objective);
@@ -278,9 +277,21 @@ public class GameEngine : MonoBehaviour
 								tradeManager.ExecuteTradeOfferNotification(offer);
 							}
 						}
-
-						if(objective.Score() > 0 && objective.TotalCardsNeeded() == 0)
-						{
+					}
+					
+					IncrementState();
+				}
+				//Building phase
+				else if (curState == GameState.State.place)
+				{
+					//TODO
+					List<AIEngine.Objective> objectives = AIEngine.GetObjectives(currentTurnPlayer, board, gamestate);
+					foreach (AIEngine.Objective objective in objectives) {
+						print (objective);
+					}
+					
+					foreach (AIEngine.Objective objective in objectives) {
+						if (objective.TotalCardsNeeded() == 0) {
 							AIEngine.PerformObjective(objective, board);
 							break;
 						}
@@ -288,32 +299,25 @@ public class GameEngine : MonoBehaviour
 
 					IncrementState();
 				}
-				//Building phase
-				else if (curState == GameState.State.place)
-				{
-					//TODO
-
-					IncrementState();
-				}
 				//Place robber
-				else if (curState == GameState.State.robber)
-				{
-					foreach(Player p in gamestate.GetAllPlayers())
-					{
-						p.gotRobbed();
-					}
-
-					Player competitorPlayer = gamestate.biggestCompetitorToPlayer(gamestate.GetCurrentTurnPlayer());
-
-
-
-
-					// Place robber on hex belonging to competitionPlayer
+				else if (curState == GameState.State.robber) {
+					Player competitorPlayer = gamestate.BiggestCompetitorToPlayer(currentTurnPlayer);
+					List<Tile> possiblePlacements = AIEngine.GetListOfRobberPlacements(currentTurnPlayer, competitorPlayer, board);
 
 					bool robberPlaced = false;
 
-					while (!robberPlaced)
-					{
+					//Attempt to place robber on recommended tiles
+					foreach (Tile tile in possiblePlacements) {
+						int index = board.tiles.IndexOf (tile);
+						if (board.PlaceRobber (board.tileHitboxes[index].transform)) {
+							robberPlaced = true;
+							break;
+						}
+					}
+
+					//If for some reason we're out of recommendations...
+					while (!robberPlaced) {
+						print ("ERROR: ATTEMPTING TO RANDOMLY PLACE ROBBER!");
 						int tileIndex = rand.Next (board.tiles.Count);
 						robberPlaced = board.PlaceRobber (board.tileHitboxes[tileIndex].transform);
 					}
