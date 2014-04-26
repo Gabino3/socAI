@@ -85,9 +85,19 @@ public class PlayerHand
 		return brick + ore + wood + grain + sheep;
 	}
 
-	public bool isViableTradeRequest(TradeOffer trade)
+	public bool IsViableTradeRequest(TradeOffer trade)
 	{
-		return brick >= trade.giveBrick && ore >= trade.giveOre && wood >= trade.giveWood && grain >= trade.giveGrain && sheep >= trade.giveSheep;
+		GameEngine.print (brick + " -> " + trade.giveBrick + " BRICK\n" +
+						ore + " -> " + trade.giveOre + " ORE\n" +
+						wood + " -> " + trade.giveWood + " WOOD\n" +
+						grain + " -> " + trade.giveGrain + " GRAIN\n" +
+						sheep + " -> " + trade.giveSheep + " SHEEP");
+
+		bool isViableTrade = brick >= trade.giveBrick && ore >= trade.giveOre && wood >= trade.giveWood && grain >= trade.giveGrain && sheep >= trade.giveSheep;
+
+		GameEngine.print ("IS VIABLE TRADE: " + isViableTrade);
+
+		return isViableTrade; 
 	}
 
 	public PlayerHand MakeHandDifferentialFromRequiredResources(int needBrick, int needOre, int needWood, int needGrain, int needSheep)
@@ -157,7 +167,7 @@ public class PlayerHand
 		return HandValueOfBrick () + HandValueOfOre () + HandValueOfWood () + HandValueOfGrain () + HandValueOfSheep ();
 	}
 	
-	public bool handsOverlap(PlayerHand hand)
+	public bool HandsOverlap(PlayerHand hand)
 	{
 		for(int i = 0; i < 5; i++)
 		{

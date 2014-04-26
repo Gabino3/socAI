@@ -33,7 +33,7 @@ public class Player
 		}
 		roads = new List<Edge> (72);
 		structures = new List<Node> (54);
-		hand = new PlayerHand ();//(100); //TODO just testing...
+		hand = new PlayerHand (0);//(100); //TODO just testing...
 	}
 
 	public PlayerHand GetPlayerHand()
@@ -198,6 +198,11 @@ public class Player
 		return numSettlements;
 	}
 
+	public bool RemoveRoad(Edge road)
+	{
+		return roads.Remove (road);
+	}
+
 	public int VictoryPointsCount(bool hasLargestArmy, bool hasLongestRoad)
 	{
 		int largestArmyPoints = (hasLargestArmy) ? 2 : 0;
@@ -207,10 +212,12 @@ public class Player
 
 	public bool processTradeRequest(GameState gamestate, TradeOffer trade)
 	{
+		GameEngine.print ("PLAYER " + trade.tradeHost.id + " ATTEMPTING TO BROKER TRADE WITH PLAYER " + this.id);
 		bool doesAcceptTrade = false;
 
 		// Verify that trade is permissible based on player hand
-		if(hand.isViableTradeRequest(trade))
+		GameEngine.print ("Viable Trade?: " + hand.IsViableTradeRequest(trade));
+		if(hand.IsViableTradeRequest(trade))
 		{
 			// if player trade evaluation returns true, accept trade request
 			doesAcceptTrade = evaluateTradeRequest(gamestate, trade);
@@ -239,7 +246,10 @@ public class Player
 				PlayerHand thisPlayerGetResources = trade.convertGiveResourcesToPlayerHand();	// tradeHost gives the resources that this Player gets
 
 				// If any resources needed and received overlap && any resources needed and given do not overlap
-				if(thisPlayerNeedResources.handsOverlap(thisPlayerGetResources) && !thisPlayerNeedResources.handsOverlap(thisPlayerGiveResources))
+				GameEngine.print ("Get Overlap?: " + thisPlayerNeedResources.HandsOverlap(thisPlayerGetResources));
+				GameEngine.print ("Give Overlap?: " + thisPlayerNeedResources.HandsOverlap(thisPlayerGiveResources));
+
+				if(thisPlayerNeedResources.HandsOverlap(thisPlayerGetResources) && !thisPlayerNeedResources.HandsOverlap(thisPlayerGiveResources))
 				{
 					if(trade.isFairTrade())
 					{
@@ -272,10 +282,9 @@ public class Player
 	}
 
 	// Returns a TradeOffer if the trade is valid; If the ratio is not 4:1 or player does not have enough resources, returns null
-	public TradeOffer generateAITradeWithBank(int[] giveResource, int[] getResource)
+	public TradeOffer generateAITradeWithBank(AIEngine.Objective objective)
 	{
-		TradeOffer newTrade = new TradeOffer(this, giveResource, getResource);
-		return newTrade;
+		return BuildTradeWithBank (objective.GetCardDifferential ());
 	}
 
 	// Returns a TradeOffer if the trade is valid (an identical request has not recently been made); If this is not true, returns null
@@ -311,6 +320,41 @@ public class Player
 		}
 		
 		return null;
+	}
+
+	private TradeOffer BuildTradeWithBank(PlayerHand cardDifferential)
+	{
+		int[] resourceRequest = new int[5];
+		int[] resourceSurplus = new int[5];
+
+		bool canTradeWithBank = false;
+		for(int i = 0; i < 5; i++)
+		{
+			int cards = cardDifferential.GetResourceQuantity(i);
+			
+			if(cards < 0)
+			{
+				resourceRequest[i] = - cards;
+			}
+			else
+			{
+				resourceSurplus[i] = (cards / 4) * 4;
+
+				if(resourceSurplus[i] > 0)
+				{
+					canTradeWithBank = true;
+				}
+			}
+		}
+
+		if(canTradeWithBank)
+		{
+			return new TradeOffer(this, resourceSurplus, resourceRequest);
+		}
+		else
+		{
+			return null;
+		}
 	}
 
 	// Returns a fair trade proposal

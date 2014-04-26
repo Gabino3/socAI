@@ -1,16 +1,16 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class TradeManager : MonoBehaviour
+public class TradeManager
 {
 	GameState gamestate;
 
 	public TradeManager (GameState gamestate)
 	{
-		gamestate = gamestate;
+		this.gamestate = gamestate;
 	}
 
-	public void ExecuteTradeOfferNotification(TradeOffer offer)
+	public bool ExecuteTradeOfferNotification(TradeOffer offer)
 	{
 		Player tradeHost = offer.tradeHost;
 
@@ -37,11 +37,27 @@ public class TradeManager : MonoBehaviour
 		if(tradeIsAccepted)
 		{
 			ExecuteTradeOffer(offer, tradeHost, tradeWithPlayer);
+
+			GameEngine.print("PLAYER " + tradeHost.id + " TRADES WITH " + tradeWithPlayer.id);
+			GameEngine.print("PLAYER " + tradeHost.id + " TRADES:\n" +
+			                 offer.giveBrick + " Brick\n" +
+			                 offer.giveOre + " Ore\n" +
+			                 offer.giveWood + " Wood\n" +
+			                 offer.giveGrain + " Grain\n" +
+			                 offer.giveSheep + " Sheepn");
+			GameEngine.print ("FOR:\n" +
+			                  offer.getBrick + " BRICK\n" +
+			                  offer.getOre + " Ore\n" +
+			                  offer.getWood + " Wood\n" +
+			                  offer.getGrain + " Grain\n" +
+			                  offer.getSheep + " Sheepn");
 		}
 		else
 		{
 			// Nobody Accepts Trade.  Alert Human via GUI
 		}
+
+		return tradeIsAccepted;
 	}
 
 	private bool proposeTradeToPlayer(TradeOffer offer, Player tradeWithPlayer)
@@ -61,7 +77,7 @@ public class TradeManager : MonoBehaviour
 		exchangeResources(hostHand.sheep, withHand.sheep, offer.getSheep, offer.giveSheep);
 	}
 
-	private void ExecuteTradeWithBank(TradeOffer offer, Player tradeHost)
+	public void ExecuteTradeWithBank(TradeOffer offer, Player tradeHost)
 	{
 		PlayerHand hostHand = tradeHost.GetPlayerHand ();
 		PlayerHand bankHand = new PlayerHand ();
@@ -71,8 +87,22 @@ public class TradeManager : MonoBehaviour
 		exchangeResources(hostHand.wood, bankHand.wood, offer.getWood, offer.giveWood);
 		exchangeResources(hostHand.grain, bankHand.grain, offer.getGrain, offer.giveGrain);
 		exchangeResources(hostHand.sheep, bankHand.sheep, offer.getSheep, offer.giveSheep);
-	}
 
+		GameEngine.print("PLAYER " + tradeHost.id + " TRADES WITH BANK");
+		GameEngine.print("PLAYER " + tradeHost.id + " TRADES:\n" +
+		                 offer.giveBrick + " Brick\n" +
+		                 offer.giveOre + " Ore\n" +
+		                 offer.giveWood + " Wood\n" +
+		                 offer.giveGrain + " Grain\n" +
+		                 offer.giveSheep + " Sheepn");
+		GameEngine.print ("FOR:\n" +
+		                  offer.getBrick + " BRICK\n" +
+		                  offer.getOre + " Ore\n" +
+		                  offer.getWood + " Wood\n" +
+		                  offer.getGrain + " Grain\n" +
+		                  offer.getSheep + " Sheepn");
+	}
+	
 	private void exchangeResources(int hostResource, int withResource, int getResource, int giveResource)
 	{
 		hostResource += getResource;

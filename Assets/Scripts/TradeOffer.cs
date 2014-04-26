@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class TradeOffer : MonoBehaviour
+public class TradeOffer
 {
 	public Player tradeHost;
 
@@ -82,6 +82,21 @@ public class TradeOffer : MonoBehaviour
 				break;
 			}
 		}
+
+		while(TotalGetResources() > TotalGiveResources() / 4)
+		{
+			dropGetCard();
+		}
+	}
+
+	private int TotalGetResources()
+	{
+		return getBrick + getOre + getWood + getGrain + getSheep;
+	}
+
+	private int TotalGiveResources()
+	{
+		return giveBrick + giveOre + giveWood + giveGrain + giveSheep;
 	}
 
 	public bool isFairTrade()
@@ -97,9 +112,11 @@ public class TradeOffer : MonoBehaviour
 	{
 		PlayerHand get = convertGetResourcesToPlayerHand ();
 		PlayerHand give = convertGiveResourcesToPlayerHand ();
-		
-		while(Mathf.Abs((float)(get.ValueOfHand() - give.ValueOfHand())) > AIEngine.AverageValue())
+
+		while((get.ValueOfHand() - give.ValueOfHand()) > 2 * AIEngine.AverageValue())
 		{
+			//GameEngine.print (get.ValueOfHand());
+			//GameEngine.print (give.ValueOfHand());
 			if(get.ValueOfHand() > give.ValueOfHand())
 			{
 				get.discard();

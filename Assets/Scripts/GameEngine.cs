@@ -36,7 +36,7 @@ public class GameEngine : MonoBehaviour
 	GameObject[] humanCardCounts;
 	DateTime lastAIActionTime; //used to slow down AI players
 	readonly DateTime EPOCH = new DateTime(2001, 1, 1);
-	readonly float FORCED_TIME_BETWEEN_AI_ACTIONS = 0.0f;
+	private float FORCED_TIME_BETWEEN_AI_ACTIONS = 0f;
 
 	void Start () {
 		board = new Board (); // instantiates and draws
@@ -257,33 +257,58 @@ public class GameEngine : MonoBehaviour
 				//Trade with players
 				else if (curState == GameState.State.trade)
 				{
+					print ("~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~");
 					//TODO
 					List<AIEngine.Objective> objectives = AIEngine.GetObjectives(currentTurnPlayer, board, gamestate);
-					foreach(AIEngine.Objective objective in objectives)
-					{
-						print (objective);
-					}
 
-					int tradesThisTurn = 0;
+					// Trade With Other Players
+					int tradeOffersThisTurn = 0;
+					bool hasAnyOfferBeenAccepted = false;
+					print (gamestate.GetCurrentTurnPlayer() +  " ATTEMPTING TO TRADE WITH OTHER PLAYERS");
 					foreach(AIEngine.Objective objective in objectives)
 					{
-						if(objective.Score () > 0 && objective.TotalCardsNeeded() > 0 && tradesThisTurn <= 3)
+						if(objective.Score () > 0 && objective.TotalCardsNeeded() > 0 && tradeOffersThisTurn <= 3 && !hasAnyOfferBeenAccepted)
 						{
 							TradeOffer offer = currentTurnPlayer.generateAITradeRequest(gamestate.getTurnCounter(), objective);
 
 							if(null != offer)
 							{
-								tradesThisTurn++;
-								tradeManager.ExecuteTradeOfferNotification(offer);
+								tradeOffersThisTurn++;
+								hasAnyOfferBeenAccepted = tradeManager.ExecuteTradeOfferNotification(offer);
 							}
 						}
 					}
-					
+
+					// Trade With Bank
+					print (gamestate.GetCurrentTurnPlayer() +  " ATTEMPTING TO TRADE WITH BANK");
+					foreach(AIEngine.Objective objective in objectives)
+					{
+						if(objective.Score () > 0 && objective.TotalCardsNeeded() > 0 && !hasAnyOfferBeenAccepted)
+						{
+							TradeOffer offer = currentTurnPlayer.generateAITradeWithBank(objective);
+							
+							if(null != offer)
+							{
+								tradeManager.ExecuteTradeWithBank(offer, gamestate.GetCurrentTurnPlayer());
+								hasAnyOfferBeenAccepted = true;
+								break;
+							}
+						}
+					}
+
+					if(!hasAnyOfferBeenAccepted)
+					{
+						print (gamestate.GetCurrentTurnPlayer() + " MADE NO TRADES THIS TURN");
+					}
+				
 					IncrementState();
+					FORCED_TIME_BETWEEN_AI_ACTIONS = 3f; //TODO Remove
 				}
 				//Building phase
 				else if (curState == GameState.State.place)
 				{
+					FORCED_TIME_BETWEEN_AI_ACTIONS = 0f; //TODO Remove
+
 					//TODO
 					List<AIEngine.Objective> objectives = AIEngine.GetObjectives(currentTurnPlayer, board, gamestate);
 					foreach (AIEngine.Objective objective in objectives) {
