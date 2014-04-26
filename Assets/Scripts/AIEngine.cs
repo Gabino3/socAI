@@ -181,7 +181,7 @@ public class AIEngine
 		//Prune unwanted objectives
 		foreach (Objective objective in objectives) {
 			objective.RecalculateForLongestRoad ();
-			if (objective.TotalCardsNeeded () <= 3) { //TODO prune scoring
+			if (objective.TotalCardsNeeded () <= 3 && objective.Score() > 0.02) { //TODO prune scoring
 				prunedObjectives.Add (objective);
 			}
 		}
@@ -482,7 +482,7 @@ public class AIEngine
 				if (!gamestate.HasLongestRoad(player) && gamestate.WouldBeLongestRoad(newLongest)) {
 					score += 1; //TODO adjust this
 				} else {
-					score += 0.05; //TODO adjust this
+					score += 0.01; //TODO adjust this
 				}
 			}
 		}
