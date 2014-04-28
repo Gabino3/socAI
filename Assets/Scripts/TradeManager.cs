@@ -5,7 +5,6 @@ public class TradeManager
 {
 	GameState gamestate;
 	GameEngine gameengine;
-
 	int numProposedTrades;
 	int numSuccessfulTrades;
 

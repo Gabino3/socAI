@@ -556,7 +556,7 @@ public class GameEngine : MonoBehaviour
 					FORCED_TIME_BETWEEN_AI_ACTIONS = 0f; //TODO Remove
 
 					//TODO
-					List<AIEngine.Objective> objectives = AIEngine.GetObjectives(currentTurnPlayer, board, gamestate);
+					/*List<AIEngine.Objective> objectives = AIEngine.GetObjectives(currentTurnPlayer, board, gamestate);
 					foreach (AIEngine.Objective objective in objectives) {
 						print (objective);
 					}
@@ -565,6 +565,20 @@ public class GameEngine : MonoBehaviour
 						if (objective.TotalCardsNeeded() == 0) {
 							AIEngine.PerformObjective(objective, board);
 							break;
+						}
+					}*/
+
+					//Attempt main objective that we traded for
+					if (proposedObjective != null) {
+						AIEngine.PerformObjective(proposedObjective, board);
+					}
+					//Attempt to get -any- objective to work
+					else {
+						List<AIEngine.Objective> objectives = AIEngine.GetObjectives(currentTurnPlayer, board, gamestate);
+						foreach (AIEngine.Objective objective in objectives) {
+							if (AIEngine.PerformObjective(objective, board)) {
+								break;
+							}
 						}
 					}
 
