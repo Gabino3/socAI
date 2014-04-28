@@ -6,7 +6,7 @@ using System.Collections.Generic;
 public class Player
 {
 	//Debug variables
-	private bool debug = false;
+	private bool debug = true;
 
 	public int id;
 	public bool isAI;
@@ -15,6 +15,8 @@ public class Player
 	
 	public List<Edge> roads;
 	public List<Node> structures;
+
+	bool debugMessages = false;
 
 	Dictionary <String, int> recentTradeRequests = new Dictionary<String, int> ();
 
@@ -77,7 +79,12 @@ public class Player
 		{
 			return true;
 		}
-		GameEngine.print ("Not Enough Resources!");
+
+		if(debugMessages)
+		{
+			GameEngine.print ("Not Enough Resources!");
+		}
+
 		return false;
 	}
 
@@ -87,8 +94,12 @@ public class Player
 		{
 			return true;
 		}
-		
-		GameEngine.print ("Not Enough Resources!");
+
+		if(debugMessages)
+		{
+			GameEngine.print ("Not Enough Resources!");
+		}
+
 		return false;
 
 	}
@@ -99,8 +110,12 @@ public class Player
 		{
 			return true;
 		}
-			
-		GameEngine.print ("Not Enough Resources!");
+
+		if(debugMessages)
+		{
+			GameEngine.print ("Not Enough Resources!");
+		}
+
 		return false;
 	}
 
@@ -212,11 +227,14 @@ public class Player
 
 	public bool processTradeRequest(GameState gamestate, TradeOffer trade)
 	{
-		GameEngine.print ("PLAYER " + trade.tradeHost.id + " ATTEMPTING TO BROKER TRADE WITH PLAYER " + this.id);
+		if(debugMessages)
+		{
+			GameEngine.print ("PLAYER " + trade.tradeHost.id + " ATTEMPTING TO BROKER TRADE WITH PLAYER " + this.id);
+		}
+
 		bool doesAcceptTrade = false;
 
 		// Verify that trade is permissible based on player hand
-		GameEngine.print ("Viable Trade?: " + hand.IsViableTradeRequest(trade));
 		if(hand.IsViableTradeRequest(trade))
 		{
 			// if player trade evaluation returns true, accept trade request
@@ -245,13 +263,65 @@ public class Player
 				PlayerHand thisPlayerGiveResources = trade.convertGetResourcesToPlayerHand();	// tradeHost gets the resources that this Player gives
 				PlayerHand thisPlayerGetResources = trade.convertGiveResourcesToPlayerHand();	// tradeHost gives the resources that this Player gets
 
-				// If any resources needed and received overlap && any resources needed and given do not overlap
-				GameEngine.print ("Get Overlap?: " + thisPlayerNeedResources.HandsOverlap(thisPlayerGetResources));
-				GameEngine.print ("Give Overlap?: " + thisPlayerNeedResources.HandsOverlap(thisPlayerGiveResources));
-
-				if(thisPlayerNeedResources.HandsOverlap(thisPlayerGetResources) && !thisPlayerNeedResources.HandsOverlap(thisPlayerGiveResources))
+				if(debugMessages)
 				{
-					if(trade.isFairTrade())
+					GameEngine.print (objective.GetObjectiveScore() + ": OBJECTIVE SCORE");
+					GameEngine.print ("PLAYER " + this.id + " GIVES TO TRADEHOST:" +
+					                  "GIVE " + trade.getBrick + " BRICK, " +
+					                  "GIVE " + trade.getOre + " ORE, " +
+					                  "GIVE " + trade.getWood + " WOOD, " +
+					                  "GIVE " + trade.getGrain + " GRAIN, " +
+					                  "GIVE " + trade.getSheep + " SHEEP");
+					
+					GameEngine.print ("FOR " + trade.giveBrick + " BRICK, " +
+					                  "FOR " + trade.giveOre + " ORE, " +
+					                  "FOR " + trade.giveWood + " WOOD, " +
+					                  "FOR " + trade.giveGrain + " GRAIN, " +
+					                  "FOR " + trade.giveSheep + " SHEEP");
+					
+					int[] x = thisPlayerNeedResources.ToArray();
+					GameEngine.print ("PLAYER " + this.id + " (SELLER) NEEDS:" +
+					                  x[0] + " BRICK, " +
+					                  x[1] + " ORE, " +
+					                  x[2] + " WOOD, " +
+					                  x[3] + " GRAIN, " +
+					                  x[4] + " SHEEP");
+				}
+
+				bool resourcesNeededOverlapsWithResourcesReceived = false;
+				// Compare Cards Received with Cards Needed
+				for(int i = 0; i < 5; i++)
+				{
+					if(thisPlayerNeedResources.GetResourceQuantity(i) < 0 && thisPlayerGetResources.GetResourceQuantity(i) > 0)
+					{
+						resourcesNeededOverlapsWithResourcesReceived = true;
+					}
+				}
+
+				bool resourcesNeededOverlapsWithResourcesGiven = false;
+				for(int i = 0; i < 5; i++)
+				{
+					if(thisPlayerNeedResources.GetResourceQuantity(i) >= 0 && thisPlayerNeedResources.GetResourceQuantity(i) - thisPlayerGiveResources.GetResourceQuantity(i) < 0)
+					{
+						resourcesNeededOverlapsWithResourcesGiven = true;
+					}
+				}
+
+				if(debugMessages)
+				{
+					// If any resources needed and received overlap && any resources needed and given do not overlap
+					GameEngine.print ("NEEDS OVERLAPS WITH GET?: " + resourcesNeededOverlapsWithResourcesReceived + "(-true-), " +
+					                  "NEEDS OVERLAPS WITH GIVE?: " + resourcesNeededOverlapsWithResourcesGiven + " (-false-)");
+				}
+				
+				if(resourcesNeededOverlapsWithResourcesReceived && !resourcesNeededOverlapsWithResourcesGiven)
+				{
+					if(debugMessages)
+					{
+						GameEngine.print ("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ GET NEEDED RESOURCES & ONLY TRADE SURPLUS RESOURCES @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+					}
+
+					if(trade.IsFairTrade())
 					{
 						acceptTradeRequest = true;
 					}
@@ -259,7 +329,7 @@ public class Player
 					{
 						System.Random rand = new System.Random();
 
-						if(rand.Next (100) > 25)			// 25% Chance to accept an unfair trade
+						if(rand.Next (100) < 25)			// 25% Chance to accept an unfair trade (technically could be better for them, but sometimes worse for them)
 						{
 							acceptTradeRequest = true;
 						}
@@ -268,6 +338,11 @@ public class Player
 
 				if(acceptTradeRequest)
 				{
+					if(debugMessages)
+					{
+						GameEngine.print ("# # # # # # # # # # # # # # # # # # # # # # # # # # # ACCEPT TRADE # # # # # # # # # # # # # # # # # # # # # # # # # # #");
+					}
+
 					break;
 				}
 			}
@@ -284,6 +359,11 @@ public class Player
 	// Returns a TradeOffer if the trade is valid; If the ratio is not 4:1 or player does not have enough resources, returns null
 	public TradeOffer generateAITradeWithBank(AIEngine.Objective objective)
 	{
+		if(debugMessages)
+		{
+			GameEngine.print ("-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#- BANK TRADE REQUEST -#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-");
+		}
+
 		return BuildTradeWithBank (objective.GetCardDifferential ());
 	}
 
@@ -292,34 +372,92 @@ public class Player
 	{
 		TradeOffer trade = BuildFairTrade (currentTurn, objective.GetCardDifferential ());
 
-		trade.RandomUnequalizeTrade ();	// Introduces an element of randomness to the trade algorithm
-
-		String key = trade.GenerateTradeKey ();
-		
-		int lastRequestTurn = 0;
-		if (recentTradeRequests.TryGetValue (key, out lastRequestTurn))
+		if(trade.TotalGetResources() > 1 && trade.TotalGiveResources() > 1)
 		{
+			trade.RandomUnequalizeTrade ();	// Introduces an element of randomness to the trade algorithm
+		}
+
+		if(debugMessages)
+		{
+			GameEngine.print ("PLAYER HAND: \n" +
+			                  hand.brick + " BRICK\n" +
+			                  hand.ore + " ORE\n" +
+			                  hand.wood + " WOOD\n" +
+			                  hand.grain + " GRAIN\n" +
+			                  hand.sheep + " SHEEP");
 			
+			GameEngine.print ("CARDS NEEDED: \n" +
+			                  objective.GetCardsNeeded().brick + " BRICK\n" +
+			                  objective.GetCardsNeeded ().ore + " ORE\n" +
+			                  objective.GetCardsNeeded ().wood + " WOOD\n" +
+			                  objective.GetCardsNeeded ().grain + " GRAIN\n" +
+			                  objective.GetCardsNeeded ().sheep + " SHEEP");
+			
+			GameEngine.print ("CARD DIFFERENTIAL: \n" +
+			                  objective.GetCardsNeeded().GetHandSize() + " CARDS NEEDED\n" +
+			                  objective.GetCardDifferential ().brick + " BRICK\n" +
+			                  objective.GetCardDifferential ().ore + " ORE\n" +
+			                  objective.GetCardDifferential ().wood + " WOOD\n" +
+			                  objective.GetCardDifferential ().grain + " GRAIN\n" +
+			                  objective.GetCardDifferential ().sheep + " SHEEP");
+		}
+
+		if(GetPermissionToRetryTradeRequest (currentTurn, trade))
+		{
+			return trade;
 		}
 		
-		if(lastRequestTurn < currentTurn)
+		return null;
+	}
+	
+	private bool GetPermissionToRetryTradeRequest(int currentTurn, TradeOffer trade)
+	{
+		bool permission = false;
+		String key = trade.GenerateTradeKey ();
+
+		int lastRequestTurn = 0;
+		recentTradeRequests.TryGetValue (key, out lastRequestTurn);		// replaces lastRequestTurn w/ value found in dictionary, untouched if key not found
+
+		if(debugMessages)
 		{
+			GameEngine.print ("REQUEST KEY: " + key + "$_$_$_$_$_$_$_$_$_$_$_$_$_$_$_$_$_$_$_$_$_$_$_$_$_$_$_$_$_$_$_$_$_$_$_$_$_$_$_$_$");
+			GameEngine.print ("TURN LAST REQUESTED: " + lastRequestTurn);
+		}
+
+		if(lastRequestTurn < currentTurn)								// request not yet made this turn
+		{
+			if(debugMessages)
+			{
+				GameEngine.print("OVERWRITE KEY; FORMERLY " + lastRequestTurn + ", NOW: " + currentTurn);
+			}
+
 			if(lastRequestTurn != 0)
 			{
 				recentTradeRequests.Remove(key);
 			}
-			
-			recentTradeRequests.Add(key, currentTurn);
 
-			return trade;
+			recentTradeRequests.Add(key, currentTurn);
+			
+			permission = true;
 		}
 		else
 		{
-			trade.dropGetCard();
-			trade.EqualizeTrade();
+			if(trade.TotalGetResources() > 1)
+			{
+				trade.dropGetCard();
+				trade.EqualizeTrade();
+
+				if(debugMessages)
+				{
+					GameEngine.print ("{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{-- REATTEMPT WITH FEWER CARDS REQUESTED --}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}");
+				}
+
+				permission = GetPermissionToRetryTradeRequest(currentTurn, trade);
+			}
 		}
-		
-		return null;
+
+
+		return permission;
 	}
 
 	private TradeOffer BuildTradeWithBank(PlayerHand cardDifferential)
@@ -327,6 +465,7 @@ public class Player
 		int[] resourceRequest = new int[5];
 		int[] resourceSurplus = new int[5];
 
+		bool needsSomeCards = false;
 		bool canTradeWithBank = false;
 		for(int i = 0; i < 5; i++)
 		{
@@ -335,6 +474,7 @@ public class Player
 			if(cards < 0)
 			{
 				resourceRequest[i] = - cards;
+				needsSomeCards = true;
 			}
 			else
 			{
@@ -347,12 +487,18 @@ public class Player
 			}
 		}
 
-		if(canTradeWithBank)
+		if(canTradeWithBank && needsSomeCards)
 		{
+			// This TradeOffer constructor is specifically for bank trades; auto-equalizes to a 1:4 ratio
 			return new TradeOffer(this, resourceSurplus, resourceRequest);
 		}
 		else
 		{
+			if(debugMessages)
+			{
+				GameEngine.print ("NOT ENOUGH RESOURCES TO TRADE WITH BANK");
+			}
+
 			return null;
 		}
 	}

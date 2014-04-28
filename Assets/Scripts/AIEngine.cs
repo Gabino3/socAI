@@ -181,7 +181,7 @@ public class AIEngine
 		//Prune unwanted objectives
 		foreach (Objective objective in objectives) {
 			objective.RecalculateForLongestRoad ();
-			if (objective.TotalCardsNeeded () <= 3 && objective.Score() > 0.02) { //TODO prune scoring
+			if (objective.TotalCardsNeeded () <= 3 && objective.Score() > 0) { //TODO prune scoring
 				prunedObjectives.Add (objective);
 			}
 		}
@@ -233,36 +233,30 @@ public class AIEngine
 
 	public static bool PerformObjective(Objective objective, Board board) {
 		Player player = objective.GetPlayer ();
-		bool fullyPerformed = true;
+		bool partiallyPerformed = false;
 
 		foreach (Edge road in objective.GetRoads ()) {
 			if (player.CanBuildRoad () && board.CanBuildRoadHere (road.visual.transform, player)) {
 				board.PlaceRoad (road.visual.transform, player);
-			}
-			else {
-				fullyPerformed = false;
+				partiallyPerformed = true;
 			}
 		}
 
 		foreach (Node settlement in objective.GetSettlements ()) {
 			if (player.CanBuildSettlement () && board.CanBuildSettlementHere (settlement.visual.transform, player, false)) {
 				board.PlaceSettlement (settlement.visual.transform, player);
-			}
-			else {
-				fullyPerformed = false;
+				partiallyPerformed = true;
 			}
 		}
 
 		foreach (Node city in objective.GetCities ()) {
 			if (player.CanBuildCity () && board.CanBuildCityHere (city.visual.transform, player)) {
 				board.PlaceCity (city.visual.transform, player);
-			}
-			else {
-				fullyPerformed = false;
+				partiallyPerformed = true;
 			}
 		}
 
-		return fullyPerformed;
+		return partiallyPerformed;
 	}
 
 	/*
@@ -374,8 +368,8 @@ public class AIEngine
 		private List<Node> settlements;
 		private List<Node> cities; //WARNING! contains settlements to be upgraded, not actual cities
 		private double score;
-		private PlayerHand cardsNeeded;
-		private PlayerHand cardDifferentialForObjective;
+		private PlayerHand cardsNeeded;						// collection of cards required for objective
+		private PlayerHand cardDifferentialForObjective;	// differential between cards needed and playerhand.  (-) if required, (+) if surplus
 		private int curLongestRoad;
 		private GameState gamestate;
 
@@ -415,6 +409,11 @@ public class AIEngine
 			this.score = score;
 			this.cardsNeeded = hand;
 			this.curLongestRoad = curLongestRoad;
+		}
+
+		public double GetObjectiveScore()
+		{
+			return score;
 		}
 
 		public void AddCity(Node city)
@@ -497,7 +496,7 @@ public class AIEngine
 				if (!gamestate.HasLongestRoad(player) && gamestate.WouldBeLongestRoad(newLongest)) {
 					score += 1; //TODO adjust this
 				} else {
-					score += 0.01; //TODO adjust this
+					score += 0.00; //TODO adjust this
 				}
 			}
 		}
@@ -524,23 +523,25 @@ public class AIEngine
 				neededCards.grain+=2;
 			}
 
-			for (int i = 0; i < 5; i++) {
-				neededCards.SetResourceQuantity(i, neededCards.GetResourceQuantity(i) - player.GetPlayerHand ().GetResourceQuantity(i));
-
-				if (neededCards.GetResourceQuantity(i) > 0) {
-					cardsNeeded.SetResourceQuantity(i, neededCards.GetResourceQuantity(i));
-				}
-			}
-
-
 			// Kevin Logic to calculate cards needed, a differential between cards-needed-to-build and current player's hand.  Negative
 			// 		values indicate a lack of cards, positive values indicate a surplus
-
+			
 			cardDifferentialForObjective = player.GetPlayerHand ().MakeHandDifferentialFromRequiredResources (neededCards.brick, 
 			                                                                                                  neededCards.ore, 
 			                                                                                                  neededCards.wood, 
 			                                                                                                  neededCards.grain, 
 			                                                                                                  neededCards.sheep);
+
+			// Sets the cardsneeded variable to included only those cards the Player does not yet have
+			for (int i = 0; i < 5; i++)
+			{
+				neededCards.SetResourceQuantity(i, neededCards.GetResourceQuantity(i) - player.GetPlayerHand ().GetResourceQuantity(i));
+
+				if (neededCards.GetResourceQuantity(i) > 0)
+				{
+					cardsNeeded.SetResourceQuantity(i, neededCards.GetResourceQuantity(i));
+				}
+			}
 		}
 
 		public double Score()

@@ -54,7 +54,7 @@ public class Board : MonoBehaviour
 	 */
 	public Board ()
 	{
-		//Shuffle (8);
+		Shuffle (8);
 
 		settlements = new Dictionary<Transform, GameObject> (54);
 		roadHitboxes = new Dictionary<Transform, GameObject> (54);
