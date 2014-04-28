@@ -305,7 +305,11 @@ public class GameEngine : MonoBehaviour
 		int sumGetResources = getResources [0] + getResources [1] + getResources [2] + getResources [3] + getResources [4];
 
 		if (sumGiveResources == 4 && sumGetResources == 1 &&
-				(giveResources [0] == 4 || giveResources [1] == 4 || giveResources [2] == 4 || giveResources [3] == 4 || giveResources [4] == 4)) {
+				((giveResources [0] == 4 && humanPlayer.GetPlayerHand().GetResourceQuantity(0) >= 4 )||
+				(giveResources [1] == 4  && humanPlayer.GetPlayerHand().GetResourceQuantity(1) >= 4 )||
+				(giveResources [2] == 4  && humanPlayer.GetPlayerHand().GetResourceQuantity(2) >= 4 )|| 
+				(giveResources [3] == 4  && humanPlayer.GetPlayerHand().GetResourceQuantity(3) >= 4 )|| 
+				(giveResources [4] == 4  && humanPlayer.GetPlayerHand().GetResourceQuantity(4) >= 4 ))) {
 			tradeManager.ExecuteTradeWithBank (offer, gamestate.GetCurrentTurnPlayer());
 		} else {
 			if( tradeManager.ExecuteTradeOfferNotification (offer) ){
