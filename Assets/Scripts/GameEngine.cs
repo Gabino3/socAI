@@ -8,6 +8,7 @@ public class GameEngine : MonoBehaviour
 	//Debug variables
 	private bool rollForAI = false;
 	private bool interactDebug = false;
+	bool debugMessages = false;
 
 	Board board;
 	GameState gamestate;
@@ -19,6 +20,7 @@ public class GameEngine : MonoBehaviour
 
 	Node lastStructurePlaced = null;
 	Edge lastRoadPlaced = null;
+	AIEngine.Objective proposedObjective = null;
 
 	GameState.State curState;
 
@@ -257,52 +259,66 @@ public class GameEngine : MonoBehaviour
 				//Trade with players
 				else if (curState == GameState.State.trade)
 				{
-					print ("~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~");
+					proposedObjective = null;
+
+					if(debugMessages)
+					{
+						print ("~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~");
+					}
+
 					//TODO
 					List<AIEngine.Objective> objectives = AIEngine.GetObjectives(currentTurnPlayer, board, gamestate);
 
 					// Trade With Other Players
 					int tradeOffersThisTurn = 0;
 					bool hasAnyOfferBeenAccepted = false;
-					print (gamestate.GetCurrentTurnPlayer() +  " ATTEMPTING TO TRADE WITH OTHER PLAYERS");
 					foreach(AIEngine.Objective objective in objectives)
 					{
-						if(objective.Score () > 0 && objective.TotalCardsNeeded() > 0 && tradeOffersThisTurn <= 3 && !hasAnyOfferBeenAccepted)
+						if(objective.Score () > 0 && objective.TotalCardsNeeded() > 0 && tradeOffersThisTurn < 3 && !hasAnyOfferBeenAccepted)
 						{
 							TradeOffer offer = currentTurnPlayer.generateAITradeRequest(gamestate.getTurnCounter(), objective);
 
 							if(null != offer)
 							{
+								if(debugMessages)
+								{
+									print ("TRADENUM: " + tradeOffersThisTurn + " | " + gamestate.GetCurrentTurnPlayer() +  "\nATTEMPTING TO TRADE WITH OTHER PLAYERS TO ACHIEVE OBJECT: " + objective.GetObjectiveScore());
+								}
+
 								tradeOffersThisTurn++;
 								hasAnyOfferBeenAccepted = tradeManager.ExecuteTradeOfferNotification(offer);
+								proposedObjective = objective;
 							}
 						}
 					}
 
 					// Trade With Bank
-					print (gamestate.GetCurrentTurnPlayer() +  " ATTEMPTING TO TRADE WITH BANK");
 					foreach(AIEngine.Objective objective in objectives)
 					{
 						if(objective.Score () > 0 && objective.TotalCardsNeeded() > 0 && !hasAnyOfferBeenAccepted)
 						{
+							if(debugMessages)
+							{
+								print (gamestate.GetCurrentTurnPlayer() +  " ATTEMPTING TO TRADE WITH BANK");
+							}
+
 							TradeOffer offer = currentTurnPlayer.generateAITradeWithBank(objective);
 							
 							if(null != offer)
 							{
 								tradeManager.ExecuteTradeWithBank(offer, gamestate.GetCurrentTurnPlayer());
 								hasAnyOfferBeenAccepted = true;
-								break;
 							}
 						}
 					}
 
-					if(!hasAnyOfferBeenAccepted)
+					if(!hasAnyOfferBeenAccepted && debugMessages)
 					{
 						print (gamestate.GetCurrentTurnPlayer() + " MADE NO TRADES THIS TURN");
 					}
 				
 					IncrementState();
-					FORCED_TIME_BETWEEN_AI_ACTIONS = 3f; //TODO Remove
+					FORCED_TIME_BETWEEN_AI_ACTIONS = 0f; //TODO Remove
 				}
 				//Building phase
 				else if (curState == GameState.State.place)
@@ -310,7 +326,7 @@ public class GameEngine : MonoBehaviour
 					FORCED_TIME_BETWEEN_AI_ACTIONS = 0f; //TODO Remove
 
 					//TODO
-					List<AIEngine.Objective> objectives = AIEngine.GetObjectives(currentTurnPlayer, board, gamestate);
+					/*List<AIEngine.Objective> objectives = AIEngine.GetObjectives(currentTurnPlayer, board, gamestate);
 					foreach (AIEngine.Objective objective in objectives) {
 						print (objective);
 					}
@@ -319,6 +335,20 @@ public class GameEngine : MonoBehaviour
 						if (objective.TotalCardsNeeded() == 0) {
 							AIEngine.PerformObjective(objective, board);
 							break;
+						}
+					}*/
+
+					//Attempt main objective that we traded for
+					if (proposedObjective != null) {
+						AIEngine.PerformObjective(proposedObjective, board);
+					}
+					//Attempt to get -any- objective to work
+					else {
+						List<AIEngine.Objective> objectives = AIEngine.GetObjectives(currentTurnPlayer, board, gamestate);
+						foreach (AIEngine.Objective objective in objectives) {
+							if (AIEngine.PerformObjective(objective, board)) {
+								break;
+							}
 						}
 					}
 

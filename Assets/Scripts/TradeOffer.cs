@@ -19,6 +19,8 @@ public class TradeOffer
 	public int getGrain;
 	public int getSheep;
 
+	bool debugMessages = false;
+
 	// Player Trade
 	public TradeOffer (Player tradeHost, int currentTurn, int[] giveResources, int[] getResources)
 	{
@@ -83,28 +85,71 @@ public class TradeOffer
 			}
 		}
 
-		while(TotalGetResources() > TotalGiveResources() / 4)
+		if(debugMessages)
 		{
-			dropGetCard();
+			GameEngine.print ("GET RESOURCES: " + TotalGetResources ());
+			GameEngine.print ("GIVE RESOURCES: " + TotalGiveResources ());
+		}
+
+		while((TotalGetResources() != TotalGiveResources() / 4))
+		{
+			if(debugMessages)
+			{
+				GameEngine.print ("TRADE RATIO: " + TotalGetResources() + ":" + TotalGiveResources());
+			}
+
+			if((TotalGetResources() > TotalGiveResources() / 4))
+			{
+				dropGetCard();
+			}
+
+			if((TotalGetResources() < TotalGiveResources() / 4))
+			{
+				dropGiveCard();
+				dropGiveCard();
+				dropGiveCard();
+				dropGiveCard();
+			}
+		}
+
+		if(debugMessages)
+		{
+			GameEngine.print ("TRADE RATIO: " + TotalGetResources() + ":" + TotalGiveResources());
 		}
 	}
 
-	private int TotalGetResources()
+	public int TotalGetResources()
 	{
 		return getBrick + getOre + getWood + getGrain + getSheep;
 	}
 
-	private int TotalGiveResources()
+	public int TotalGiveResources()
 	{
 		return giveBrick + giveOre + giveWood + giveGrain + giveSheep;
 	}
 
-	public bool isFairTrade()
+	public bool IsFairTrade()
 	{
-		PlayerHand get = convertGetResourcesToPlayerHand ();
-		PlayerHand give = convertGiveResourcesToPlayerHand ();
+		bool fairTrade = Mathf.Abs ((float)(ValueOfGetResources() - ValueOfGiveResources())) <= AIEngine.AverageValue ();
 
-		return Mathf.Abs ((float)(get.ValueOfHand () - give.ValueOfHand ())) <= AIEngine.AverageValue ();
+		if(debugMessages)
+		{
+			GameEngine.print ("GET VALUE: " + ValueOfGetResources());
+			GameEngine.print ("GIVE VALUE: " + ValueOfGiveResources());
+			GameEngine.print ("___avg val: " + AIEngine.AverageValue ());
+			GameEngine.print ("IS FAIR TRADE?: " + fairTrade);
+		}
+
+		return fairTrade;
+	}
+
+	public bool IsFairTrade(PlayerHand a, PlayerHand b)
+	{
+		PlayerHand get = a;
+		PlayerHand give = b;
+		
+		bool fairTrade = Mathf.Abs ((float)(get.ValueOfHand () - give.ValueOfHand ())) <= AIEngine.AverageValue ();
+		return fairTrade;
 	}
 
 	// Equalizes the give and take components of the trade
@@ -113,10 +158,8 @@ public class TradeOffer
 		PlayerHand get = convertGetResourcesToPlayerHand ();
 		PlayerHand give = convertGiveResourcesToPlayerHand ();
 
-		while((get.ValueOfHand() - give.ValueOfHand()) > 2 * AIEngine.AverageValue())
+		while(!IsFairTrade(get, give))
 		{
-			//GameEngine.print (get.ValueOfHand());
-			//GameEngine.print (give.ValueOfHand());
 			if(get.ValueOfHand() > give.ValueOfHand())
 			{
 				get.discard();
@@ -127,8 +170,8 @@ public class TradeOffer
 			}
 		}
 
-		int[] getArray = get.GetArrayOfPlayerHand ();
-		int[] giveArray = give.GetArrayOfPlayerHand ();
+		int[] getArray = get.ToArray ();
+		int[] giveArray = give.ToArray ();
 
 		getBrick = getArray [0];
 		getOre = getArray [1];
@@ -153,11 +196,21 @@ public class TradeOffer
 
 		if(dropGive < 10)
 		{
+			if(debugMessages)
+			{
+				GameEngine.print ("DROPPED GIVE CARD");
+			}
+
 			dropGiveCard();
 		}
 
 		if(dropGet < 5)
 		{
+			if(debugMessages)
+			{
+				GameEngine.print ("DROPPED GET CARD");
+			}
+
 			dropGetCard();
 		}
 	}
@@ -168,7 +221,7 @@ public class TradeOffer
 		
 		give.discard();
 		
-		int[] giveArray = give.GetArrayOfPlayerHand ();
+		int[] giveArray = give.ToArray ();
 		
 		giveBrick = giveArray [0];
 		giveOre = giveArray [1];
@@ -183,7 +236,7 @@ public class TradeOffer
 		
 		get.discard();
 		
-		int[] getArray = get.GetArrayOfPlayerHand ();
+		int[] getArray = get.ToArray ();
 		
 		getBrick = getArray [0];
 		getOre = getArray [1];
@@ -194,7 +247,7 @@ public class TradeOffer
 
 	public string GenerateTradeKey()
 	{
-		return giveBrick.ToString () + "_" + giveOre.ToString () + "_" + giveWood.ToString () + "_" + giveGrain.ToString () + "_" + giveSheep.ToString ();
+		return getBrick.ToString () + "_" + getOre.ToString () + "_" + getWood.ToString () + "_" + getGrain.ToString () + "_" + getSheep.ToString ();
 	}
 
 	public PlayerHand convertGiveResourcesToPlayerHand()
@@ -205,5 +258,23 @@ public class TradeOffer
 	public PlayerHand convertGetResourcesToPlayerHand()
 	{
 		return new PlayerHand (new int[5] {getBrick, getOre, getWood, getGrain, getSheep});
+	}
+
+	public double ValueOfGetResources()
+	{
+		return (getBrick * AIEngine.ValueOfBrick() +
+		        getOre * AIEngine.ValueOfOre() +
+		        getWood * AIEngine.ValueOfWood() +
+		        getGrain * AIEngine.ValueOfGrain() +
+		        getSheep * AIEngine.ValueOfSheep());
+	}
+
+	public double ValueOfGiveResources()
+	{
+		return (giveBrick * AIEngine.ValueOfBrick() +
+		        giveOre * AIEngine.ValueOfOre() +
+		        giveWood * AIEngine.ValueOfWood() +
+		        giveGrain * AIEngine.ValueOfGrain() +
+		        giveSheep * AIEngine.ValueOfSheep());
 	}
 }

@@ -14,6 +14,8 @@ public class PlayerHand
 	//int yearOfPlenty;
 	//int monopoly;
 
+	bool debugMessages = false;
+
 	public PlayerHand() : this(0)
 	{
 	}
@@ -87,15 +89,29 @@ public class PlayerHand
 
 	public bool IsViableTradeRequest(TradeOffer trade)
 	{
-		GameEngine.print (brick + " -> " + trade.giveBrick + " BRICK\n" +
-						ore + " -> " + trade.giveOre + " ORE\n" +
-						wood + " -> " + trade.giveWood + " WOOD\n" +
-						grain + " -> " + trade.giveGrain + " GRAIN\n" +
-						sheep + " -> " + trade.giveSheep + " SHEEP");
+		if(debugMessages)
+		{
+			GameEngine.print (brick + " -> " + trade.getBrick + " BRICK\n" +
+			                  ore + " -> " + trade.getOre + " ORE\n" +
+			                  wood + " -> " + trade.getWood + " WOOD\n" +
+			                  grain + " -> " + trade.getGrain + " GRAIN\n" +
+			                  sheep + " -> " + trade.getSheep + " SHEEP");
+		}
 
-		bool isViableTrade = brick >= trade.giveBrick && ore >= trade.giveOre && wood >= trade.giveWood && grain >= trade.giveGrain && sheep >= trade.giveSheep;
+		bool isViableTrade = brick >= trade.getBrick && ore >= trade.getOre && wood >= trade.getWood && grain >= trade.getGrain && sheep >= trade.getSheep;
 
-		GameEngine.print ("IS VIABLE TRADE: " + isViableTrade);
+		if(debugMessages)
+		{
+			if (!isViableTrade)
+			{
+				GameEngine.print ("IS VIABLE TRADE: " + isViableTrade);
+			}
+			else
+			{
+				GameEngine.print ("= = = = = = = IS VIABLE TRADE: " + isViableTrade + " = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = ");
+				GameEngine.print ("= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = ");
+			}
+		}
 
 		return isViableTrade; 
 	}
@@ -132,7 +148,7 @@ public class PlayerHand
 		}
 	}
 
-	public int[] GetArrayOfPlayerHand()
+	public int[] ToArray()
 	{
 		return new int[5] {brick, ore, wood, grain, sheep};
 	}
