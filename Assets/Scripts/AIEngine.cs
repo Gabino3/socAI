@@ -368,7 +368,6 @@ public class AIEngine
 		private List<Node> settlements;
 		private List<Node> cities; //WARNING! contains settlements to be upgraded, not actual cities
 		private double score;
-		private PlayerHand allCardsForObjective;			// cumulative resources needed to accomplish all partial-objectives in objective set
 		private PlayerHand cardsNeeded;						// collection of cards required for objective
 		private PlayerHand cardDifferentialForObjective;	// differential between cards needed and playerhand.  (-) if required, (+) if surplus
 		private int curLongestRoad;
@@ -382,7 +381,6 @@ public class AIEngine
 			settlements = new List<Node>();
 			cities = new List<Node>();
 			score = 0;
-			allCardsForObjective = new PlayerHand();
 			cardsNeeded = new PlayerHand();
 			curLongestRoad = Board.LongestRoadOfPlayer(player);
 		}
@@ -409,7 +407,6 @@ public class AIEngine
 			this.settlements = settlementsCopy;
 			this.cities = citiesCopy;
 			this.score = score;
-			this.allCardsForObjective = new PlayerHand();
 			this.cardsNeeded = hand;
 			this.curLongestRoad = curLongestRoad;
 		}
@@ -442,11 +439,6 @@ public class AIEngine
 		public PlayerHand GetCardDifferential()
 		{
 			return cardDifferentialForObjective;
-		}
-
-		public PlayerHand GetAllObjectiveCards()
-		{
-			return allCardsForObjective;
 		}
 
 		public PlayerHand GetCardsNeeded()
@@ -539,13 +531,6 @@ public class AIEngine
 			                                                                                                  neededCards.wood, 
 			                                                                                                  neededCards.grain, 
 			                                                                                                  neededCards.sheep);
-
-			// Sets the allCardsForObjective variable to include the cumulative number of cards to achieve all partial objectives
-			for(int i = 0; i < 5; i++)
-			{
-				int x = neededCards.GetResourceQuantity(i);
-				allCardsForObjective.SetResourceQuantity(i, x);
-			}
 
 			// Sets the cardsneeded variable to included only those cards the Player does not yet have
 			for (int i = 0; i < 5; i++)
