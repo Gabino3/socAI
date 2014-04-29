@@ -60,7 +60,7 @@ public class GameEngine : MonoBehaviour
 
 	DateTime lastAIActionTime; //used to slow down AI players
 	readonly DateTime EPOCH = new DateTime(2001, 1, 1);
-	private float FORCED_TIME_BETWEEN_AI_ACTIONS = 0.1f;
+	private float FORCED_TIME_BETWEEN_AI_ACTIONS = 0.0f;
 
 	void Start () {
 		board = new Board (); // instantiates and draws
@@ -560,7 +560,7 @@ public class GameEngine : MonoBehaviour
 					FORCED_TIME_BETWEEN_AI_ACTIONS = 0f; //TODO Remove
 
 					//TODO
-					/*List<AIEngine.Objective> objectives = AIEngine.GetObjectives(currentTurnPlayer, board, gamestate);
+					List<AIEngine.Objective> objectives = AIEngine.GetObjectives(currentTurnPlayer, board, gamestate);
 					foreach (AIEngine.Objective objective in objectives) {
 						print (objective);
 					}
@@ -570,9 +570,9 @@ public class GameEngine : MonoBehaviour
 							AIEngine.PerformObjective(objective, board);
 							break;
 						}
-					}*/
+					}
 
-					//Attempt main objective that we traded for
+					/*//Attempt main objective that we traded for
 					if (proposedObjective != null) {
 						AIEngine.PerformObjective(proposedObjective, board);
 					}
@@ -584,7 +584,7 @@ public class GameEngine : MonoBehaviour
 								break;
 							}
 						}
-					}
+					}*/
 
 					IncrementState();
 				}
