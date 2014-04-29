@@ -128,6 +128,13 @@ public class TradeOffer
 		return giveBrick + giveOre + giveWood + giveGrain + giveSheep;
 	}
 
+	public bool isGoodTradeForSeller()
+	{
+		bool goodTrade = ValueOfGetResources() > ValueOfGiveResources();
+
+		return goodTrade;
+	}
+
 	public bool IsFairTrade()
 	{
 		bool fairTrade = Mathf.Abs ((float)(ValueOfGetResources() - ValueOfGiveResources())) <= AIEngine.AverageValue ();

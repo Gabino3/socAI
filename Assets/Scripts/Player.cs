@@ -321,7 +321,7 @@ public class Player
 						GameEngine.print ("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ GET NEEDED RESOURCES & ONLY TRADE SURPLUS RESOURCES @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
 					}
 
-					if(trade.IsFairTrade())
+					if(trade.IsFairTrade() || trade.isGoodTradeForSeller())
 					{
 						acceptTradeRequest = true;
 					}
