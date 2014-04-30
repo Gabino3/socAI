@@ -84,7 +84,7 @@ public class TradeManager
 
 	private bool proposeTradeToPlayer(TradeOffer offer, Player tradeWithPlayer)
 	{
-		return tradeWithPlayer.processTradeRequest(gamestate, offer);
+		return tradeWithPlayer.processTradeRequest(gamestate, offer, gameengine);
 	}
 
 	private void ExecuteTradeOffer(TradeOffer offer, Player tradeHost, Player tradeWith)

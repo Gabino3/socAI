@@ -225,7 +225,7 @@ public class Player
 		return (1 * NumSettlements()) + (2 * NumCities()) + hand.victoryPoints + largestArmyPoints + longestRoadPoints;
 	}
 
-	public bool processTradeRequest(GameState gamestate, TradeOffer trade)
+	public bool processTradeRequest(GameState gamestate, TradeOffer trade, GameEngine gameengine)
 	{
 		if(debugMessages)
 		{
@@ -234,11 +234,35 @@ public class Player
 
 		bool doesAcceptTrade = false;
 
-		// Verify that trade is permissible based on player hand
-		if(hand.IsViableTradeRequest(trade))
+		if(isAI)
 		{
-			// if player trade evaluation returns true, accept trade request
-			doesAcceptTrade = evaluateTradeRequest(gamestate, trade);
+			// Verify that trade is permissible based on player hand
+			if(hand.IsViableTradeRequest(trade))
+			{
+				// if player trade evaluation returns true, accept trade request
+				doesAcceptTrade = evaluateTradeRequest(gamestate, trade);
+			}
+		}
+		else
+		{
+			if (Input.GetMouseButtonDown (0))
+			{
+				Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+				RaycastHit hit;
+				if (Physics.Raycast(ray, out hit)) {
+
+					if(hit.transform == gameengine.acceptTradeButton){
+						return true;
+					}
+					if(hit.transform == gameengine.declineTradeButton){
+						return false;
+					}
+
+				}
+			}
+
+
+
 		}
 
 		return doesAcceptTrade;

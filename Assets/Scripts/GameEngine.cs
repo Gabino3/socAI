@@ -5,6 +5,8 @@ using System.Collections.Generic;
 
 public class GameEngine : MonoBehaviour
 {
+	private static bool firstPlayerAI = false;
+
 	//Debug variables
 	private bool rollForAI = false;
 	private bool interactDebug = false;
@@ -41,9 +43,9 @@ public class GameEngine : MonoBehaviour
 
 	GameObject offerTradeButton;
 	GameObject offerTradeButtonText;
-	GameObject acceptTradeButton;
+	public GameObject acceptTradeButton;
 	GameObject acceptTradeButtonText;
-	GameObject declineTradeButton;
+	public GameObject declineTradeButton;
 	GameObject declineTradeButtonText;
 	GameObject endTradeButton;
 	GameObject endTradeButtonText;
@@ -60,11 +62,11 @@ public class GameEngine : MonoBehaviour
 
 	DateTime lastAIActionTime; //used to slow down AI players
 	readonly DateTime EPOCH = new DateTime(2001, 1, 1);
-	private float FORCED_TIME_BETWEEN_AI_ACTIONS = 0.0f;
+	private float FORCED_TIME_BETWEEN_AI_ACTIONS = (firstPlayerAI) ? 0.0f : 0.2f;
 
 	void Start () {
 		board = new Board (); // instantiates and draws
-		gamestate = new GameState (4, board);
+		gamestate = new GameState (4, board, firstPlayerAI);
 		tradeManager = new TradeManager (gamestate, this);
 		humanCardCounts = new GameObject[5];
 		tradeThisText = new GameObject[5];

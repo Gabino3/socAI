@@ -28,7 +28,7 @@ public class GameState
 	private Player largestArmyPlayer;
 	private Player longestRoadPlayer;
 
-	public GameState(int numPlayers, Board board)
+	public GameState(int numPlayers, Board board, bool firstPlayerAI)
 	{
 		this.numPlayers = numPlayers;
 		this.board = board;
@@ -37,7 +37,7 @@ public class GameState
 		playersArray = new Player[numPlayers];
 		for (int i = 0; i < numPlayers; i++)
 		{
-			playersArray[i] = new Player(i, i!=0);
+			playersArray[i] = new Player(i, (firstPlayerAI || i!=0));
 		}
 
 		roll = 0;
